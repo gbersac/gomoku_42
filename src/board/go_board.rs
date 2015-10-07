@@ -1,27 +1,23 @@
 use std::fmt::{Formatter, Display, Error};
 use board::Tile;
 
-static GO_WIDTH : usize = 19;
+const GO_WIDTH: usize = 19;
 
 #[derive(Debug)]
-pub struct GoBoard{
-	tiles:		Vec<Tile>,
+pub struct GoBoard {
+	tiles: [[Tile; GO_WIDTH]; GO_WIDTH],
 }
 
 impl GoBoard {
 	pub fn new() -> GoBoard {
-		let mut to_return = GoBoard{
-			tiles:	Vec::with_capacity(GO_WIDTH * GO_WIDTH),
-		};
-		for _ in 0..(GO_WIDTH * GO_WIDTH) {
-			to_return.tiles.push(Tile::FREE);
+		GoBoard {
+			tiles: [[Tile::FREE; GO_WIDTH]; GO_WIDTH],
 		}
-		to_return
 	}
 
 	/// Get the tiles which coordinates are [x, y]
 	pub fn get(&self, x: usize, y: usize) -> Tile {
-		self.tiles[(y * GO_WIDTH + x)].clone()
+		self.tiles[x][y].clone()
 	}
 
 	pub fn get_size(&self) -> usize {
