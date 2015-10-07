@@ -4,6 +4,8 @@ mod go_board;
 mod parse;
 #[cfg(test)]
 mod fn_str;
+#[cfg(test)]
+mod test_win;
 
 pub use self::go_board::{GoBoard};
 pub use self::tile::{Tile};
