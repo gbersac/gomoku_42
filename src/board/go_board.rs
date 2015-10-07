@@ -5,13 +5,15 @@ static GO_WIDTH : usize = 19;
 
 #[derive(Debug)]
 pub struct GoBoard{
-	tiles:		Vec<Tile>,
+	tiles:	Vec<Tile>,
+	size:	usize,
 }
 
 impl GoBoard {
 	pub fn new() -> GoBoard {
 		let mut to_return = GoBoard{
 			tiles:	Vec::with_capacity(GO_WIDTH * GO_WIDTH),
+			size:	GO_WIDTH,
 		};
 		for _ in 0..(GO_WIDTH * GO_WIDTH) {
 			to_return.tiles.push(Tile::FREE);
@@ -19,13 +21,21 @@ impl GoBoard {
 		to_return
 	}
 
+	pub fn new_with_prop(size: usize, tiles: Vec<Tile>) -> GoBoard {
+		GoBoard{
+			tiles:	tiles,
+			size:	size
+		}
+	}
+
+
 	/// Get the tiles which coordinates are [x, y]
 	pub fn get(&self, x: usize, y: usize) -> Tile {
-		self.tiles[(y * GO_WIDTH + x)].clone()
+		self.tiles[(y * self.size + x)].clone()
 	}
 
 	pub fn get_size(&self) -> usize {
-		GO_WIDTH
+		self.size
 	}
 }
 

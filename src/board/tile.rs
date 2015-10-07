@@ -8,6 +8,14 @@ pub enum Tile{
 }
 
 impl Tile {
+	pub fn from_str(s: &str) -> Tile {
+		match s {
+			"B" | "b"	=> Tile::BLACK,
+			"W" | "w"	=> Tile::WHITE,
+			_			=> Tile::FREE,
+		}
+	}
+
 	pub fn is_free(&self) -> bool {
 		*self == Tile::FREE
 	}
