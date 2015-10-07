@@ -33,3 +33,6 @@ impl Display for Tile
 		Ok(())
 	}
 }
+
+impl Copy for Tile {
+}
