@@ -1,3 +1,10 @@
+mod board;
+mod display;
+mod ia;
+
+use board::{GoBoard};
+
 fn main() {
-    println!("Hello, world!");
+	let board = GoBoard::new();
+	println!("{}", board);
 }
