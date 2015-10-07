@@ -32,7 +32,14 @@ impl GoBoard {
 		}
 
 		//create board, no check
-		GoBoard::new_with_prop(size, tiles)
+        let mut board = GoBoard::new();
+		let size = board.get_size();
+        for x in 0..size {
+			for y in 0..size {
+				board.set(x, y, tiles[y * size + x].clone());
+			}
+		}
+		board
 	}
 
 	/// This function also parse the size of the Board.
@@ -53,14 +60,27 @@ mod test {
 	#[test]
 	fn test_parse() {
 		let mut str1 = r#"5
-. . . . .
-. . . . .
-W . . . .
-. . . . .
-. . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+W . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . W . . . . . . . . . . . . . . .
+. . . . W . . . . . . . . . . . . . .
+. . . . . W . . . . . . . . . . . . .
+. . . . . . W . . . . . . . . . . . .
+. . . . . . . W . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
 		"#;
 		let board = GoBoard::parse_with_size(&str1.to_string());
-		println!("{}", board);
 		assert!(board.get(0, 2) == Tile::WHITE);
 	}
 }

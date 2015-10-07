@@ -18,16 +18,14 @@ impl GoBoard {
 		}
 	}
 
-	pub fn new_with_prop(size: usize, tiles: Vec<Tile>) -> GoBoard {
-		GoBoard{
-			tiles:	tiles,
-			size:	size
-		}
-	}
-
 	/// Get the tiles which coordinates are [x, y]
 	pub fn get(&self, x: usize, y: usize) -> Tile {
 		self.tiles[x][y].clone()
+	}
+
+	/// Get the tiles which coordinates are [x, y]
+	pub fn set(&mut self, x: usize, y: usize, val: Tile) {
+		self.tiles[x][y] = val;
 	}
 
 	pub fn get_size(&self) -> usize {
