@@ -1,7 +1,7 @@
 use std::fmt::{Formatter, Display, Error};
 use board::Tile;
 
-const GO_WIDTH : usize = 19;
+pub const GO_WIDTH : usize = 19;
 const TILES_TO_WIN : usize = 5;
 
 #[derive(Debug)]
