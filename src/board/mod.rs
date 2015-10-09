@@ -1,4 +1,4 @@
-mod tile;
+pub mod tile;
 mod go_board;
 #[cfg(test)]
 mod parse;
