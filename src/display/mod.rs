@@ -1,15 +1,26 @@
+mod go_event;
+
+pub use self::go_event::{GoEvent};
+
 extern crate piston_window;
 
 use self::piston_window::*;
+use board::GoBoard;
 
-pub fn main() {
-    let window: PistonWindow = WindowSettings::new("Hello Piston!", [640, 480]).exit_on_esc(true).build().unwrap();
-    for e in window {
-        e.draw_2d(|c, g| {
-            clear([1.0; 4], g);
-            rectangle([1.0, 0.0, 0.0, 1.0], // red
-                      [0.0, 0.0, 100.0, 100.0],
-                      c.transform, g);
-        });
-    }
+
+pub fn main(board: GoBoard) {
+  let plaid:u32 = 30;
+  let limit:u32 = board.get_size() as u32;
+  let size = plaid * limit;
+  let mut GoEvent = GoEvent::new(board, size);
+  let mut window: PistonWindow = WindowSettings::new("Gomoku", [
+    size,
+    size
+  ]).exit_on_esc(true).build().unwrap_or_else(|e| {
+    panic!("Failed to build PistonWindow: {}", e)
+  });
+
+  for e in window {
+    GoEvent.listen(&e);
+  }
 }

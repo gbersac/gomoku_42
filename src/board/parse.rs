@@ -36,7 +36,7 @@ impl GoBoard {
 		let size = board.get_size();
         for x in 0..size {
 			for y in 0..size {
-				board.set(x, y, tiles[y * size + x].clone());
+				board.set((x, y), tiles[y * size + x].clone());
 			}
 		}
 		board
@@ -81,6 +81,6 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 		"#;
 		let board = GoBoard::parse_with_size(&str1.to_string());
-		assert!(board.get(0, 2) == Tile::WHITE);
+		assert!(board.get((0, 2)) == Tile::WHITE);
 	}
 }

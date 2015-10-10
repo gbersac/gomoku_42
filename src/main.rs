@@ -8,5 +8,5 @@ fn main() {
 	let board = GoBoard::new();
 	println!("{}", board);
 
-	display::main();
+	display::main(board);
 }
