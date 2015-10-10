@@ -200,11 +200,11 @@ impl GoBoard {
 	) -> bool {
 		let x = coords.0 as i32 - coords.2 * gap;
 		let y = coords.1 as i32 - coords.3 * gap;
-		if x < 0 || y < 0 || !self.index_is_correct(x as usize, y as usize) {
+		if x < 0 || y < 0 || !self.check_index((x as usize, y as usize)) {
 			return false;
 		}
-		println!("x {:?} y {:?} type {:?}", x, y, self.get(x as usize, y as usize));
-		self.get(x as usize, y as usize) == expected
+		// println!("x {:?} y {:?} type {:?}", x, y, self.get((x as usize, y as usize)));
+		self.get((x as usize, y as usize)) == expected
 	}
 
 	/// Return the number of free threes in this direction.
@@ -264,7 +264,7 @@ impl GoBoard {
 
 	/// Return true if it is allowed to add a tile on the position [x, y].
 	pub fn is_allow(&self, x: usize, y: usize, tile: Tile) -> bool {
-		self.get(x, y) == Tile::FREE && self.free_threes(x, y, tile)
+		self.get((x, y)) == Tile::FREE && self.free_threes(x, y, tile)
 	}
 }
 
