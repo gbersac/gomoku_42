@@ -10,3 +10,6 @@ repository = "https://github.com/gbersac/gomoku_42.git"
 
 [dependencies]
 piston_window = "0.15.0"
+
+[dependencies.clap]
+features = ["yaml"]
