@@ -22,4 +22,16 @@ impl Team {
     pub fn get_tile(&self) -> Tile {
     	self.color
     }
+
+    pub fn get_ennemy_tile(&self) -> Tile {
+    	self.color.ennemy()
+    }
+
+    pub fn captured(&self) -> u32 {
+        self.captured
+    }
+
+    pub fn add_captured(&mut self, nb_captured: u32) {
+        self.captured += 2;
+    }
 }

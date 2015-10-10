@@ -9,6 +9,8 @@ mod fn_str;
 mod test_win;
 #[cfg(test)]
 mod test_free_threes;
+#[cfg(test)]
+mod test_capture;
 
 pub use self::go_board::{GoBoard};
 pub use self::tile::{Tile};

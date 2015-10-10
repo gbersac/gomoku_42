@@ -4,23 +4,25 @@ use board::{Tile, Team};
 pub const GO_WIDTH : usize = 19;
 const TILES_TO_WIN : usize = 5;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct GoBoard {
 	tiles: [[Tile; GO_WIDTH]; GO_WIDTH], // The grid
 	size:	usize, // Side
 }
 
 // test for one free threes pattern match
-macro_rules! test_free_threes_pattern {
+macro_rules! test_goban_pattern {
 	($board:ident, $team:ident, $coords:ident, $($ty:expr => $gap:expr),*) => {{
 		let mut result = true;
 		$(
 			let expected = match $ty {
 				"o" => $team.get_tile(),
+				"e" => $team.get_ennemy_tile(),
 				"x" => Tile::FREE,
-				_	=> panic!("GoBoard::test_free_threes_pattern synthax error")
+				_	=> panic!("GoBoard::test_goban_pattern synthax error")
 			};
-			// println!("{:?}", $board.get($coords.0, $coords.1));
+			// println!("[{}, {}]{:?} exp {:?}", $coords.0, $coords.1,
+					// $board.get(($coords.0, $coords.1)), expected);
 			result = $board.is_exp($coords, $gap, expected) && result;
 		)*
 		result as u32
@@ -31,6 +33,7 @@ macro_rules! test_free_threes_pattern {
 impl GoBoard {
 
 	/// The `new` constructor function returns the empty board.
+
 	pub fn new() -> GoBoard {
 		GoBoard {
 			tiles: [[Tile::FREE; GO_WIDTH]; GO_WIDTH],
@@ -39,23 +42,58 @@ impl GoBoard {
 	}
 
 	/// The `get` function returns the tiles coordinates [x; y].
+
     pub fn get(&self, (x, y): (usize, usize)) -> Tile {
 		self.tiles[x][y].clone()
 	}
 
-	/// Test if the
-	fn capture(&mut self, x: usize, y: usize, team: &mut Team) -> bool {
-	    // add code here
-	    unimplemented!();
+	fn capture_dir(&mut self,
+		x: usize,
+		y: usize,
+		rightdir: i32,
+		downdir: i32,
+		team: &mut Team,
+	) {
+		println!("\nNewdir");
+		let coords = (x, y, downdir, rightdir);
+		println!("left");
+		let left = test_goban_pattern!(self, team, coords,
+				"o" => 3, "e" => 2, "e" => 1) > 0;
+		println!("right");
+		let right = test_goban_pattern!(self, team, coords,
+				"o" => -3, "e" => -2, "e" => -1) > 0;
+		if  left {
+			self.unset_gap(coords, 1);
+			self.unset_gap(coords, 2);
+			team.add_captured(2);
+		}
+		if  right {
+			self.unset_gap(coords, -1);
+			self.unset_gap(coords, -2);
+			team.add_captured(2);
+		}
+	}
+
+	/// Test if playing this tile capture ennemy tiles and remove ennemy tiles
+	/// and update number of captured tiles in the team if needed.
+
+	fn capture(&mut self, x: usize, y: usize, team: &mut Team) {
+		println!("capture");
+		self.capture_dir(x, y, 1, 0, team);
+		self.capture_dir(x, y, 0, 1, team);
+		self.capture_dir(x, y, 1, 1, team);
+		self.capture_dir(x, y, 1, -1, team);
 	}
 
 	/// Assigns the value to tiles coordinates [x; y] without any check.
+
 	pub fn set_raw(&mut self, (x, y): (usize, usize), tile: Tile) {
 		self.tiles[x][y] = tile;
 	}
 
 	/// The `set` function assigns the value to tiles coordinates [x; y]
 	/// if possible. Return false otherwise.
+
     pub fn set(&mut self, (x, y): (usize, usize), team: &mut Team) -> bool {
     	if !self.is_allow(x, y, team) {
     		return false;
@@ -70,6 +108,19 @@ impl GoBoard {
 
     pub fn unset(&mut self, cell: (usize, usize)) {
 		self.set_raw(cell, Tile::FREE);
+	}
+
+    pub fn unset_gap(&mut self,
+		coords: (usize, usize, i32, i32),
+		gap: i32,
+	) {
+		let x = coords.0 as i32 - coords.2 * gap;
+		let y = coords.1 as i32 - coords.3 * gap;
+		if x < 0 || y < 0 || !self.check_index((x as usize, y as usize)) {
+			return ;
+		}
+		// println!("x {:?} y {:?} type {:?}", x, y, self.get((x as usize, y as usize)));
+		self.unset((x as usize, y as usize));
 	}
 
     /// The `set_over` function overs the FREE cell and
@@ -203,6 +254,7 @@ impl GoBoard {
 
 	/// Return true if the tile which is positionned at gap tiles from the
 	/// tested tile on the direction defined by coords is of the expected type.
+
 	fn is_exp(&self,
 		coords: (usize, usize, i32, i32),
 		gap: i32,
@@ -213,7 +265,8 @@ impl GoBoard {
 		if x < 0 || y < 0 || !self.check_index((x as usize, y as usize)) {
 			return false;
 		}
-		// println!("x {:?} y {:?} type {:?}", x, y, self.get((x as usize, y as usize)));
+		// println!("x {:?} y {:?} type {:?} expected {:?}",
+		// 		x, y, self.get((x as usize, y as usize)), expected);
 		self.get((x as usize, y as usize)) == expected
 	}
 
@@ -226,30 +279,29 @@ impl GoBoard {
 		rightdir: i32,
 		team: &Team,
 	) -> u32 {
-		println!("\nnew direction x{} y{}", rightdir, downdir);
 		let mut nb_free_three = 0;
 		let coords = (x, y, downdir, rightdir);
 
-		// x = Tile::FREE, o = Tile::Team, c = current postion (free)
+		// x = Tile::FREE, o = Tile::Team, c = current postion (Tile::FREE)
 		//rule 1
 		// for xocox
-		nb_free_three += test_free_threes_pattern!(self, team, coords,
+		nb_free_three += test_goban_pattern!(self, team, coords,
 				"x" => -2, "o" => -1, "o" => 1, "x" => 2);
 
 		//rule 2
 		// for xoocx
-		nb_free_three += test_free_threes_pattern!(self, team, coords,
+		nb_free_three += test_goban_pattern!(self, team, coords,
 				"x" => -3, "o" => -2, "o" => -1, "x" => 1);
 		// for xoocx (opposite)
-		nb_free_three += test_free_threes_pattern!(self, team, coords,
+		nb_free_three += test_goban_pattern!(self, team, coords,
 				"x" => 3, "o" => 2, "o" => 1, "x" => -1);
 
 		//rule 3
 		// for xooxcx
-		nb_free_three += test_free_threes_pattern!(self, team, coords,
+		nb_free_three += test_goban_pattern!(self, team, coords,
 				"x" => -4, "o" => -3, "o" => -2, "x" => -1, "x" => 1);
 		// for xooxcx (opposite)
-		nb_free_three += test_free_threes_pattern!(self, team, coords,
+		nb_free_three += test_goban_pattern!(self, team, coords,
 				"x" => 4, "o" => 3, "o" => 2, "x" => 1, "x" => -1);
 
 		//return
@@ -263,12 +315,10 @@ impl GoBoard {
 	/// (that’s to say an alignment of four stones with two unobstructed
 	/// extremities).
 	fn free_threes(&self, x: usize, y: usize, team: &Team) -> bool {
-		println!("\nfree_three");
 		let nb_free_three = self.free_threes_dir(x, y, 1, 0, team) +
 				self.free_threes_dir(x, y, 0, 1, team) +
 				self.free_threes_dir(x, y, 1, 1, team) +
 				self.free_threes_dir(x, y, 1, -1, team);
-		println!("nb_free_three {:?}", nb_free_three);
 		nb_free_three < 2
 	}
 

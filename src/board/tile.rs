@@ -28,6 +28,17 @@ impl Tile {
 	pub fn is_pawn(&self) -> bool {
 		*self == Tile::BLACK || *self == Tile::WHITE
 	}
+
+	/// Return the tile of the ennemy if there is one, return the tile itself
+	/// otherwise.
+
+	pub fn ennemy(&self) -> Tile {
+		match *self {
+		    Tile::BLACK => Tile::WHITE,
+		    Tile::WHITE => Tile::BLACK,
+		    _			=> self.clone()
+		}
+	}
 }
 
 impl Display for Tile {
