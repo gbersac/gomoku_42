@@ -2,11 +2,11 @@ mod board;
 mod display;
 mod ia;
 
-use board::{GoBoard};
+use board::{GoBoard, Team};
 
 fn main() {
 	let board = GoBoard::new();
 	println!("{}", board);
-
-	display::main(board);
+	let mut teams = Team::new_teams();
+	display::main(board, &mut teams);
 }

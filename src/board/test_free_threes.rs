@@ -1,9 +1,10 @@
-use board::{GoBoard, Tile};
+use board::{GoBoard, Tile, Team};
 
 fn test_one(s: &str, x: usize, y: usize, is_playable: bool) {
 	let board = GoBoard::parse_with_size(&s.to_string());
+	let (team_b, team_w) = Team::new_teams();
 	println!("Test\n{}", board);
-	assert!(board.is_allow(x, y, Tile::WHITE) == is_playable);
+	assert!(board.is_allow(x, y, &team_w) == is_playable);
 }
 
 #[test]

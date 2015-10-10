@@ -1,5 +1,5 @@
 use std::fmt::{Formatter, Display, Error};
-use board::Tile;
+use board::{Tile, Team};
 
 pub const GO_WIDTH : usize = 19;
 const TILES_TO_WIN : usize = 5;
@@ -16,7 +16,7 @@ macro_rules! test_free_threes_pattern {
 		let mut result = true;
 		$(
 			let expected = match $ty {
-				"o" => $team,
+				"o" => $team.get_tile(),
 				"x" => Tile::FREE,
 				_	=> panic!("GoBoard::test_free_threes_pattern synthax error")
 			};
@@ -31,7 +31,6 @@ macro_rules! test_free_threes_pattern {
 impl GoBoard {
 
 	/// The `new` constructor function returns the empty board.
-
 	pub fn new() -> GoBoard {
 		GoBoard {
 			tiles: [[Tile::FREE; GO_WIDTH]; GO_WIDTH],
@@ -40,23 +39,37 @@ impl GoBoard {
 	}
 
 	/// The `get` function returns the tiles coordinates [x; y].
-
     pub fn get(&self, (x, y): (usize, usize)) -> Tile {
 		self.tiles[x][y].clone()
 	}
 
-	/// The `set` function assigns the value
-	/// to tiles coordinates [x; y].
+	/// Test if the
+	fn capture(&mut self, x: usize, y: usize, team: &mut Team) -> bool {
+	    // add code here
+	    unimplemented!();
+	}
 
-    pub fn set(&mut self, (x, y): (usize, usize), val: Tile) {
-		self.tiles[x][y] = val;
+	/// Assigns the value to tiles coordinates [x; y] without any check.
+	pub fn set_raw(&mut self, (x, y): (usize, usize), tile: Tile) {
+		self.tiles[x][y] = tile;
+	}
+
+	/// The `set` function assigns the value to tiles coordinates [x; y]
+	/// if possible. Return false otherwise.
+    pub fn set(&mut self, (x, y): (usize, usize), team: &mut Team) -> bool {
+    	if !self.is_allow(x, y, team) {
+    		return false;
+    	}
+    	self.capture(x, y, team);
+    	self.set_raw((x, y), team.get_tile());
+		true
 	}
 
 	/// The `unset` function assigns the FREE
 	/// to tiles coordinates [x; y].
 
     pub fn unset(&mut self, cell: (usize, usize)) {
-		self.set(cell, Tile::FREE);
+		self.set_raw(cell, Tile::FREE);
 	}
 
     /// The `set_over` function overs the FREE cell and
@@ -67,17 +80,14 @@ impl GoBoard {
         cell_new: (usize, usize),
         cell_old: (usize, usize),
     ) -> bool {
-		match (
-			self.get(cell_old),
-			self.get(cell_new)
-		) {
+		match (self.get(cell_old), self.get(cell_new)) {
 			(tile, Tile::FREE) if tile.is_empty() => {
-				self.set(cell_new, Tile::OVER);
+				self.set_raw(cell_new, Tile::OVER);
 				self.unset(cell_old);
 				true
 			},
-				(tile, Tile::FREE) if tile.is_pawn() => {
-				self.set(cell_new, Tile::OVER);
+			(tile, Tile::FREE) if tile.is_pawn() => {
+				self.set_raw(cell_new, Tile::OVER);
 				true
 			},
 			_ => false,
@@ -92,7 +102,7 @@ impl GoBoard {
       cell: (usize, usize),
 	) {
 		if self.get(cell).is_empty() {
-		 	self.set(cell, Tile::WHITE);
+		 	self.set_raw(cell, Tile::WHITE);
 		}
 	}
 
@@ -103,7 +113,7 @@ impl GoBoard {
 	  &mut self,
 	  cell: (usize, usize),
 	) {
-		self.set(cell, Tile::BLACK);
+		self.set_raw(cell, Tile::BLACK);
 	}
 
     /// The `get_size` function returns the size of
@@ -214,7 +224,7 @@ impl GoBoard {
 		y: usize,
 		downdir: i32,
 		rightdir: i32,
-		team: Tile,
+		team: &Team,
 	) -> u32 {
 		println!("\nnew direction x{} y{}", rightdir, downdir);
 		let mut nb_free_three = 0;
@@ -252,7 +262,7 @@ impl GoBoard {
 	/// blocked, allows for an indefendable alignment of four stones
 	/// (that’s to say an alignment of four stones with two unobstructed
 	/// extremities).
-	fn free_threes(&self, x: usize, y: usize, team: Tile) -> bool {
+	fn free_threes(&self, x: usize, y: usize, team: &Team) -> bool {
 		println!("\nfree_three");
 		let nb_free_three = self.free_threes_dir(x, y, 1, 0, team) +
 				self.free_threes_dir(x, y, 0, 1, team) +
@@ -263,8 +273,8 @@ impl GoBoard {
 	}
 
 	/// Return true if it is allowed to add a tile on the position [x, y].
-	pub fn is_allow(&self, x: usize, y: usize, tile: Tile) -> bool {
-		self.get((x, y)) == Tile::FREE && self.free_threes(x, y, tile)
+	pub fn is_allow(&self, x: usize, y: usize, team: &Team) -> bool {
+		self.get((x, y)) == Tile::FREE && self.free_threes(x, y, team)
 	}
 }
 

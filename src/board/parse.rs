@@ -24,7 +24,7 @@ impl GoBoard {
 	fn execute_parse(size: usize, lines: &Vec<&str>)
 			-> GoBoard {
 
-		// split lines into integer
+		// get all the tiles from the lines
 		let mut tiles = Vec::with_capacity(size * size);
 		for line in lines {
 			let mut ntiles : Vec<Tile> = GoBoard::split_one_line(line);
@@ -36,7 +36,7 @@ impl GoBoard {
 		let size = board.get_size();
         for x in 0..size {
 			for y in 0..size {
-				board.set((x, y), tiles[y * size + x].clone());
+				board.set_raw((x, y), tiles[y * size + x].clone());
 			}
 		}
 		board

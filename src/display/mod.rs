@@ -5,10 +5,10 @@ pub use self::go_event::{GoEvent};
 extern crate piston_window;
 
 use self::piston_window::*;
-use board::GoBoard;
+use board::{GoBoard, Team};
 
 
-pub fn main(board: GoBoard) {
+pub fn main(board: GoBoard, teams: &mut (Team, Team)) {
   let plaid:u32 = 30;
   let limit:u32 = board.get_size() as u32;
   let size = plaid * limit;
