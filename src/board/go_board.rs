@@ -10,6 +10,24 @@ pub struct GoBoard {
 	size:	usize,
 }
 
+// test for one free threes pattern match
+macro_rules! test_free_threes_pattern {
+	($board:ident, $team:ident, $coords:ident, $($ty:expr => $gap:expr),*) => {{
+		let mut result = true;
+		$(
+			let expected = match $ty {
+				"o" => $team,
+				"x" => Tile::FREE,
+				_	=> panic!("GoBoard::test_free_threes_pattern synthax error")
+			};
+			// println!("{:?}", $board.get($coords.0, $coords.1));
+			result = $board.is_exp($coords, $gap, expected) && result;
+		)*
+		result as u32
+	}}
+}
+
+
 impl GoBoard {
 	pub fn new() -> GoBoard {
 		GoBoard {
@@ -88,6 +106,82 @@ impl GoBoard {
 			return Some(self.get(x, y))
 		}
 		None
+	}
+
+	/// Return true if the tile which is positionned at gap tiles from the
+	/// tested tile on the direction defined by coords is of the expected type.
+	fn is_exp(&self,
+		coords: (usize, usize, i32, i32),
+		gap: i32,
+		expected: Tile,
+	) -> bool {
+		let x = coords.0 as i32 - coords.2 * gap;
+		let y = coords.1 as i32 - coords.3 * gap;
+		if x < 0 || y < 0 || !self.index_is_correct(x as usize, y as usize) {
+			return false;
+		}
+		println!("x {:?} y {:?} type {:?}", x, y, self.get(x as usize, y as usize));
+		self.get(x as usize, y as usize) == expected
+	}
+
+	/// Return the number of free threes in this direction.
+	/// Assume that tile[x, y] is free.
+	fn free_threes_dir(&self,
+		x: usize,
+		y: usize,
+		downdir: i32,
+		rightdir: i32,
+		team: Tile,
+	) -> u32 {
+		println!("\nnew direction x{} y{}", rightdir, downdir);
+		let mut nb_free_three = 0;
+		let coords = (x, y, downdir, rightdir);
+
+		// x = Tile::FREE, o = Tile::Team, c = current postion (free)
+		//rule 1
+		// for xocox
+		nb_free_three += test_free_threes_pattern!(self, team, coords,
+				"x" => -2, "o" => -1, "o" => 1, "x" => 2);
+
+		//rule 2
+		// for xoocx
+		nb_free_three += test_free_threes_pattern!(self, team, coords,
+				"x" => -3, "o" => -2, "o" => -1, "x" => 1);
+		// for xoocx (opposite)
+		nb_free_three += test_free_threes_pattern!(self, team, coords,
+				"x" => 3, "o" => 2, "o" => 1, "x" => -1);
+
+		//rule 3
+		// for xooxcx
+		nb_free_three += test_free_threes_pattern!(self, team, coords,
+				"x" => -4, "o" => -3, "o" => -2, "x" => -1, "x" => 1);
+		// for xooxcx (opposite)
+		nb_free_three += test_free_threes_pattern!(self, team, coords,
+				"x" => 4, "o" => 3, "o" => 2, "x" => 1, "x" => -1);
+
+		//return
+		nb_free_three
+	}
+
+	/// Return true if the free threes rule allow this move.
+	///
+	/// A free-three is an alignement of three stones that, if not immediately
+	/// blocked, allows for an indefendable alignment of four stones
+	/// (that’s to say an alignment of four stones with two unobstructed
+	/// extremities).
+	fn free_threes(&self, x: usize, y: usize, team: Tile) -> bool {
+		println!("\nfree_three");
+		let nb_free_three = self.free_threes_dir(x, y, 1, 0, team) +
+				self.free_threes_dir(x, y, 0, 1, team) +
+				self.free_threes_dir(x, y, 1, 1, team) +
+				self.free_threes_dir(x, y, 1, -1, team);
+		println!("nb_free_three {:?}", nb_free_three);
+		nb_free_three < 2
+	}
+
+	/// Return true if it is allowed to add a tile on the position [x, y].
+	pub fn is_allow(&self, x: usize, y: usize, tile: Tile) -> bool {
+		self.get(x, y) == Tile::FREE && self.free_threes(x, y, tile)
 	}
 }
 

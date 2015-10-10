@@ -6,6 +6,8 @@ mod parse;
 mod fn_str;
 #[cfg(test)]
 mod test_win;
+#[cfg(test)]
+mod test_free_threes;
 
 pub use self::go_board::{GoBoard};
 pub use self::tile::{Tile};

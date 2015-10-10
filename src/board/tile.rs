@@ -1,7 +1,7 @@
 use std::fmt::{Formatter, Display, Error};
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum Tile{
+pub enum Tile {
 	BLACK,
 	WHITE,
 	FREE
