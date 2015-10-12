@@ -4,8 +4,10 @@ language: rust
 rust:
   - stable
 
+install:
+  - brew install sdl2
+
 os:
-  - linux
   - osx
 
 branches:
