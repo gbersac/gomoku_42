@@ -23,7 +23,7 @@ use self::glfw_window::GlfwWindow as Window;
 #[cfg(feature = "include_glutin")]
 use self::glutin_window::GlutinWindow as Window;
 
-pub const BORDER_SIZE : f64 = 1f64;
+pub const BORDER_SIZE : f64 = 0.5f64;
 
 pub fn draw_tile_color<G: Graphics> (
     color: Color,
@@ -32,6 +32,7 @@ pub fn draw_tile_color<G: Graphics> (
     (context, g): (&Context, &mut G),
 ) {
     let _coordinate: Size = Size::from(coordinate);
+
     graphics::ellipse (
         color,
         graphics::ellipse::circle (
@@ -53,6 +54,7 @@ pub fn draw_border_color<G: Graphics> (
     let rect_border = graphics::Rectangle::new_border(color, {
         std::cmp::min(dimension.width, dimension.height) / 2u32
     } as f64 - BORDER_SIZE);
+
     rect_border.draw(
         [
             0f64,

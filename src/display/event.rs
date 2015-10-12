@@ -1,12 +1,12 @@
-pub struct Event {
+#[derive(Default)]
+pub struct _Event {
   overed: bool,
   old_cell: (usize, usize),
-  win_size: (f64, f64),
+  dimension: (f64, f64),
 }
 
+/*
 impl Event {
-
-  /// The `new` constructor function returns the event interface.
 
   pub fn new (
     size: u32,
@@ -17,8 +17,6 @@ impl Event {
       win_size: (size as f64, size as f64),
     }
   }
-
-  /// The `active` function drops a WHITE pawn.
 
   pub fn active (
     &mut self,
@@ -31,7 +29,6 @@ impl Event {
     }
   }
 
-  /// The `active` function moves a WHITE pawn.
 
   pub fn over (
     &mut self,
@@ -56,16 +53,14 @@ impl Event {
           ) {
             self.old_cell = new_cell;
           },
-          _ => {}, // continue to over the same tile.
+          _ => {},
         }
       },
-      Some((_, _)) => self.overed = false, // out of the overzone.
-      None => {}, // haven't moved.
+      Some((_, _)) => self.overed = false,
+      None => {},
     }
   }
 
-  /// The `listen` function loops when the program isn't end
-  /// and runs GoEvent when the mouse is clicked.
 
   pub fn listen (
     &mut self,
@@ -79,3 +74,5 @@ impl Event {
     self.active(event);
   }
 }
+
+*/

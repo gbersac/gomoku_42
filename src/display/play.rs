@@ -28,7 +28,8 @@ use self::glfw_window::GlfwWindow as Window;
 #[cfg(feature = "include_glutin")]
 use self::glutin_window::GlutinWindow as Window;
 
-use display::{draw};
+use display::event::_Event;
+use display::draw;
 
 use board::GoBoard;
 use board::tile::{Tile};
@@ -55,6 +56,7 @@ impl Default for Status {
 
 pub struct Play {
     status: Status,
+    event: _Event,
     board: GoBoard,
     dimension: Size,
 }
@@ -92,8 +94,20 @@ impl Play {
             if let Some(resize) = event.resize(|w, h| [h as u32, w as u32]) {
                 self.dimension = Size::from(resize);
             }
-            if let Some(args) = event.render_args() {
+            if let Some((x, y)) = event.mouse_cursor(|x, y| {(
+                x as u32,
+                y as u32
+            )}) {
+                if 0u32 <= x && x < self.dimension.width && 0u32 <= y && y < self.dimension.height {
+                    println!("{:?} {:?}", x, y);
+                    //self.overed = true;
+                }
+                else {
+                    //self.overed = false;
+                }
+            }
 
+            if let Some(args) = event.render_args() {
                 gl.draw(args.viewport(), |context, g| {
                     graphics::clear(ORANGE, g);
 
@@ -125,6 +139,7 @@ impl Default for Play {
 
 		Play {
 			status: Default::default(),
+            event: Default::default(),
 			board: board,
             dimension: Size::from([CASE_WIDTH * size; 2]),
 		}
