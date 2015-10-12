@@ -29,17 +29,7 @@ macro_rules! test_goban_pattern {
 	}}
 }
 
-
 impl GoBoard {
-
-	/// The `new` constructor function returns the empty board.
-
-	pub fn new() -> GoBoard {
-		GoBoard {
-			tiles: [[Tile::FREE; GO_WIDTH]; GO_WIDTH],
-			size:  GO_WIDTH,
-		}
-	}
 
 	/// The `get` function returns the tiles coordinates [x; y].
 
@@ -339,4 +329,16 @@ impl Display for GoBoard {
 		}
 		to_return
 	}
+}
+
+impl Default for GoBoard {
+
+	/// The `new` constructor function returns the empty board.
+
+    fn default() -> Self {
+		GoBoard {
+			tiles: [[Default::default(); GO_WIDTH]; GO_WIDTH],
+			size:  GO_WIDTH,
+		}
+    }
 }

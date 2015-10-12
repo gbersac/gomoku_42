@@ -8,6 +8,7 @@ mod cmd_option;
 
 use clap::App;
 use board::{GoBoard, Team};
+use display::{Play};
 use cmd_option::CmdOption;
 
 fn main() {
@@ -17,9 +18,10 @@ fn main() {
     let opts = CmdOption::parse(&m);
     println!("{:?}", opts);
 
-    //game
-    let board = GoBoard::new();
-    println!("{}", board);
     let mut teams = Team::new_teams();
-    display::main(board, &mut teams);
+
+    let mut game:Play = Default::default();
+
+    game.start();
+    //display::main(board, &mut teams);
 }

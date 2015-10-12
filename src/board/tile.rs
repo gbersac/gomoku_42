@@ -8,6 +8,12 @@ pub enum Tile {
     OVER
 }
 
+impl Default for Tile {
+    fn default() -> Self {
+        Tile::FREE
+    }
+}
+
 impl Tile {
 	pub fn from_str(s: &str) -> Tile {
 		match s {
