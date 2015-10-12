@@ -8,9 +8,6 @@ authors = [
 description = "Game of GO from 42 school"
 repository = "https://github.com/gbersac/gomoku_42.git"
 
-[build-dependencies.walkdir]
-git = "https://github.com/BurntSushi/walkdir.git"
-
 [dependencies.piston]
 version = "0.13.0"
 
