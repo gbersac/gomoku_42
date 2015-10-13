@@ -1,5 +1,5 @@
 ---
-sudo: false
+sudo: true
 language: rust
 rust:
   - stable
@@ -7,6 +7,14 @@ rust:
 os:
   - linux
   - osx
+
+env:
+  global:
+    - LD_LIBRARY_PATH: /usr/local/lib
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev
 
 branches:
   only:
