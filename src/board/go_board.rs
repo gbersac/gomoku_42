@@ -113,28 +113,6 @@ impl GoBoard {
 		self.unset((x as usize, y as usize));
 	}
 
-    /// The `set_over` function overs the FREE cell and
-    /// unovers the last cell.
-
-    pub fn set_over (
-        &mut self,
-        cell_new: (usize, usize),
-        cell_old: (usize, usize),
-    ) -> bool {
-		match (self.get(cell_old), self.get(cell_new)) {
-			(tile, Tile::FREE) if tile.is_empty() => {
-				self.set_raw(cell_new, Tile::OVER);
-				self.unset(cell_old);
-				true
-			},
-			(tile, Tile::FREE) if tile.is_pawn() => {
-				self.set_raw(cell_new, Tile::OVER);
-				true
-			},
-			_ => false,
-		}
-    }
-
     /// The `set_pawn` function plays the WHITE or
 	/// WHITE pawn.
 
@@ -142,7 +120,7 @@ impl GoBoard {
 	  &mut self,
       cell: (usize, usize),
 	) {
-		if self.get(cell).is_empty() {
+		if self.get(cell) == Tile::FREE {
 		 	self.set_raw(cell, Tile::WHITE);
 		}
 	}

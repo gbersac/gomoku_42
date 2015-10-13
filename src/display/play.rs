@@ -9,14 +9,9 @@ extern crate glfw_window;
 #[cfg(feature = "include_glutin")]
 extern crate glutin_window;
 
-use self::opengl_graphics::{ GlGraphics, OpenGL };
-use self::graphics::Context;
-use self::graphics::Graphics;
+use self::opengl_graphics::{GlGraphics, OpenGL};
 use self::graphics::types::{Resolution, Color};
-use self::graphics::line::Shape;
-use self::graphics::draw_state::{DrawState};
 use std::rc::Rc;
-use std::collections::HashMap;
 use std::cell::RefCell;
 use self::piston::window::{AdvancedWindow, WindowSettings, Size};
 use self::piston::input::*;
@@ -31,17 +26,17 @@ use self::glutin_window::GlutinWindow as Window;
 use display::event::_Event;
 use display::draw;
 
+use board::Tile;
 use board::GoBoard;
-use board::tile::{Tile};
+use board::Team;
 
-pub const CASE_WIDTH : Resolution = 40;
-pub const BORDER_SIZE : f64 = 1f64;
+pub const CASE_WIDTH: Resolution = 40;
 
-pub const ORANGE : Color = [1f32, 0.5f32, 0f32, 1f32];
-pub const BLACK  : Color = [0f32, 0f32, 0f32, 1f32];
-pub const WHITE  : Color = [1f32, 1f32, 1f32, 1f32];
-pub const INVISIBLE : Color = [0f32; 4];
+pub const ORANGE: Color = [1f32, 0.5f32, 0f32, 1f32];
+pub const BLACK: Color = [0f32, 0f32, 0f32, 1f32];
+pub const WHITE: Color = [1f32, 1f32, 1f32, 1f32];
 
+#[allow(dead_code)]
 pub enum Status {
     PLAY,
     LOSS,
@@ -58,7 +53,7 @@ pub struct Play {
     status: Status,
     event: _Event,
     board: GoBoard,
-    dimension: Size,
+    team: [Team; 2],
 }
 
 impl Play {
@@ -67,10 +62,11 @@ impl Play {
         &self
     ) -> Size {
         let size: Resolution = self.board.get_size() as Resolution;
+        let dimension = self.event.get_dimension();
 
         Size::from([
-            self.dimension.width / size,
-            self.dimension.height / size
+            dimension.width / size,
+            dimension.height / size,
         ])
     }
 
@@ -80,33 +76,28 @@ impl Play {
         let opengl = OpenGL::V3_2;
         let window: Window = WindowSettings::new (
             "Gomoku",
-            self.dimension
+            self.event.get_dimension(),
         ).exit_on_esc(true).opengl(opengl).build().unwrap();
-        let mut capture_cursor = false;
         let window = Rc::new(RefCell::new(window));
         let ref mut gl = GlGraphics::new(opengl);
-        let mut cursor = [0.0, 0.0];
         let max: u32 = self.board.get_size() as u32;
 
         for event in window.clone().events() {
             let dimension = self.get_size();
 
-            if let Some(resize) = event.resize(|w, h| [h as u32, w as u32]) {
-                self.dimension = Size::from(resize);
+            if let Some(resize) = event.resize(|w, h| [w as u32, h as u32]) {
+                self.event.set_dimension(Size::from(resize));
             }
-            if let Some((x, y)) = event.mouse_cursor(|x, y| {(
-                x as u32,
-                y as u32
-            )}) {
-                if 0u32 <= x && x < self.dimension.width && 0u32 <= y && y < self.dimension.height {
-                    println!("{:?} {:?}", x, y);
-                    //self.overed = true;
-                }
-                else {
-                    //self.overed = false;
+            if let Some(coordinate) = event.mouse_cursor(|x, y| {
+                Size::from([x as u32, y as u32])
+            }) {
+                if let Some(coordinate) = self.event.check_inside_window(coordinate, max) {
+                    self.event.set_coordinate(coordinate);
                 }
             }
-
+            if let Some(Button::Mouse(_)) = event.press_args() {
+                self.board.set_pawn_human(self.event.get_coordinate());
+            }
             if let Some(args) = event.render_args() {
                 gl.draw(args.viewport(), |context, g| {
                     graphics::clear(ORANGE, g);
@@ -119,7 +110,11 @@ impl Play {
                     draw::draw_border_color(ORANGE, dimension, max, (&context, g));
                     for x in 0..max {
                         for y in 0..max {
-                            draw::draw_tile_color(WHITE, dimension, [x, y], (&context, g));
+                            match self.board.get((x as usize, y as usize)) {
+                                Tile::WHITE => draw::draw_tile_color(BLACK, dimension, [x, y], (&context, g)),
+                                Tile::BLACK => draw::draw_tile_color(WHITE, dimension, [x, y], (&context, g)),
+                                _ => {},
+                            }
                         }
                     }
                 });
@@ -139,9 +134,9 @@ impl Default for Play {
 
 		Play {
 			status: Default::default(),
-            event: Default::default(),
+            event: _Event::new(Size::from([CASE_WIDTH * size; 2])),
 			board: board,
-            dimension: Size::from([CASE_WIDTH * size; 2]),
+            team: Team::new_teams(),
 		}
     }
 }

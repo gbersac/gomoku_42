@@ -1,78 +1,101 @@
-#[derive(Default)]
+extern crate piston;
+
+use self::piston::window::Size;
+use std::fmt::{Formatter, Display, Error};
+
 pub struct _Event {
-  overed: bool,
-  old_cell: (usize, usize),
-  dimension: (f64, f64),
+    overed: bool,
+    coordinate_cell: Size,
+    dimension: Size,
 }
 
-/*
-impl Event {
+impl _Event {
+    pub fn new (
+        sizes: Size,
+    ) -> Self {
+        let mut event: Self = Default::default();
 
-  pub fn new (
-    size: u32,
-  ) -> Self {
-    GoEvent {
-      overed: false,
-      old_cell: (0usize, 0usize),
-      win_size: (size as f64, size as f64),
+        event.set_dimension(sizes);
+        event
     }
-  }
 
-  pub fn active (
-    &mut self,
-    GoEvent: &PistonWindow,
-  ) {
-    if self.overed {
-      if let Some(Button::Mouse(button)) = GoEvent.press_args() {
-        self.board.set_pawn_human(self.old_cell);
-      }
+    pub fn set_dimension (
+        &mut self,
+        dimension: Size,
+    ) {
+        self.dimension = dimension;
     }
-  }
 
+    pub fn get_dimension (
+        &self,
+    ) -> Size {
+        self.dimension
+    }
 
-  pub fn over (
-    &mut self,
-    GoEvent: &PistonWindow,
-  ) {
-    let (win_x, win_y):(f64, f64) = self.win_size;
-    let tile_size:f64 = self.board.get_size() as f64;
+    pub fn set_coordinate (
+        &mut self,
+        coordinate: Size,
+    ) {
+        self.coordinate_cell = coordinate;
+    }
 
-    match GoEvent.mouse_cursor(|x, y| {(
-      x as f64,
-      y as f64
-    )}) {
-      Some((x, y)) if 0f64 <= x && x < win_x && 0f64 <= y && y < win_y => {
-        self.overed = true;
-        match (
-          {x / {win_x / tile_size}}.trunc() as usize,
-          {y / {win_y / tile_size}}.trunc() as usize
-        ) {
-          new_cell if new_cell != self.old_cell => if self.board.set_over (
-            new_cell,
-            self.old_cell
-          ) {
-            self.old_cell = new_cell;
-          },
-          _ => {},
+    pub fn get_coordinate (
+        &self,
+    ) -> (usize, usize) {
+        let coordinate = self.coordinate_cell;
+
+        (coordinate.width as usize, coordinate.height as usize)
+    }
+
+    fn set_over (
+        &mut self,
+        mouse: bool,
+    ) {
+        self.overed = mouse;
+    }
+
+    pub fn check_inside_window (
+        &mut self,
+        coordinate: Size,
+        length: u32,
+    ) -> Option<Size> {
+        let mouse:bool = 0u32 < coordinate.width
+                      && coordinate.width <  self.dimension.width
+                      && 0u32 < coordinate.height
+                      && coordinate.height < self.dimension.height;
+
+        if mouse {
+            self.set_over(true);
+            let coordinate_cell_new: Size = Size::from([
+                coordinate.width / {self.dimension.width / length},
+                coordinate.height / {self.dimension.height / length}
+            ]);
+            if coordinate_cell_new.width != self.coordinate_cell.width
+            || coordinate_cell_new.height != self.coordinate_cell.height {
+                return Some(coordinate_cell_new);
+            }
         }
-      },
-      Some((_, _)) => self.overed = false,
-      None => {},
+        else {
+            self.set_over(false);
+        }
+        None
     }
-  }
-
-
-  pub fn listen (
-    &mut self,
-    event: &PistonWindow,
-  ) {
-    let tile_size = self.board.get_size();
-    let (win_x, win_y):(f64, f64) = self.win_size;
-    let (tile_size_x, tile_size_y):(f64, f64) = ({win_x / tile_size as f64}, {win_y / tile_size as f64});
-
-    self.over(event);
-    self.active(event);
-  }
 }
 
-*/
+impl Display for _Event {
+	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        let _ = write!(f, stringify!(self.coordinate_cell.width));
+		let _ = write!(f, stringify!(self.coordinate_cell.height));
+		Ok(())
+	}
+}
+
+impl Default for _Event {
+    fn default() -> Self {
+        _Event {
+          overed: false,
+          coordinate_cell: Size::from([0u32; 2]),
+          dimension: Size::from([0; 2]),
+        }
+    }
+}

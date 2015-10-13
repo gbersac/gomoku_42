@@ -11,17 +11,9 @@ extern crate glutin_window;
 
 use self::graphics::Context;
 use self::graphics::Graphics;
-use self::graphics::types::{Resolution, Color};
-use self::graphics::draw_state::{DrawState};
-use std::collections::HashMap;
-use self::piston::window::{AdvancedWindow, WindowSettings, Size};
-use self::piston::event_loop::*;
-#[cfg(feature = "include_sdl2")]
-use self::sdl2_window::Sdl2Window as Window;
-#[cfg(feature = "include_glfw")]
-use self::glfw_window::GlfwWindow as Window;
-#[cfg(feature = "include_glutin")]
-use self::glutin_window::GlutinWindow as Window;
+use self::graphics::types::Color;
+use self::graphics::draw_state::DrawState;
+use self::piston::window::Size;
 
 pub const BORDER_SIZE : f64 = 0.5f64;
 
@@ -36,9 +28,9 @@ pub fn draw_tile_color<G: Graphics> (
     graphics::ellipse (
         color,
         graphics::ellipse::circle (
-            {dimension.height * _coordinate.height + dimension.height / 2u32} as f64,
             {dimension.width * _coordinate.width + dimension.width / 2u32} as f64,
-            {std::cmp::min(dimension.width, dimension.height) / 3u32} as f64
+            {dimension.height * _coordinate.height + dimension.height / 2u32} as f64,
+            {std::cmp::min(dimension.width, dimension.height) / 3u32} as f64,
         ),
         context.transform,
         g
@@ -59,8 +51,8 @@ pub fn draw_border_color<G: Graphics> (
         [
             0f64,
             0f64,
-            {dimension.height * max} as f64,
             {dimension.width * max} as f64,
+            {dimension.height * max} as f64,
         ],
         &context.draw_state, context.transform, g);
 }
@@ -79,10 +71,10 @@ pub fn draw_line_color<G: Graphics> (
 
     line_border.draw (
         [
+            {dimension.width * _coordinate.width + dimension.width / 2u32} as f64,
             {dimension.height * _coordinate.height} as f64,
             {dimension.width * _coordinate.width + dimension.width / 2u32} as f64,
             {dimension.height * _coordinate.height + dimension.height} as f64,
-            {dimension.width * _coordinate.width + dimension.width / 2u32} as f64,
         ],
         &DrawState::new(),
         context.transform,
@@ -90,10 +82,10 @@ pub fn draw_line_color<G: Graphics> (
     );
     line_border.draw (
         [
-            {dimension.height * _coordinate.height + dimension.height / 2u32} as f64,
             {dimension.width * _coordinate.width} as f64,
             {dimension.height * _coordinate.height + dimension.height / 2u32} as f64,
             {dimension.width * _coordinate.width + dimension.width} as f64,
+            {dimension.height * _coordinate.height + dimension.height / 2u32} as f64,
         ],
         &DrawState::new(),
         context.transform,

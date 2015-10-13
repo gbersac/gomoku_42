@@ -5,7 +5,6 @@ pub enum Tile {
 	BLACK,
 	WHITE,
 	FREE,
-    OVER
 }
 
 impl Default for Tile {
@@ -21,14 +20,6 @@ impl Tile {
 			"W" | "w" => Tile::WHITE,
 			_	      => Tile::FREE,
 		}
-	}
-
-	pub fn is_free(&self) -> bool {
-		*self == Tile::FREE
-	}
-
-	pub fn is_empty(&self) -> bool {
-		*self == Tile::FREE || *self == Tile::OVER
 	}
 
 	pub fn is_pawn(&self) -> bool {
@@ -53,7 +44,6 @@ impl Display for Tile {
 			&Tile::BLACK => {let _ = write!(f, "B");},
 			&Tile::WHITE => {let _ = write!(f, "W");},
 			&Tile::FREE	 => {let _ = write!(f, ".");},
-            &Tile::OVER  => {let _ = write!(f, "*");},
 		};
 		Ok(())
 	}
