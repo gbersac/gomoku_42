@@ -7,8 +7,11 @@ const TILES_TO_WIN : usize = 5;
 
 #[derive(Debug, PartialEq)]
 pub struct GoBoard {
-	tiles: [[Tile; GO_WIDTH]; GO_WIDTH], // The grid
-	size:	usize, // Side
+	/// The grid
+	///
+	/// First iterate over lines and then element by element.
+	pub tiles:	[[Tile; GO_WIDTH]; GO_WIDTH], // The grid
+	size:		usize, // Side
 }
 
 // test for one free threes pattern match
@@ -294,6 +297,24 @@ impl GoBoard {
 	/// Return true if it is allowed to add a tile on the position [x, y].
 	pub fn is_allow(&self, x: usize, y: usize, team: &Team) -> bool {
 		self.get((x, y)) == Tile::FREE && self.free_threes(x, y, team)
+	}
+
+	pub fn is_empty(&self) -> bool {
+	    for line in self.tiles.iter() {
+		    for tile in line.iter() {
+		        if tile.is_pawn() {
+		            return false;
+		        }
+		    }
+	    }
+	    true
+	}
+
+	/// Return the (x, y) coordinates out of the index of the tile in the
+	/// GoBoard::tiles array.
+
+	pub fn coord_out_of_index(index: usize) -> (usize, usize) {
+		(index % GO_WIDTH, index / GO_WIDTH)
 	}
 }
 
