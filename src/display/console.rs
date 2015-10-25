@@ -28,8 +28,6 @@ use board::Tile;
 use board::GoBoard;
 use board::Team;
 
-use ia::Decision;
-
 pub const CASE_WIDTH: graphics::types::Resolution = 40;
 
 pub const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
@@ -53,7 +51,6 @@ impl Player {
 }
 
 pub struct Console {
-    decision: Decision,
     board: GoBoard,
     event: _Event,
     team: [Team; 2],
@@ -76,7 +73,6 @@ impl Console {
 
 		Console {
 			board: board,
-    		decision: Decision::new(layer),
             event: _Event::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
             team: Team::new_teams(),
             player: player,
@@ -171,7 +167,6 @@ impl Default for Console {
         let size: u32 = board.get_size() as u32;
 
 		Console {
-            decision: Default::default(),
 			board: board,
             event: _Event::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
             team: Team::new_teams(),
