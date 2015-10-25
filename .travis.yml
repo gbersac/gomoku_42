@@ -2,7 +2,10 @@
 sudo: true
 language: rust
 rust:
+  - 1.3.0
   - stable
+  - nightly
+  - beta
 
 before_install:
   - sudo add-apt-repository -y ppa:kalakris/cmake
