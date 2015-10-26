@@ -1,7 +1,7 @@
 use display::console::Player;
 use clap;
 
-const DEFAULT_PLAYER : &'static str = "human";
+const DEFAULT_PLAYER : &'static str = "ia";
 const DEFAULT_FRIEND : &'static str = "ia";
 const DEFAULT_LAYERS : &'static str = "3";
 

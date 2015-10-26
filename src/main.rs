@@ -20,5 +20,4 @@ fn main() {
     let mut game:Console = Console::default();
 
     game.start();
-    // display::main(board, &mut teams);
 }

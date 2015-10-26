@@ -1,5 +1,6 @@
 use board::Tile;
 
+#[derive(Debug, Clone)]
 pub struct Team {
     color: Tile,
     captured: u32,
@@ -18,8 +19,8 @@ impl Team {
 
 	/// Create all the teams of the game.
 
-    pub fn new_teams() -> [Team; 2] {
-    	[Team::new(Tile::BLACK), Team::new(Tile::WHITE)]
+    pub fn new_teams() -> (Team, Team) {
+    	(Team::new(Tile::BLACK), Team::new(Tile::WHITE))
     }
 
     pub fn get_tile(&self) -> Tile {

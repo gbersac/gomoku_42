@@ -21,20 +21,18 @@ use self::graphics::Transformed;
 use self::piston::input::*;
 use self::piston::event_loop::*;
 
-use display::event::_Event;
+use display::mouse::Mouse;
 use display::draw;
 
 use board::Tile;
 use board::GoBoard;
 use board::Team;
 
+use ia::decision;
+
 pub const CASE_WIDTH: graphics::types::Resolution = 40;
 
-pub const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
-pub const BLACK: graphics::types::Color = [0f32, 0f32, 0f32, 1f32];
-pub const WHITE: graphics::types::Color = [1f32, 1f32, 1f32, 1f32];
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Player {
     Human,
     Ia,
@@ -50,11 +48,12 @@ impl Player {
 	}
 }
 
+#[derive(Debug, Clone)]
 pub struct Console {
     board: GoBoard,
-    event: _Event,
-    team: [Team; 2],
-    player: [Player; 2],
+    event: Mouse,
+    player: (Team, Player),
+    friend: (Team, Player),
     turn: bool, // Player one = true, player two = false.
     help: bool,
 }
@@ -66,16 +65,17 @@ impl Console {
     fn new (
         board: GoBoard,
         layer: usize,
-        player: [Player; 2],
+        (player, friend): (Player, Player),
         help: bool,
     ) -> Self {
         let size: u32 = board.get_size() as u32;
+        let (team_player, team_friend) = Team::new_teams();
 
 		Console {
 			board: board,
-            event: _Event::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
-            team: Team::new_teams(),
-            player: player,
+            event: Mouse::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
+            player: (team_player, player),
+            friend: (team_friend, friend),
             turn: true,
             help: help,
 		}
@@ -116,7 +116,7 @@ impl Console {
         ).exit_on_esc(true).opengl(opengl).build().unwrap();
         let window = std::rc::Rc::new(std::cell::RefCell::new(window));
         let ref mut gl = opengl_graphics::GlGraphics::new(opengl);
-        let max: u32 = self.board.get_size() as u32;
+        let limit: u32 = self.board.get_size() as u32;
 
         for event in window.clone().events() {
             let dimension = self.get_size();
@@ -127,30 +127,28 @@ impl Console {
             if let Some(coordinate) = event.mouse_cursor(|x, y| {
                 piston::window::Size::from([x as u32, y as u32])
             }) {
-                self.play(coordinate, max);
+                self.play(coordinate, limit);
             }
-            if let Some(Button::Mouse(_)) = event.press_args() {
-                self.board.set_pawn_human(self.event.get_coordinate());
+
+            //player: (Team, Player),
+            //friend: (Team, Player),
+
+/*
+            #[derive(Debug, PartialEq)]
+            pub enum Player {
+                Human,
+                Ia,
+            }
+*/
+            match (self.turn, self.player.clone(), self.friend.clone()) {
+                (true, (team, player), (_, _)) => {},
+                (false, (_, _), (team, friend)) => {},
+//                (true, (_, _), (team, friend)) => {},
+//                (false, (team, player), (_, _)) => {},
             }
             if let Some(args) = event.render_args() {
                 gl.draw(args.viewport(), |context, g| {
-                    graphics::clear(ORANGE, g);
-
-                    for x in 0..max {
-                        for y in 0..max {
-                            draw::draw_line_color(BLACK, dimension, [x, y], (&context, g));
-                        }
-                    }
-                    draw::draw_border_color(ORANGE, dimension, max, (&context, g));
-                    for x in 0..max {
-                        for y in 0..max {
-                            match self.board.get((x as usize, y as usize)) {
-                                Tile::WHITE => draw::draw_tile_color(BLACK, dimension, [x, y], (&context, g)),
-                                Tile::BLACK => draw::draw_tile_color(WHITE, dimension, [x, y], (&context, g)),
-                                _ => {},
-                            }
-                        }
-                    }
+                    draw::draw_render(&self.board, dimension, limit, (&context, g));
                 });
             }
             event.update(|_| {});
@@ -164,13 +162,14 @@ impl Default for Console {
 
     fn default () -> Self {
         let board: GoBoard = Default::default();
+        let (team_player, team_friend) = Team::new_teams();
         let size: u32 = board.get_size() as u32;
 
 		Console {
 			board: board,
-            event: _Event::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
-            team: Team::new_teams(),
-            player: [Player::Human, Player::Ia],
+            event: Mouse::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
+            player: (team_player, Player::Human),
+            friend: (team_friend, Player::Ia),
             turn: true,
             help: false,
 		}

@@ -15,14 +15,20 @@ use self::graphics::types::Color;
 use self::graphics::draw_state::DrawState;
 use self::piston::window::Size;
 
-pub const BORDER_SIZE : f64 = 0.5f64;
+use board::Tile;
+use board::GoBoard;
 
-pub fn draw_tile_color<G: Graphics> (
+const BORDER_SIZE : f64 = 0.5f64;
+const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
+const BLACK: graphics::types::Color = [0f32, 0f32, 0f32, 1f32];
+const WHITE: graphics::types::Color = [1f32, 1f32, 1f32, 1f32];
+
+fn draw_tile_color<G> (
     color: Color,
     dimension: Size,
     coordinate: [u32; 2],
     (context, g): (&Context, &mut G),
-) {
+) where G: Graphics {
     let _coordinate: Size = Size::from(coordinate);
 
     graphics::ellipse (
@@ -37,12 +43,12 @@ pub fn draw_tile_color<G: Graphics> (
     );
 }
 
-pub fn draw_border_color<G: Graphics> (
+fn draw_border_color<G> (
     color: Color,
     dimension: Size,
     max: u32,
     (context, g): (&Context, &mut G),
-) {
+) where G: Graphics {
     let rect_border = graphics::Rectangle::new_border(color, {
         std::cmp::min(dimension.width, dimension.height) / 2u32
     } as f64 - BORDER_SIZE);
@@ -57,12 +63,12 @@ pub fn draw_border_color<G: Graphics> (
         &context.draw_state, context.transform, g);
 }
 
-pub fn draw_line_color<G: Graphics> (
+fn draw_line_color<G> (
     color: Color,
     dimension: Size,
     coordinate: [u32; 2],
     (context, g): (&Context, &mut G),
-) {
+) where G: Graphics {
     let _coordinate: Size = Size::from(coordinate);
     let line_border = graphics::Line::new (
         color,
@@ -91,4 +97,29 @@ pub fn draw_line_color<G: Graphics> (
         context.transform,
         g
     );
+}
+
+pub fn draw_render<G> (
+    board: &GoBoard,
+    dimension: Size,
+    limit: u32,
+    (context, g): (&Context, &mut G),
+) where G: Graphics {
+    graphics::clear(ORANGE, g);
+
+    for x in 0..limit {
+        for y in 0..limit {
+            draw_line_color(BLACK, dimension, [x, y], (&context, g)); //5F5845
+        }
+    }
+    draw_border_color(ORANGE, dimension, limit, (&context, g));
+    for x in 0..limit {
+        for y in 0..limit {
+            match board.get((x as usize, y as usize)) {
+                Tile::WHITE => draw_tile_color(BLACK, dimension, [x, y], (&context, g)),
+                Tile::BLACK => draw_tile_color(WHITE, dimension, [x, y], (&context, g)),
+                _ => {},
+            }
+        }
+    }
 }

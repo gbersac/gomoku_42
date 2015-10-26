@@ -3,13 +3,14 @@ extern crate piston;
 use self::piston::window::Size;
 use std::fmt::{Formatter, Display, Error};
 
-pub struct _Event {
+#[derive(Debug, Clone)]
+pub struct Mouse {
     overed: bool,
     coordinate_cell: Size,
     dimension: Size,
 }
 
-impl _Event {
+impl Mouse {
     pub fn new (
         sizes: Size,
     ) -> Self {
@@ -82,7 +83,7 @@ impl _Event {
     }
 }
 
-impl Display for _Event {
+impl Display for Mouse {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         let _ = write!(f, stringify!(self.coordinate_cell.width));
 		let _ = write!(f, stringify!(self.coordinate_cell.height));
@@ -90,9 +91,9 @@ impl Display for _Event {
 	}
 }
 
-impl Default for _Event {
+impl Default for Mouse {
     fn default() -> Self {
-        _Event {
+        Mouse {
           overed: false,
           coordinate_cell: Size::from([0u32; 2]),
           dimension: Size::from([0; 2]),
