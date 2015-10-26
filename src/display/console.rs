@@ -53,7 +53,7 @@ impl Player {
 pub struct Console {
     board: GoBoard,
     event: _Event,
-    team: [Team; 2],
+    team: (Team, Team),
     player: [Player; 2],
     turn: bool, // Player one = true, player two = false.
     help: bool,

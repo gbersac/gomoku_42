@@ -32,7 +32,7 @@ impl GoBoard {
 		}
 
 		//create board, no check
-        let mut board = GoBoard::new();
+        let mut board : GoBoard = Default::default();
 		let size = board.get_size();
         for x in 0..size {
 			for y in 0..size {
