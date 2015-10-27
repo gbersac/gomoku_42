@@ -1,5 +1,5 @@
 use board::{GoBoard, Tile, Team};
-use super::decision::move_to_evaluate;
+use super::move_to_evaluate::move_to_evaluate;
 
 fn test_one(s: &str, nb_result: usize) {
 	let board = GoBoard::parse_with_size(&s.to_string());

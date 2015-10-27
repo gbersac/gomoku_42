@@ -1,5 +1,6 @@
 use board::Tile;
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct Team {
     color: Tile,
     captured: u32,

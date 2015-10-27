@@ -5,7 +5,7 @@ use board::{Tile, Team};
 pub const GO_WIDTH : usize = 19;
 const TILES_TO_WIN : usize = 5;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct GoBoard {
 	/// The grid
 	///
@@ -295,6 +295,7 @@ impl GoBoard {
 	}
 
 	/// Return true if it is allowed to add a tile on the position [x, y].
+	/// x and y are supposed to be valid index
 	pub fn is_allow(&self, x: usize, y: usize, team: &Team) -> bool {
 		self.get((x, y)) == Tile::FREE && self.free_threes(x, y, team)
 	}
