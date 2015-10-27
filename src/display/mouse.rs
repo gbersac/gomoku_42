@@ -1,18 +1,17 @@
 extern crate piston;
 
-use self::piston::window::Size;
 use std::fmt::{Formatter, Display, Error};
 
 #[derive(Debug, Clone)]
 pub struct Mouse {
     overed: bool,
-    coordinate_cell: Size,
-    dimension: Size,
+    coordinate_cell: (u32, u32),
+    dimension: (u32, u32),
 }
 
 impl Mouse {
     pub fn new (
-        sizes: Size,
+        sizes: (u32, u32),
     ) -> Self {
         let mut event: Self = Default::default();
 
@@ -22,20 +21,20 @@ impl Mouse {
 
     pub fn set_dimension (
         &mut self,
-        dimension: Size,
+        dimension: (u32, u32),
     ) {
         self.dimension = dimension;
     }
 
     pub fn get_dimension (
         &self,
-    ) -> Size {
+    ) -> (u32, u32) {
         self.dimension
     }
 
     pub fn set_coordinate (
         &mut self,
-        coordinate: Size,
+        coordinate: (u32, u32),
     ) {
         self.coordinate_cell = coordinate;
     }
@@ -45,7 +44,7 @@ impl Mouse {
     ) -> (usize, usize) {
         let coordinate = self.coordinate_cell;
 
-        (coordinate.width as usize, coordinate.height as usize)
+        (coordinate.0 as usize, coordinate.1 as usize)
     }
 
     fn set_over (
@@ -57,22 +56,22 @@ impl Mouse {
 
     pub fn check_inside_window (
         &mut self,
-        coordinate: Size,
+        coordinate: (u32, u32),
         length: u32,
-    ) -> Option<Size> {
-        let mouse:bool = 0u32 < coordinate.width
-                      && coordinate.width <  self.dimension.width
-                      && 0u32 < coordinate.height
-                      && coordinate.height < self.dimension.height;
+    ) -> Option<(u32, u32)> {
+        let mouse:bool = 0u32 < coordinate.0
+                      && coordinate.0 <  self.dimension.0
+                      && 0u32 < coordinate.1
+                      && coordinate.1 < self.dimension.1;
 
         if mouse {
             self.set_over(true);
-            let coordinate_cell_new: Size = Size::from([
-                coordinate.width / {self.dimension.width / length},
-                coordinate.height / {self.dimension.height / length}
-            ]);
-            if coordinate_cell_new.width != self.coordinate_cell.width
-            || coordinate_cell_new.height != self.coordinate_cell.height {
+            let coordinate_cell_new = (
+                coordinate.0 / {self.dimension.0 / length},
+                coordinate.1 / {self.dimension.1 / length}
+            );
+            if coordinate_cell_new.0 != self.coordinate_cell.0
+            || coordinate_cell_new.1 != self.coordinate_cell.1 {
                 return Some(coordinate_cell_new);
             }
         }
@@ -95,8 +94,8 @@ impl Default for Mouse {
     fn default() -> Self {
         Mouse {
           overed: false,
-          coordinate_cell: Size::from([0u32; 2]),
-          dimension: Size::from([0; 2]),
+          coordinate_cell: (0u32, 0u32),
+          dimension: (0u32, 0u32),
         }
     }
 }

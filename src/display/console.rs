@@ -73,7 +73,7 @@ impl Console {
 
 		Console {
 			board: board,
-            event: Mouse::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
+            event: Mouse::new((CASE_WIDTH * size, CASE_WIDTH * size)),
             player: (team_player, player),
             friend: (team_friend, friend),
             turn: true,
@@ -88,14 +88,14 @@ impl Console {
         let dimension = self.event.get_dimension();
 
         piston::window::Size::from([
-            dimension.width / size,
-            dimension.height / size,
+            dimension.0 / size,
+            dimension.1 / size,
         ])
     }
 
     fn play (
         &mut self,
-        coordinate: piston::window::Size,
+        coordinate: (u32, u32),
         length: u32,
     ) {
         if let Some(coordinate) = self.event.check_inside_window (
@@ -121,11 +121,11 @@ impl Console {
         for event in window.clone().events() {
             let dimension = self.get_size();
 
-            if let Some(resize) = event.resize(|w, h| [w as u32, h as u32]) {
-                self.event.set_dimension(piston::window::Size::from(resize));
+            if let Some(resize) = event.resize(|w, h| (w as u32, h as u32)) {
+                self.event.set_dimension(resize);
             }
             if let Some(coordinate) = event.mouse_cursor(|x, y| {
-                piston::window::Size::from([x as u32, y as u32])
+                (x as u32, y as u32)
             }) {
                 self.play(coordinate, limit);
             }
@@ -167,7 +167,7 @@ impl Default for Console {
 
 		Console {
 			board: board,
-            event: Mouse::new(piston::window::Size::from([CASE_WIDTH * size; 2])),
+            event: Mouse::new((CASE_WIDTH * size, CASE_WIDTH * size)),
             player: (team_player, Player::Human),
             friend: (team_friend, Player::Ia),
             turn: true,
