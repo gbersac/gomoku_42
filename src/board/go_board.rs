@@ -117,28 +117,6 @@ impl GoBoard {
 		self.unset((x as usize, y as usize));
 	}
 
-    /// The `set_pawn` function plays the WHITE or
-	/// WHITE pawn.
-
-	pub fn set_pawn_human (
-	  &mut self,
-      cell: (usize, usize),
-	) {
-		if self.get(cell) == Tile::FREE {
-		 	self.set_raw(cell, Tile::WHITE);
-		}
-	}
-
-	/// The `set_pawn` function plays the WHITE or
-	/// BLACK pawn.
-
-	pub fn set_pawn_ia (
-	  &mut self,
-	  cell: (usize, usize),
-	) {
-		self.set_raw(cell, Tile::BLACK);
-	}
-
     /// The `get_size` function returns the size of
 	/// the grid side.
 

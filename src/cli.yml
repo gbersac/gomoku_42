@@ -9,13 +9,13 @@ args:
         short: p
         long: player
         takes_value: true
-        possible_values: [ ia, solo ]
+        possible_values: [ ia, human ]
     - friend:
         help: Define wether teams are friend by ia or human.
         short: f
         long: friend
         takes_value: true
-        possible_values: [ ia, solo ]
+        possible_values: [ ia, human ]
     - layers:
         help: The number of layers in the ia tree.
         long: layers

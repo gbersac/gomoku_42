@@ -7,10 +7,10 @@ const DEFAULT_LAYERS : &'static str = "3";
 
 #[derive(Debug)]
 pub struct CmdOption {
-    player: Player,
-    friend: Player,
-    layers: u32,
-    human_help: bool
+    pub player: Player,
+    pub friend: Player,
+    pub layers: u32,
+    pub human_help: bool
 }
 
 impl CmdOption {

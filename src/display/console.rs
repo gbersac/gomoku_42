@@ -54,6 +54,7 @@ pub struct Console {
     event: Mouse,
     player: (Team, Player),
     friend: (Team, Player),
+    layer: u32,
     turn: bool, // Player one = true, player two = false.
     help: bool,
 }
@@ -62,9 +63,9 @@ impl Console {
 
 	/// The `new` constructor function returns the interface console.
 
-    fn new (
+    pub fn new (
         board: GoBoard,
-        layer: usize,
+        layer: u32,
         (player, friend): (Player, Player),
         help: bool,
     ) -> Self {
@@ -77,6 +78,7 @@ impl Console {
             player: (team_player, player),
             friend: (team_friend, friend),
             turn: true,
+            layer: layer,
             help: help,
 		}
     }
@@ -129,22 +131,37 @@ impl Console {
             }) {
                 self.play(coordinate, limit);
             }
-
-            //player: (Team, Player),
-            //friend: (Team, Player),
-
-/*
-            #[derive(Debug, PartialEq)]
-            pub enum Player {
-                Human,
-                Ia,
-            }
-*/
             match (self.turn, self.player.clone(), self.friend.clone()) {
-                (true, (team, player), (_, _)) => {},
-                (false, (_, _), (team, friend)) => {},
-//                (true, (_, _), (team, friend)) => {},
-//                (false, (team, player), (_, _)) => {},
+                (true, (team, Player::Ia), (_, _)) => {
+                    /*let position = decision::get_optimal_move (
+                        &self.board,
+                        &team,
+                        self.layer
+                    );
+                    self.board.set((position.0 as usize, position.1 as usize), &mut team);
+                    self.turn = !self.turn;*/
+                },
+                (false, (_, _), (team, Player::Ia)) => {
+                    /*let position = decision::get_optimal_move (
+                        &self.board,
+                        &team,
+                        self.layer
+                    );
+                    self.board.set((position.0 as usize, position.1 as usize), &mut team);
+                    self.turn = !self.turn;*/
+                },
+                (true, (team, Player::Human), (_, _)) => {
+                    if let Some(Button::Mouse(_)) = event.press_args() {
+                        self.board.set_raw(self.event.get_coordinate(), team.get_tile());
+                        self.turn = !self.turn;
+                    }
+                },
+                (false, (_, _), (team, Player::Human)) => {
+                    if let Some(Button::Mouse(_)) = event.press_args() {
+                        self.board.set_raw(self.event.get_coordinate(), team.get_tile());
+                        self.turn = !self.turn;
+                    }
+                },
             }
             if let Some(args) = event.render_args() {
                 gl.draw(args.viewport(), |context, g| {
@@ -170,6 +187,7 @@ impl Default for Console {
             event: Mouse::new((CASE_WIDTH * size, CASE_WIDTH * size)),
             player: (team_player, Player::Human),
             friend: (team_friend, Player::Ia),
+            layer: 3,
             turn: true,
             help: false,
 		}
