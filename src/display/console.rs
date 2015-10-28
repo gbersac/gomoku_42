@@ -86,7 +86,8 @@ impl Console {
     fn get_size (
         &self
     ) -> piston::window::Size {
-        let size: graphics::types::Resolution = self.board.get_size () as graphics::types::Resolution;
+        let size: graphics::types::Resolution = self.board.get_size (
+        ) as graphics::types::Resolution;
         let dimension = self.event.get_dimension();
 
         piston::window::Size::from([
@@ -133,33 +134,47 @@ impl Console {
             }
             match (self.turn, self.player.clone(), self.friend.clone()) {
                 (true, (team, Player::Ia), (_, _)) => {
-                    /*let position = decision::get_optimal_move (
+                    let position = decision::get_optimal_move (
                         &self.board,
                         &team,
                         self.layer
                     );
-                    self.board.set((position.0 as usize, position.1 as usize), &mut team);
-                    self.turn = !self.turn;*/
+                    self.board.set_raw (
+                        (
+                            position.0 as usize,
+                            position.1 as usize
+                        ),
+                        self.player.0.get_tile()
+                    );
+                    self.turn = !self.turn;
                 },
                 (false, (_, _), (team, Player::Ia)) => {
-                    /*let position = decision::get_optimal_move (
+                    let position = decision::get_optimal_move (
                         &self.board,
                         &team,
                         self.layer
                     );
-                    self.board.set((position.0 as usize, position.1 as usize), &mut team);
-                    self.turn = !self.turn;*/
+                    self.board.set_raw (
+                        (
+                            position.0 as usize,
+                            position.1 as usize
+                        ),
+                        self.friend.0.get_tile()
+                    );
+                    self.turn = !self.turn;
                 },
-                (true, (team, Player::Human), (_, _)) => {
+                (true, (_, Player::Human), (_, _)) => {
                     if let Some(Button::Mouse(_)) = event.press_args() {
-                        self.board.set_raw(self.event.get_coordinate(), team.get_tile());
-                        self.turn = !self.turn;
+                        if self.board.set(self.event.get_coordinate(), &mut self.player.0) {
+                            self.turn = !self.turn;
+                        }
                     }
                 },
-                (false, (_, _), (team, Player::Human)) => {
+                (false, (_, _), (_, Player::Human)) => {
                     if let Some(Button::Mouse(_)) = event.press_args() {
-                        self.board.set_raw(self.event.get_coordinate(), team.get_tile());
-                        self.turn = !self.turn;
+                        if self.board.set(self.event.get_coordinate(), &mut self.friend.0) {
+                            self.turn = !self.turn;
+                        }
                     }
                 },
             }
