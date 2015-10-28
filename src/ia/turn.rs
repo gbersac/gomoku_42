@@ -19,8 +19,8 @@ impl Turn {
     /// Return the initial value of the
     pub fn init(&self) -> i32 {
         match *self {
-            Turn::Player => ia::INFINITE,
-            Turn::Adversary => -ia::INFINITE,
+            Turn::Player => -ia::INFINITE,
+            Turn::Adversary => ia::INFINITE,
         }
     }
 

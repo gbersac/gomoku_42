@@ -4,8 +4,8 @@ use super::move_to_evaluate::move_to_evaluate;
 fn test_one(s: &str, nb_result: usize) {
 	let board = GoBoard::parse_with_size(&s.to_string());
 	let (team_b, team_w) = Team::new_teams();
-	let result = move_to_evaluate(&board, &team_w);
 	println!("Test\n{}", board);
+	let result = move_to_evaluate(&board, &team_w);
 	println!("Move to evaluate {:?}, {}", result, result.len());
 	assert!(result.len() == nb_result);
 }
@@ -188,4 +188,36 @@ B W . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . W
 		"#;
 	test_one(s, 3);
+}
+
+
+#[test]
+fn test_move_to_evaluate_value() {
+	let s = r#"19
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. W . . . . . . . . . . . . . . . . .
+		"#;
+	let board = GoBoard::parse_with_size(&s.to_string());
+	let (team_b, team_w) = Team::new_teams();
+	println!("Test\n{}", board);
+	let result = move_to_evaluate(&board, &team_w);
+	println!("Move to evaluate {:?}, {}", result, result.len());
+	assert!(result.contains(&(0, 18)) && result.contains(&(1, 17)) && result.contains(&(1, 17)));
 }

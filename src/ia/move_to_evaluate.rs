@@ -31,7 +31,8 @@ pub fn move_to_evaluate(board: &GoBoard, team: &Team) -> Vec<(usize, usize)> {
 	for (y, line) in board.tiles.iter().enumerate() {
 		for (x, tile) in line.iter().enumerate() {
 			if tile.is_pawn() {
-				let neighbors = get_neighbors(x, y);
+				// I don't really understand why x and y need to be reversed.
+				let neighbors = get_neighbors(y, x);
 				for neighbor in neighbors {
 					if !test_pawn(board, neighbor, team, &to_return) {
 						continue ;
