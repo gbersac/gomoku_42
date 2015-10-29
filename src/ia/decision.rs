@@ -45,42 +45,95 @@ impl Decision {
 	fn compute_one_move(&self,
 		coords: (usize, usize),
 		board: &GoBoard,
-		turn: Turn,
+		mut playing_team: Team,
 		teams: &(Team, Team),
-		nb_layers: u32
+		nb_layers: u32,
+		turn: Turn,
+		albet: (i32, i32)
 	) -> ((usize, usize), i32) {
-		let mut playing_team = Decision::playing_team(&turn, teams, &self.player).clone();
+	    println!("for coords recursive {:?}", coords);
 	    let mut newb = board.clone();
 	    newb.set(coords, &mut playing_team);
-	    let teams = Decision::updated_team(teams, playing_team);
-	    println!("for coords recursive {:?}", coords);
-	    let (_, heur) = self.recursive(&newb, turn.other(), &teams, nb_layers - 1);
+	    let teams = Decision::updated_team(teams, playing_team.clone());
+	    let (_, heur) = self.recursive(
+	    		&newb, turn.other(), &teams, nb_layers - 1, albet);
 	    (coords, heur)
 	}
 
-	fn sort_move(
-		acc: ((usize, usize), i32),
-		item: &((usize, usize), i32),
-		turn: Turn
+	fn min(&self,
+		moves: &Vec<(usize, usize)>,
+		board: &GoBoard,
+		playing_team: &Team,
+		teams: &(Team, Team),
+		nb_layers: u32,
+		(alpha, mut beta) : (i32, i32)
 	) -> ((usize, usize), i32) {
-		let mut to_return = acc;
-		if (acc.1 > item.1 && turn.is_min()) || (acc.1 < item.1 && !turn.is_min()) {
-			to_return =  *item;
+		let mut  default_result = ((0, 0), ia::INFINITE);
+		let (mut coords, mut val) = moves.iter()
+				.map(|x| self.compute_one_move(*x, &board, playing_team.clone(), &teams,
+						nb_layers, Turn::Adversary, (alpha, beta)))
+				// select min or max according to convenience
+				.fold(default_result, |acc, item| {
+					if acc.1 > item.1 {
+						return item;
+					}
+					acc
+				});
+		if alpha > val { //alpha cut. We know this branch won't be selected
+			println!("alpha cut");
+			return (coords, val);
 		}
-		to_return
+		if beta < val { // beta = Min(beta, Val)
+			beta = val;
+		}
+		(coords, val)
 	}
 
+	fn max(&self,
+		moves: &Vec<(usize, usize)>,
+		board: &GoBoard,
+		playing_team: &Team,
+		teams: &(Team, Team),
+		nb_layers: u32,
+		(mut alpha, beta) : (i32, i32)
+	) -> ((usize, usize), i32) {
+		let mut  default_result = ((0, 0), -ia::INFINITE);
+		println!("max");
+		let (mut coords, mut val) = moves.iter()
+				.map(|x| self.compute_one_move(*x, &board, playing_team.clone(), &teams,
+						nb_layers, Turn::Adversary, (alpha, beta)))
+				// select min or max according to convenience
+				.fold(default_result, |acc, item| {
+					if acc.1 < item.1 {
+						return item;
+					}
+					acc
+				});
+		if val > beta { //beta cut. We know this branch won't be selected
+			println!("beta cut");
+			return (coords, val);
+		}
+		if alpha > val { // alpha = Max(alpha, Val)
+			alpha = val;
+		}
+		(coords, val)
+	}
+
+	/// albet: alpha < beta
 	fn recursive(&self,
 		board: &GoBoard,
 		turn: Turn,
 		teams: &(Team, Team),
 		nb_layers: u32,
+		albet : (i32, i32)
 	) -> ((usize, usize), i32) {
 		if nb_layers == 1 {
 			println!("\n#############################");
 		}
-		println!("###recursive {}", nb_layers);
+		// println!("###recursive {}", nb_layers);
 		let playing_team: Team = Decision::playing_team(&turn, teams, &self.player).clone();
+
+		// if it is a leaf return heuristic value for this board
 		if nb_layers == 0 {
 			let updated_player = match self.player.get_tile() {
 			    Tile::BLACK => &teams.0,
@@ -90,17 +143,26 @@ impl Decision {
 			// is there moves where the coords value matter for this ?
 			return ((0, 0), (self.heuristic)(board, updated_player));
 		}
+
+		// get potential next moves
 		let moves = super::move_to_evaluate::move_to_evaluate(board, &playing_team);
 		if moves.len() == 0 {
 			unimplemented!();
 		}
-		// test each playable
+
+		// test each move
 		let default_result = ((0, 0), turn.init());
-		let to_return = moves.iter()
-				.map(|x| self.compute_one_move(*x, &board, turn.clone(), teams, nb_layers))
-				// select min or max according to convenience
-				.fold(default_result, |acc, item| Decision::sort_move(acc, &item, turn.clone()));
-		println!("to_return {:?}", to_return);
+		let to_return = match turn.is_min() {
+		    true => {
+		    	self.min(&moves, &board, &playing_team, teams, nb_layers, albet)
+		    },
+		    false => {
+		    	self.max(&moves, &board, &playing_team, teams, nb_layers, albet)
+		    },
+		};
+		if to_return.1 == 2 {
+			println!("to_return {:?}", to_return);
+		}
 		to_return
 	}
 
@@ -128,7 +190,8 @@ impl Decision {
 			heuristic: heur,
 			player: player.clone()
 		};
-		let (coords, _) = dec.recursive(board, Turn::Player, teams, nb_layers);
+		let (coords, _) = dec.recursive(board, Turn::Player, teams, nb_layers,
+				(-ia::INFINITE, ia::INFINITE));
 		coords
 	}
 }
