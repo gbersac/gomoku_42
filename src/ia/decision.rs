@@ -60,7 +60,23 @@ impl Decision {
 	    (coords, heur)
 	}
 
-	fn min(&self,
+	fn rec_optimal_move(&self,
+		moves: &Vec<(usize, usize)>,
+		board: &GoBoard,
+		mut playing_team: Team,
+		teams: &(Team, Team),
+		nb_layers: u32,
+		turn: Turn,
+		albet: &(i32, i32),
+	) -> ((usize, usize), i32) {
+		moves.iter()
+				.map(|x| self.compute_one_move(*x, &board, playing_team.clone(), &teams,
+						nb_layers, Turn::Adversary, *albet))
+				// select min or max according to convenience
+				.fold(turn.default_result(), turn.sort_fn())
+	}
+
+	fn algo_min(&self,
 		moves: &Vec<(usize, usize)>,
 		board: &GoBoard,
 		playing_team: &Team,
@@ -68,17 +84,9 @@ impl Decision {
 		nb_layers: u32,
 		(alpha, mut beta) : (i32, i32)
 	) -> ((usize, usize), i32) {
-		let mut  default_result = ((0, 0), ia::INFINITE);
-		let (mut coords, mut val) = moves.iter()
-				.map(|x| self.compute_one_move(*x, &board, playing_team.clone(), &teams,
-						nb_layers, Turn::Adversary, (alpha, beta)))
-				// select min or max according to convenience
-				.fold(default_result, |acc, item| {
-					if acc.1 > item.1 {
-						return item;
-					}
-					acc
-				});
+		let (mut coords, mut val) = self.rec_optimal_move(
+				moves, &board, playing_team.clone(), &teams,
+				nb_layers, Turn::Adversary, &(alpha, beta));
 		if alpha > val { //alpha cut. We know this branch won't be selected
 			println!("alpha cut");
 			return (coords, val);
@@ -89,7 +97,7 @@ impl Decision {
 		(coords, val)
 	}
 
-	fn max(&self,
+	fn algo_max(&self,
 		moves: &Vec<(usize, usize)>,
 		board: &GoBoard,
 		playing_team: &Team,
@@ -97,18 +105,9 @@ impl Decision {
 		nb_layers: u32,
 		(mut alpha, beta) : (i32, i32)
 	) -> ((usize, usize), i32) {
-		let mut  default_result = ((0, 0), -ia::INFINITE);
-		println!("max");
-		let (mut coords, mut val) = moves.iter()
-				.map(|x| self.compute_one_move(*x, &board, playing_team.clone(), &teams,
-						nb_layers, Turn::Adversary, (alpha, beta)))
-				// select min or max according to convenience
-				.fold(default_result, |acc, item| {
-					if acc.1 < item.1 {
-						return item;
-					}
-					acc
-				});
+		let (mut coords, mut val) = self.rec_optimal_move(
+				moves, &board, playing_team.clone(), &teams,
+				nb_layers, Turn::Player, &(alpha, beta));
 		if val > beta { //beta cut. We know this branch won't be selected
 			println!("beta cut");
 			return (coords, val);
@@ -154,10 +153,10 @@ impl Decision {
 		let default_result = ((0, 0), turn.init());
 		let to_return = match turn.is_min() {
 		    true => {
-		    	self.min(&moves, &board, &playing_team, teams, nb_layers, albet)
+		    	self.algo_min(&moves, &board, &playing_team, teams, nb_layers, albet)
 		    },
 		    false => {
-		    	self.max(&moves, &board, &playing_team, teams, nb_layers, albet)
+		    	self.algo_max(&moves, &board, &playing_team, teams, nb_layers, albet)
 		    },
 		};
 		if to_return.1 == 2 {
