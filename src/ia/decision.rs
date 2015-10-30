@@ -1,3 +1,5 @@
+use std::thread;
+use std::sync::mpsc;
 use board::{GoBoard, Team, Tile};
 use ia;
 use ia::turn::Turn;
@@ -60,7 +62,7 @@ impl Decision {
 	    (coords, heur)
 	}
 
-	fn rec_optimal_move(&self,
+	fn select_best_move(&self,
 		moves: &Vec<(usize, usize)>,
 		board: &GoBoard,
 		mut playing_team: Team,
@@ -69,11 +71,27 @@ impl Decision {
 		turn: Turn,
 		albet: &(i32, i32),
 	) -> ((usize, usize), i32) {
-		moves.iter()
-				.map(|x| self.compute_one_move(*x, &board, playing_team.clone(), &teams,
-						nb_layers, Turn::Adversary, *albet))
-				// select min or max according to convenience
-				.fold(turn.default_result(), turn.sort_fn())
+		//create channel to send result of a thread
+		let (tx, rx) = mpsc::channel();
+
+		//spawn one resolution thread for each move
+		for mov in *moves {
+			let tx = tx.clone();
+
+			thread::spawn(move || {
+				let result = self.compute_one_move(
+						mov, &board, playing_team.clone(), &teams,
+						nb_layers, Turn::Adversary, *albet);
+				let _ = tx.send(result);
+	        });
+		}
+
+		// select min or max according to convenience
+		let res = rx.recv().expect("Could not receive answer");
+		println!("select_best_move {:?}", res);
+		// unimplemented!();
+		// .fold(turn.default_result(), turn.sort_fn())
+		((0, 0), 1)
 	}
 
 	fn algo_min(&self,
@@ -84,7 +102,7 @@ impl Decision {
 		nb_layers: u32,
 		(alpha, mut beta) : (i32, i32)
 	) -> ((usize, usize), i32) {
-		let (mut coords, mut val) = self.rec_optimal_move(
+		let (mut coords, mut val) = self.select_best_move(
 				moves, &board, playing_team.clone(), &teams,
 				nb_layers, Turn::Adversary, &(alpha, beta));
 		if alpha > val { //alpha cut. We know this branch won't be selected
@@ -105,7 +123,7 @@ impl Decision {
 		nb_layers: u32,
 		(mut alpha, beta) : (i32, i32)
 	) -> ((usize, usize), i32) {
-		let (mut coords, mut val) = self.rec_optimal_move(
+		let (mut coords, mut val) = self.select_best_move(
 				moves, &board, playing_team.clone(), &teams,
 				nb_layers, Turn::Player, &(alpha, beta));
 		if val > beta { //beta cut. We know this branch won't be selected
