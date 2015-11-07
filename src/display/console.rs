@@ -28,7 +28,8 @@ use board::Tile;
 use board::GoBoard;
 use board::Team;
 
-use ia::decision;
+use ia::decision::Decision;
+use ia::heuristic::heuristic;
 
 pub const CASE_WIDTH: graphics::types::Resolution = 40;
 
@@ -133,11 +134,13 @@ impl Console {
                 self.play(coordinate, limit);
             }
             match (self.turn, self.player.clone(), self.friend.clone()) {
-                (true, (team, Player::Ia), (_, _)) => {
-                    let position = decision::get_optimal_move (
+                (true, (player, Player::Ia), (friend, _)) => {
+                    let position = Decision::get_optimal_move (
                         &self.board,
-                        &team,
-                        self.layer
+                        &(player, friend),
+                        friend,
+                        self.layer,
+                        heuristic(&self.board, &player)
                     );
                     self.board.set_raw (
                         (
@@ -148,11 +151,13 @@ impl Console {
                     );
                     self.turn = !self.turn;
                 },
-                (false, (_, _), (team, Player::Ia)) => {
-                    let position = decision::get_optimal_move (
+                (false, (player, _), (friend, Player::Ia)) => {
+                    let position = Decision::get_optimal_move (
                         &self.board,
-                        &team,
-                        self.layer
+                        &(player, friend),
+                        friend,
+                        self.layer,
+                        heuristic(&self.board, &friend)
                     );
                     self.board.set_raw (
                         (

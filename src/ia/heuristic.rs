@@ -1,3 +1,7 @@
+use board::{GoBoard, Team};
+
+pub type HeuristicFn = fn(board: &GoBoard, team: &Team) -> i32;
+
 /// Returns a numerical value which approximate how close the board is to
 /// victory for the team.
 ///
@@ -108,7 +112,7 @@ fn free_three (
 
 pub fn heuristic (
     board: &GoBoard,
-    team: Team
+    team: &Team
 ) -> i32 {
     let grid = board.tiles;
 
@@ -119,18 +123,19 @@ pub fn heuristic (
     let segment_4 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[grid.len()-1 - z][z + i]).collect::<Vec<_>>()); // Ok [0, 0, 0, 0, 0] -> [6, 6] diagonal-left middle-to-bottom
     let segment_5 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[grid.len()-1 - i - z][z]).collect::<Vec<_>>()); // Ok [0, 0, 0, 0, 0] -> [5, 5] diagonal-left middle-to-top
 
-    let lines: Vec<Vec<i32>> = alternate (
+    /*let lines: Vec<Vec<i32>> = alternate (
         segment_0,
         segment_1,
         segment_2,
         segment_3,
         segment_4,
         segment_5,
-    ).collect();
+    ).collect();*/
 
-    lines.iter().fold(0, |acc, &item|
+    /*lines.iter().fold(0, |acc, &item|
         acc + free_three(item)
-    ).map(|x| x);
+    ).map(|x| x);*/
+    0
 }
 
 #[test]

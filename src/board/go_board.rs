@@ -48,23 +48,22 @@ impl GoBoard {
 		downdir: i32,
 		team: &mut Team,
 	) {
-		println!("\nNewdir");
 		let coords = (x, y, downdir, rightdir);
-		println!("left");
 		let left = test_goban_pattern!(self, team, coords,
 				"o" => 3, "e" => 2, "e" => 1) > 0;
-		println!("right");
 		let right = test_goban_pattern!(self, team, coords,
 				"o" => -3, "e" => -2, "e" => -1) > 0;
 		if  left {
 			self.unset_gap(coords, 1);
 			self.unset_gap(coords, 2);
 			team.add_captured(2);
+			println!("captured left {:?}", team);
 		}
 		if  right {
 			self.unset_gap(coords, -1);
 			self.unset_gap(coords, -2);
 			team.add_captured(2);
+			println!("captured right {:?}", team);
 		}
 	}
 
@@ -72,7 +71,6 @@ impl GoBoard {
 	/// and update number of captured tiles in the team if needed.
 
 	fn capture(&mut self, x: usize, y: usize, team: &mut Team) {
-		println!("capture");
 		self.capture_dir(x, y, 1, 0, team);
 		self.capture_dir(x, y, 0, 1, team);
 		self.capture_dir(x, y, 1, 1, team);
@@ -273,6 +271,7 @@ impl GoBoard {
 	}
 
 	/// Return true if it is allowed to add a tile on the position [x, y].
+	/// x and y are supposed to be valid index
 	pub fn is_allow(&self, x: usize, y: usize, team: &Team) -> bool {
 		self.get((x, y)) == Tile::FREE && self.free_threes(x, y, team)
 	}
