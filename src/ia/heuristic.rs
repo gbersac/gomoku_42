@@ -110,6 +110,34 @@ fn free_three (
     }
 }
 
+fn captures (
+    list: Vec<usize>,
+) -> isize {
+    let (result, pawn, count) = list.iter().fold((0, 0, 0), |(result, pawn, count), item| {
+            match (*item, pawn, count) {
+                (0, _, _) => (result, 0, 0),
+                (item, 0, _) => (result, item, 0),
+                (item, pawn, 0) if item != pawn => {
+                    println!("[{}; {}]", item, pawn);
+                    (result, item, 1)
+                }, // [0, 1, [2], 2, 2...]
+                (item, pawn, 0) if item == pawn => (result, 0, 0),
+                (item, pawn, count) if item == pawn => {
+                    (result, pawn, count + 1)
+                }, // [[2], 2, 2, ...]
+                (2, 1, count) => {
+                    (result - count, 0, 0)
+                }, // [2, 2, [1], ...]
+                (1, 2, count) => {
+                    (result + count, 0, 0)
+                }, // [1, 1, [2], ...]
+                _ => unimplemented!(),
+            }
+        }
+    );
+    result
+}
+
 pub fn heuristic (
     board: &GoBoard,
     team: &Team
