@@ -28,8 +28,8 @@ use board::Tile;
 use board::GoBoard;
 use board::Team;
 
-use ia::decision::Decision;
-use ia::heuristic::heuristic;
+use ia::Decision;
+use ia::heuristic;
 
 pub const CASE_WIDTH: graphics::types::Resolution = 40;
 
@@ -140,7 +140,7 @@ impl Console {
                         &(player, friend),
                         friend,
                         self.layer,
-                        heuristic(&self.board, &player)
+                        heuristic
                     );
                     self.board.set_raw (
                         (
@@ -157,7 +157,7 @@ impl Console {
                         &(player, friend),
                         friend,
                         self.layer,
-                        heuristic(&self.board, &friend)
+                        heuristic
                     );
                     self.board.set_raw (
                         (

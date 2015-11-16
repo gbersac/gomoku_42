@@ -5,9 +5,10 @@ use ia;
 use ia::turn::Turn;
 use ia::heuristic::HeuristicFn;
 
+#[derive(Clone)]
 pub struct Decision {
-    heuristic: HeuristicFn,
-    player: Team
+	heuristic: HeuristicFn,
+	player: Team
 }
 
 impl Decision {
@@ -17,49 +18,47 @@ impl Decision {
 		player: &Team,
 	) -> Team {
 		match *turn {
-		    Turn::Adversary => {
-		    	match player.get_tile() {
-		    	    Tile::BLACK => teams.1.clone(),
-		    	    Tile::WHITE => teams.0.clone(),
-		    	    _ => panic!("No Free tile allowed"),
-		    	}
-		    },
-		    Turn::Player => {
-		    	match player.get_tile() {
-		    	    Tile::BLACK => teams.0.clone(),
-		    	    Tile::WHITE => teams.1.clone(),
-		    	    _ => panic!("No Free tile allowed"),
-		    	}
-		    },
+			Turn::Adversary => {
+				match player.get_tile() {
+					Tile::BLACK => teams.1.clone(),
+					Tile::WHITE => teams.0.clone(),
+					_ => panic!("No Free tile allowed"),
+				}
+			},
+			Turn::Player => {
+				match player.get_tile() {
+					Tile::BLACK => teams.0.clone(),
+					Tile::WHITE => teams.1.clone(),
+					_ => panic!("No Free tile allowed"),
+				}
+			},
 		}
 	}
 
 	/// Return the tuple (team black, team white) with the new team
 	fn updated_team(&(ref tb, ref tw): &(Team, Team), new_team: Team) -> (Team, Team) {
 		match new_team.get_tile() {
-		    Tile::BLACK => (new_team, tw.clone()),
-		    Tile::WHITE => (tb.clone(), new_team),
-		    Tile::FREE => panic!("error forbiden team tile")
+			Tile::BLACK => (new_team, tw.clone()),
+			Tile::WHITE => (tb.clone(), new_team),
+			Tile::FREE => panic!("error forbiden team tile")
 		}
 	}
 
 	/// launch the recursive for one of the move to evaluate
 	fn compute_one_move(&self,
 		coords: (usize, usize),
-		board: &GoBoard,
+		mut board: GoBoard,
 		mut playing_team: Team,
-		teams: &(Team, Team),
+		teams: (Team, Team),
 		nb_layers: u32,
 		turn: Turn,
 		albet: (i32, i32)
 	) -> ((usize, usize), i32) {
-	    println!("for coords recursive {:?}", coords);
-	    let mut newb = board.clone();
-	    newb.set(coords, &mut playing_team);
-	    let teams = Decision::updated_team(teams, playing_team.clone());
-	    let (_, heur) = self.recursive(
-	    		&newb, turn.other(), &teams, nb_layers - 1, albet);
-	    (coords, heur)
+		board.set(coords, &mut playing_team);
+		let teams = Decision::updated_team(&teams, playing_team.clone());
+		let (_, heur) = self.recursive(
+				board.clone(), turn.other(), teams.clone(), nb_layers - 1, albet);
+		(coords, heur)
 	}
 
 	fn select_best_move(&self,
@@ -74,24 +73,34 @@ impl Decision {
 		//create channel to send result of a thread
 		let (tx, rx) = mpsc::channel();
 
+
 		//spawn one resolution thread for each move
-		for mov in *moves {
+		for mov in moves {
 			let tx = tx.clone();
 
+			//clone a lot of stuff so that we could send them to the thread
+			let self_c = self.clone();
+			let albet_c = (*albet).clone();
+			let mut board_c = board.clone();
+			let teams_c = teams.clone();
+			let mov = (*mov).clone();
+
 			thread::spawn(move || {
-				let result = self.compute_one_move(
-						mov, &board, playing_team.clone(), &teams,
-						nb_layers, Turn::Adversary, *albet);
-				let _ = tx.send(result);
-	        });
+				let res = self_c.compute_one_move(
+						mov, board_c, playing_team.clone(), teams_c,
+						nb_layers, Turn::Adversary, albet_c);
+				let _ = tx.send(res);
+			});
 		}
 
+		let mut results = Vec::with_capacity(moves.len());
+		for _ in 0..moves.len() {
+			let res = rx.recv().unwrap();
+			results.push(res);
+		}
 		// select min or max according to convenience
-		let res = rx.recv().expect("Could not receive answer");
-		println!("select_best_move {:?}", res);
-		// unimplemented!();
-		// .fold(turn.default_result(), turn.sort_fn())
-		((0, 0), 1)
+		let res = results.iter().fold(turn.default_result(), turn.sort_fn());
+		res
 	}
 
 	fn algo_min(&self,
@@ -138,31 +147,27 @@ impl Decision {
 
 	/// albet: alpha < beta
 	fn recursive(&self,
-		board: &GoBoard,
+		board: GoBoard,
 		turn: Turn,
-		teams: &(Team, Team),
+		teams: (Team, Team),
 		nb_layers: u32,
 		albet : (i32, i32)
 	) -> ((usize, usize), i32) {
-		if nb_layers == 1 {
-			println!("\n#############################");
-		}
-		// println!("###recursive {}", nb_layers);
-		let playing_team: Team = Decision::playing_team(&turn, teams, &self.player).clone();
+		let playing_team: Team = Decision::playing_team(&turn, &teams, &self.player).clone();
 
 		// if it is a leaf return heuristic value for this board
 		if nb_layers == 0 {
 			let updated_player = match self.player.get_tile() {
-			    Tile::BLACK => &teams.0,
-			    Tile::WHITE => &teams.1,
-			    Tile::FREE => panic!("bad team type"),
+				Tile::BLACK => teams.0,
+				Tile::WHITE => teams.1,
+				Tile::FREE => panic!("bad team type"),
 			};
 			// is there moves where the coords value matter for this ?
 			return ((0, 0), (self.heuristic)(board, updated_player));
 		}
 
 		// get potential next moves
-		let moves = super::move_to_evaluate::move_to_evaluate(board, &playing_team);
+		let moves = super::move_to_evaluate::move_to_evaluate(&board, &playing_team);
 		if moves.len() == 0 {
 			unimplemented!();
 		}
@@ -170,12 +175,12 @@ impl Decision {
 		// test each move
 		let default_result = ((0, 0), turn.init());
 		let to_return = match turn.is_min() {
-		    true => {
-		    	self.algo_min(&moves, &board, &playing_team, teams, nb_layers, albet)
-		    },
-		    false => {
-		    	self.algo_max(&moves, &board, &playing_team, teams, nb_layers, albet)
-		    },
+			true => {
+				self.algo_min(&moves, &board, &playing_team, &teams, nb_layers, albet)
+			},
+			false => {
+				self.algo_max(&moves, &board, &playing_team, &teams, nb_layers, albet)
+			},
 		};
 		if to_return.1 == 2 {
 			println!("to_return {:?}", to_return);
@@ -207,7 +212,7 @@ impl Decision {
 			heuristic: heur,
 			player: player.clone()
 		};
-		let (coords, _) = dec.recursive(board, Turn::Player, teams, nb_layers,
+		let (coords, _) = dec.recursive(board.clone(), Turn::Player, *teams, nb_layers,
 				(-ia::INFINITE, ia::INFINITE));
 		coords
 	}
