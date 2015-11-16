@@ -1,4 +1,4 @@
-use board::{GoBoard, Team, Tile};
+use board::{GoBoard, Team};
 
 fn test_pawn(
 	board: &GoBoard,
