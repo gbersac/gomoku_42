@@ -1,4 +1,4 @@
-use board::{GoBoard, Team};
+use board::{GoBoard, Team, Tile};
 
 pub type HeuristicFn = fn(board: GoBoard, team: Team) -> i32;
 
@@ -86,50 +86,40 @@ impl <T,
 }
 
 fn free_three (
-    list: Vec<usize>,
+    list: &Vec<Tile>,
 ) -> isize {
-    let (result, pawn, count) = list.iter().fold((0, 0, 0), |(result, pawn, count), item| {
+    let (result, pawn, count) = list.iter().fold((0, Tile::FREE, 0), |(result, pawn, count), item| {
             match (*item, pawn, count) {
-                (item, 0, _) => (result, item, 1),
+                (item, Tile::FREE, _) => (result, item, 1),
                 (item, pawn, count) if item == pawn => (result, item, count + 1),
-                (2, _, count) => (result + {count * {count+1}}/2, 2, 1),
-                (1, _, count) => (result - {count * {count+1}}/2, 1, 1),
-                (_, 1, count) => (result + {count * {count+1}}/2, 0, 0),
-                (_, 2, count) => (result - {count * {count+1}}/2, 0, 0),
-                _ => unimplemented!(),
+                (Tile::BLACK, _, count) => (result + {count * {count+1}}/2, Tile::BLACK, 1),
+                (Tile::WHITE, _, count) => (result - {count * {count+1}}/2, Tile::WHITE, 1),
+                (_, Tile::WHITE, count) => (result + {count * {count+1}}/2, Tile::FREE, 0),
+                (_, Tile::BLACK, count) => (result - {count * {count+1}}/2, Tile::FREE, 0),
             }
         }
     );
     result + match pawn {
-        0 => 0,
-        1 => (count * (count+1)) / 2,
-        2 => -(count * (count+1)) / 2,
-        _ => unimplemented!(),
+        Tile::FREE => 0,
+        Tile::WHITE => (count * (count+1)) / 2,
+        Tile::BLACK => -(count * (count+1)) / 2,
     }
 }
 
 fn captures (
-    list: Vec<usize>,
+    list: &Vec<Tile>,
 ) -> isize {
-    let (result, pawn, count) = list.iter().fold((0, 0, 0), |(result, pawn, count), item| {
+    let (result, pawn, count) = list.iter().fold((0, Tile::FREE, 0), |(result, pawn, count), item| {
             match (*item, pawn, count) {
-                (0, _, _) => (result, 0, 0),
-                (item, 0, _) => (result, item, 0),
-                (item, pawn, 0) if item != pawn => {
-                    println!("[{}; {}]", item, pawn);
-                    (result, item, 1)
-                }, // [0, 1, [2], 2, 2...]
-                (item, pawn, 0) if item == pawn => (result, 0, 0),
-                (item, pawn, count) if item == pawn => {
-                    (result, pawn, count + 1)
-                }, // [[2], 2, 2, ...]
-                (2, 1, count) => {
-                    (result - count, 0, 0)
-                }, // [2, 2, [1], ...]
-                (1, 2, count) => {
-                    (result + count, 0, 0)
-                }, // [1, 1, [2], ...]
-                _ => unimplemented!(),
+                (Tile::FREE, _, _) => (result, Tile::FREE, 0),
+                (item, Tile::FREE, _) => (result, item, 0),
+                (item, pawn, 0) if item != pawn => (result, item, 1),
+                (item, pawn, 0) if item == pawn => (result, Tile::FREE, 0),
+                (item, pawn, count) if item == pawn => (result, pawn, count + 1),
+                (Tile::BLACK, Tile::WHITE, count) => (result - count, Tile::FREE, 0),
+                (Tile::WHITE, Tile::BLACK, count) => (result + count, Tile::FREE, 0),
+                (Tile::BLACK, Tile::BLACK, _) => unimplemented!(),
+                (Tile::WHITE, Tile::WHITE, _) => unimplemented!(),
             }
         }
     );
@@ -146,35 +136,16 @@ pub fn heuristic(board: GoBoard, team: Team) -> i32 {
     let segment_4 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[grid.len()-1 - z][z + i]).collect::<Vec<_>>()); // Ok [0, 0, 0, 0, 0] -> [6, 6] diagonal-left middle-to-bottom
     let segment_5 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[grid.len()-1 - i - z][z]).collect::<Vec<_>>()); // Ok [0, 0, 0, 0, 0] -> [5, 5] diagonal-left middle-to-top
 
-    /*let lines: Vec<Vec<i32>> = alternate (
+    let lines: Vec<Vec<Tile>> = alternate (
         segment_0,
         segment_1,
         segment_2,
         segment_3,
         segment_4,
-        segment_5,
-    ).collect();*/
+        segment_5
+    ).collect();
 
-    /*lines.iter().fold(0, |acc, &item|
-        acc + free_three(item)
-    ).map(|x| x);*/
-    0
-}
-
-#[test]
-fn test_heuristic() {
-}
-
-#[test]
-fn test_free_three() {
-    assert_eq!(free_three(vec![0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0]), 2);
-    assert_eq!(free_three(vec![0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0]), 6);
-    assert_eq!(free_three(vec![0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]), 10);
-    assert_eq!(free_three(vec![1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0]), 16);
-    assert_eq!(free_three(vec![1, 1, 1, 0, 2, 2, 1, 1, 1, 1, 0, 0]), 13);
-    assert_eq!(free_three(vec![0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0]), -3);
-    assert_eq!(free_three(vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 0);
-    assert_eq!(free_three(vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]), 1);
-    assert_eq!(free_three(vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]), 3);
-    assert_eq!(free_three(vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]), 6);
+    lines.iter().fold(0, |acc, item|
+        acc + free_three(item) + captures(item)
+    ) as i32
 }

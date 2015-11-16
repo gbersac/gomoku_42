@@ -298,8 +298,8 @@ impl GoBoard {
 impl Display for GoBoard {
 	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
 		let mut to_return = Ok(());
-		for y in (0..self.get_size()) {
-			for x in (0..self.get_size()) {
+		for y in 0..self.get_size() {
+			for x in 0..self.get_size() {
 				to_return = to_return.and(write!(f, "{} ", self.get((x, y))));
 			}
 			to_return = to_return.and(write!(f, "\n"));
