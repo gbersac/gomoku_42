@@ -109,7 +109,7 @@ fn free_three (
 fn captures (
     list: &Vec<Tile>,
 ) -> isize {
-    let (result, pawn, count) = list.iter().fold((0, Tile::FREE, 0), |(result, pawn, count), item| {
+    let (result, _, _) = list.iter().fold((0, Tile::FREE, 0), |(result, pawn, count), item| {
             match (*item, pawn, count) {
                 (Tile::FREE, _, _) => (result, Tile::FREE, 0),
                 (item, Tile::FREE, _) => (result, item, 0),
@@ -123,9 +123,13 @@ fn captures (
             }
         }
     );
-    result
+    match result {
+        result if result > 1 => result,
+        _ => 0,
+    }
 }
 
+#[allow(unused_variables)]
 pub fn heuristic(board: GoBoard, team: Team) -> i32 {
     let grid = board.tiles;
 

@@ -16,15 +16,12 @@ use self::glfw_window::GlfwWindow as Window;
 #[cfg(feature = "include_glutin")]
 use self::glutin_window::GlutinWindow as Window;
 
-use self::graphics::Transformed;
-
 use self::piston::input::*;
 use self::piston::event_loop::*;
 
 use display::mouse::Mouse;
 use display::draw;
 
-use board::Tile;
 use board::GoBoard;
 use board::Team;
 

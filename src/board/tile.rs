@@ -14,6 +14,8 @@ impl Default for Tile {
 }
 
 impl Tile {
+
+	#[allow(dead_code)]
 	pub fn from_str(s: &str) -> Tile {
 		match s {
 			"B" | "b" => Tile::BLACK,

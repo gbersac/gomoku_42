@@ -36,6 +36,6 @@ impl Team {
     }
 
     pub fn add_captured(&mut self, nb_captured: u32) {
-        self.captured += 2;
+        self.captured += nb_captured;
     }
 }
