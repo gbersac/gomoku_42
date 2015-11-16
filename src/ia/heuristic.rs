@@ -1,3 +1,5 @@
+extern crate std;
+
 use board::{GoBoard, Team, Tile};
 
 pub type HeuristicFn = fn(board: GoBoard, team: Team) -> i32;
@@ -90,6 +92,8 @@ fn free_three (
 ) -> isize {
     let (result, pawn, count) = list.iter().fold((0, Tile::FREE, 0), |(result, pawn, count), item| {
             match (*item, pawn, count) {
+                (_, _, 4) => return (std::isize::MAX, Tile::FREE, 0),
+                (_, _, -4) => return (std::isize::MIN, Tile::FREE, 0),
                 (item, Tile::FREE, _) => (result, item, 1),
                 (item, pawn, count) if item == pawn => (result, item, count + 1),
                 (Tile::BLACK, _, count) => (result + {count * {count+1}}/2, Tile::BLACK, 1),
@@ -132,14 +136,12 @@ fn captures (
 #[allow(unused_variables)]
 pub fn heuristic(board: GoBoard, team: Team) -> i32 {
     let grid = board.tiles;
-
     let segment_0 = (0..grid.len()).map(|i| (0..(grid.len())).map(|z| grid[z][i]).collect::<Vec<_>>()); // Ok [7, 5, 3, 1, 0] -> [0, 2, 4, 6, 0] horizontal
     let segment_1 = (0..grid.len()).map(|i| (0..(grid.len())).map(|z| grid[i][z]).collect::<Vec<_>>()); // Ok [7, 5, 3, 1, 0] -> [0, 2, 4, 6, 0] vertical
     let segment_2 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[z][z + i]).collect::<Vec<_>>()); // Ok [7, 3, 0, 4, 0] -> [1, 2] diagonal-right middle-to-bottom
     let segment_3 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[i + z][z]).collect::<Vec<_>>()); // Ok [7, 3, 0, 4, 0] -> [1, 2] diagonal-right middle-to-top
     let segment_4 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[grid.len()-1 - z][z + i]).collect::<Vec<_>>()); // Ok [0, 0, 0, 0, 0] -> [6, 6] diagonal-left middle-to-bottom
     let segment_5 = (0..{grid.len()-1}).map(|i| (0..(grid.len() - i)).map(|z| grid[grid.len()-1 - i - z][z]).collect::<Vec<_>>()); // Ok [0, 0, 0, 0, 0] -> [5, 5] diagonal-left middle-to-top
-
     let lines: Vec<Vec<Tile>> = alternate (
         segment_0,
         segment_1,
@@ -150,6 +152,6 @@ pub fn heuristic(board: GoBoard, team: Team) -> i32 {
     ).collect();
 
     lines.iter().fold(0, |acc, item|
-        acc + free_three(item) + captures(item)
+        acc + free_three(item) + captures(item) * if team.get_tile() == Tile::WHITE {-1} else {1}
     ) as i32
 }
