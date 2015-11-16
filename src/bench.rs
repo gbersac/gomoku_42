@@ -1,37 +1,58 @@
-use board::{GoBoard, Tile, Team};
-use ia::Decision;
-use ia::heuristic::HeuristicFn;
+extern crate test;
 
-fn test_one(s: &str, heur: HeuristicFn, nb_layers: u32, expected: (usize, usize)) {
+use board::{GoBoard, Team};
+use ia::{Decision, heuristic};
+
+fn stupid_heuristic(board: GoBoard, team: Team) -> i32 {
+	42
+}
+
+#[bench]
+fn minmax_algo(b: &mut test::Bencher) {
+	let s = r#"19
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . W . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+	"#;
 	let board = GoBoard::parse_with_size(&s.to_string());
 	let (team_b, team_w) = Team::new_teams();
-	println!("Test\n{}", board);
-	let result =
-			Decision::get_optimal_move(&board, &(team_b, team_w.clone()), team_w, nb_layers, heur);
-	println!("result {:?}\n", result);
-	assert!(expected == result);
+    b.iter(|| {
+		let result =
+				Decision::get_optimal_move(&board, &(team_b, team_w.clone()), team_w, 3, stupid_heuristic);
+    })
 }
 
-fn heur_capture(board: GoBoard, team: Team) -> i32 {
-	team.captured() as i32
-}
-
-///test if the team captured is updated
-#[test]
-fn test_team_capture() {
-	let s = r#"19
+#[bench]
+fn heuristic_bench(b: &mut test::Bencher) {
+ 	let s = r#"19
 . . . . . . . . . . . . . . . . . . .
-. W B B . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . W . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
+. . . . . W B W B W B W W . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
+. . . . . . . . B . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
@@ -40,45 +61,9 @@ fn test_team_capture() {
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, heur_capture, 1, (4, 1));
-}
-
-fn heur_tile_coords(board: GoBoard, team: Team) -> i32 {
-	let mut ttl = 0;
-    for (x, line) in board.tiles.iter().enumerate() {
-	    for (y, tile) in line.iter().enumerate() {
-	        if tile.is_pawn() {
-	        	ttl += (y * 19) + x;
-	        }
-	    }
-    }
-    ttl as i32
-}
-
-#[test]
-fn test_decision() {
-	let s = r#"19
-W . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-	"#;
-	test_one(s, heur_tile_coords, 2, (1, 1));
-	test_one(s, heur_tile_coords, 3, (1, 1));
-	// assert!(false);
+	let board = GoBoard::parse_with_size(&s.to_string());
+	let (_, team_w) = Team::new_teams();
+	b.iter(|| {
+		heuristic(board.clone(), team_w.clone());
+	})
 }

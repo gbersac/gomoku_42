@@ -2,10 +2,10 @@
 name = "gomoku"
 version = "0.1.0"
 authors = [
-  "Guillaume Bersac",
+  "Guillaume Bersac <bersac_1@hotmail.fr>",
   "adjivas <adjivas@users.noreply.github.com>"
 ]
-description = "Game of GO from 42 school"
+description = "Game of Gomoku from 42 school"
 repository = "https://github.com/gbersac/gomoku_42.git"
 
 [dependencies.piston]

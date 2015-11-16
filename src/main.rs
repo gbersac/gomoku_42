@@ -1,3 +1,5 @@
+#![feature(test)]
+
 #[macro_use]
 extern crate clap;
 
@@ -5,6 +7,8 @@ mod board;
 mod display;
 mod ia;
 mod cmd_option;
+#[cfg(test)]
+mod bench;
 
 use clap::App;
 use display::{Console};
