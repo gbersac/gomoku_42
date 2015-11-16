@@ -2,25 +2,25 @@ use ia;
 
 pub type SortFn = fn(
     acc: ((usize, usize), i32),
-    item: ((usize, usize), i32)
+    item: &((usize, usize), i32)
 ) -> ((usize, usize), i32);
 
 fn min(
     acc: ((usize, usize), i32),
-    item: ((usize, usize), i32)
+    item: &((usize, usize), i32)
 ) -> ((usize, usize), i32) {
     if acc.1 > item.1 {
-        return item;
+        return *item;
     }
     acc
 }
 
 fn max(
     acc: ((usize, usize), i32),
-    item: ((usize, usize), i32)
+    item: &((usize, usize), i32)
 ) -> ((usize, usize), i32) {
     if acc.1 < item.1 {
-        return item;
+        return *item;
     }
     acc
 }

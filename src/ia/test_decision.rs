@@ -12,7 +12,7 @@ fn test_one(s: &str, heur: HeuristicFn, nb_layers: u32, expected: (usize, usize)
 	assert!(expected == result);
 }
 
-fn heur_capture(board: &GoBoard, team: &Team) -> i32 {
+fn heur_capture(board: GoBoard, team: Team) -> i32 {
 	println!("heur_capture {:?}", team.captured());
 	team.captured() as i32
 }
@@ -44,7 +44,7 @@ fn test_team_capture() {
 	test_one(s, heur_capture, 1, (4, 1));
 }
 
-fn heur_tile_coords(board: &GoBoard, team: &Team) -> i32 {
+fn heur_tile_coords(board: GoBoard, team: Team) -> i32 {
 	let mut ttl = 0;
     for (x, line) in board.tiles.iter().enumerate() {
 	    for (y, tile) in line.iter().enumerate() {
