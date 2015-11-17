@@ -71,36 +71,14 @@ impl Decision {
 		albet: &(i32, i32),
 		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
-		//create channel to send result of a thread
-		let (tx, rx) = mpsc::channel();
-
-
-		//spawn one resolution thread for each move
-		for mov in moves {
-			let tx = tx.clone();
-
-			//clone a lot of stuff so that we could send them to the thread
-			let self_c = self.clone();
-			let albet_c = (*albet).clone();
-			let mut board_c = board.clone();
-			let teams_c = teams.clone();
-			let mov = (*mov).clone();
-
-			thread::spawn(move || {
-				let res = self_c.compute_one_move(
-						mov, &mut board_c, playing_team.clone(), teams_c,
-						nb_layers, Turn::Adversary, albet_c, heuristic);
-				let _ = tx.send(res);
-			});
-		}
-
 		let mut results = Vec::with_capacity(moves.len());
-		for _ in 0..moves.len() {
-			let res = rx.recv().unwrap();
+		for mov in moves {
+			let res = self.compute_one_move(
+					*mov, &mut board.clone(), playing_team.clone(), teams.clone(),
+					nb_layers, Turn::Adversary, *albet, heuristic);
 			results.push(res);
 		}
-		// select min or max according to convenience
-		println!("nb iter {:?} nb_layers {}", moves.len(), nb_layers);
+		// println!("nb iter {:?} nb_layers {}", moves.len(), nb_layers);
 		let res = results.iter().fold(turn.default_result(), turn.sort_fn());
 		res
 	}
@@ -167,14 +145,15 @@ impl Decision {
 				Tile::WHITE => teams.1,
 				Tile::FREE => panic!("bad team type"),
 			};
-			println!("heuristic computation");
+			// println!("heuristic computation");
 			// is there moves where the coords value matter for this ?
 			return ((0, 0), (heuristic)(&board, updated_player));
 		}
 
 		// get potential next moves
 		let moves = super::move_to_evaluate::move_to_evaluate(&board, &playing_team);
-		println!("move_to_evaluate {:?} nb_layers {}", moves.len(), nb_layers);
+		// println!("{}", board);
+		// println!("move_to_evaluate {:?} nb_layers {}", moves.len(), nb_layers);
 		if moves.len() == 0 {
 			unimplemented!();
 		}
