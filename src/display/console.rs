@@ -133,7 +133,7 @@ impl Console {
             match (self.turn, self.player.clone(), self.friend.clone()) {
                 (true, (player, Player::Ia), (friend, _)) => {
                     let position = Decision::get_optimal_move (
-                        &self.board,
+                        &mut self.board,
                         &(player, friend),
                         friend,
                         self.layer,
@@ -150,7 +150,7 @@ impl Console {
                 },
                 (false, (player, _), (friend, Player::Ia)) => {
                     let position = Decision::get_optimal_move (
-                        &self.board,
+                        &mut self.board,
                         &(player, friend),
                         friend,
                         self.layer,

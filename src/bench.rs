@@ -3,7 +3,7 @@ extern crate test;
 use board::{GoBoard, Team};
 use ia::{Decision, heuristic};
 
-fn stupid_heuristic(board: GoBoard, team: Team) -> i32 {
+fn stupid_heuristic(board: &GoBoard, team: Team) -> i32 {
 	42
 }
 
@@ -30,11 +30,11 @@ fn minmax_algo(b: &mut test::Bencher) {
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	let board = GoBoard::parse_with_size(&s.to_string());
+	let mut board = GoBoard::parse_with_size(&s.to_string());
 	let (team_b, team_w) = Team::new_teams();
     b.iter(|| {
 		let result =
-				Decision::get_optimal_move(&board, &(team_b, team_w.clone()), team_w, 3, stupid_heuristic);
+				Decision::get_optimal_move(&mut board, &(team_b, team_w.clone()), team_w, 3, stupid_heuristic);
     })
 }
 
@@ -61,9 +61,9 @@ fn heuristic_bench(b: &mut test::Bencher) {
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	let board = GoBoard::parse_with_size(&s.to_string());
+	let mut board = GoBoard::parse_with_size(&s.to_string());
 	let (_, team_w) = Team::new_teams();
 	b.iter(|| {
-		heuristic(board.clone(), team_w.clone());
+		heuristic(&mut board, team_w.clone());
 	})
 }

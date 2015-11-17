@@ -3,16 +3,16 @@ use ia::Decision;
 use ia::heuristic::HeuristicFn;
 
 fn test_one(s: &str, heur: HeuristicFn, nb_layers: u32, expected: (usize, usize)) {
-	let board = GoBoard::parse_with_size(&s.to_string());
+	let mut board = GoBoard::parse_with_size(&s.to_string());
 	let (team_b, team_w) = Team::new_teams();
 	println!("Test\n{}", board);
 	let result =
-			Decision::get_optimal_move(&board, &(team_b, team_w.clone()), team_w, nb_layers, heur);
+			Decision::get_optimal_move(&mut board, &(team_b, team_w.clone()), team_w, nb_layers, heur);
 	println!("result {:?}\n", result);
 	assert!(expected == result);
 }
 
-fn heur_capture(board: GoBoard, team: Team) -> i32 {
+fn heur_capture(board: &GoBoard, team: Team) -> i32 {
 	team.captured() as i32
 }
 
@@ -43,7 +43,7 @@ fn test_team_capture() {
 	test_one(s, heur_capture, 1, (4, 1));
 }
 
-fn heur_tile_coords(board: GoBoard, team: Team) -> i32 {
+fn heur_tile_coords(board: &GoBoard, team: Team) -> i32 {
 	let mut ttl = 0;
     for (x, line) in board.tiles.iter().enumerate() {
 	    for (y, tile) in line.iter().enumerate() {

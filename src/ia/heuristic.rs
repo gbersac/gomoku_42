@@ -1,6 +1,6 @@
 use board::{GoBoard, Team, Tile};
 
-pub type HeuristicFn = fn(board: GoBoard, team: Team) -> i32;
+pub type HeuristicFn = fn(board: &GoBoard, team: Team) -> i32;
 
 /// Returns a numerical value which approximate how close the board is to
 /// victory for the team.
@@ -130,7 +130,7 @@ fn captures (
 }
 
 #[allow(unused_variables)]
-pub fn heuristic(board: GoBoard, team: Team) -> i32 {
+pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
     let grid = board.tiles;
 
     let segment_0 = (0..grid.len()).map(|i| (0..(grid.len())).map(|z| grid[z][i]).collect::<Vec<_>>()); // Ok [7, 5, 3, 1, 0] -> [0, 2, 4, 6, 0] horizontal

@@ -7,7 +7,6 @@ use ia::heuristic::HeuristicFn;
 
 #[derive(Clone)]
 pub struct Decision {
-	heuristic: HeuristicFn,
 	player: Team
 }
 
@@ -47,28 +46,30 @@ impl Decision {
 	/// launch the recursive for one of the move to evaluate
 	fn compute_one_move(&self,
 		coords: (usize, usize),
-		mut board: GoBoard,
+		board: &mut GoBoard,
 		mut playing_team: Team,
 		teams: (Team, Team),
 		nb_layers: u32,
 		turn: Turn,
-		albet: (i32, i32)
+		albet: (i32, i32),
+		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
 		board.set(coords, &mut playing_team);
 		let teams = Decision::updated_team(&teams, playing_team.clone());
 		let (_, heur) = self.recursive(
-				board.clone(), turn.other(), teams.clone(), nb_layers - 1, albet);
+				board, turn.other(), teams.clone(), nb_layers - 1, albet, heuristic);
 		(coords, heur)
 	}
 
 	fn select_best_move(&self,
 		moves: &Vec<(usize, usize)>,
-		board: &GoBoard,
+		board: &mut GoBoard,
 		mut playing_team: Team,
 		teams: &(Team, Team),
 		nb_layers: u32,
 		turn: Turn,
 		albet: &(i32, i32),
+		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
 		//create channel to send result of a thread
 		let (tx, rx) = mpsc::channel();
@@ -87,8 +88,8 @@ impl Decision {
 
 			thread::spawn(move || {
 				let res = self_c.compute_one_move(
-						mov, board_c, playing_team.clone(), teams_c,
-						nb_layers, Turn::Adversary, albet_c);
+						mov, &mut board_c, playing_team.clone(), teams_c,
+						nb_layers, Turn::Adversary, albet_c, heuristic);
 				let _ = tx.send(res);
 			});
 		}
@@ -105,15 +106,16 @@ impl Decision {
 
 	fn algo_min(&self,
 		moves: &Vec<(usize, usize)>,
-		board: &GoBoard,
+		board: &mut GoBoard,
 		playing_team: &Team,
 		teams: &(Team, Team),
 		nb_layers: u32,
-		(alpha, mut beta) : (i32, i32)
+		(alpha, mut beta) : (i32, i32),
+		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
 		let (mut coords, mut val) = self.select_best_move(
-				moves, &board, playing_team.clone(), &teams,
-				nb_layers, Turn::Adversary, &(alpha, beta));
+				moves, board, playing_team.clone(), &teams,
+				nb_layers, Turn::Adversary, &(alpha, beta), heuristic);
 		if alpha > val { //alpha cut. We know this branch won't be selected
 			println!("alpha cut");
 			return (coords, val);
@@ -126,15 +128,16 @@ impl Decision {
 
 	fn algo_max(&self,
 		moves: &Vec<(usize, usize)>,
-		board: &GoBoard,
+		board: &mut GoBoard,
 		playing_team: &Team,
 		teams: &(Team, Team),
 		nb_layers: u32,
-		(mut alpha, beta) : (i32, i32)
+		(mut alpha, beta) : (i32, i32),
+		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
 		let (mut coords, mut val) = self.select_best_move(
-				moves, &board, playing_team.clone(), &teams,
-				nb_layers, Turn::Player, &(alpha, beta));
+				moves, board, playing_team.clone(), &teams,
+				nb_layers, Turn::Player, &(alpha, beta), heuristic);
 		if val > beta { //beta cut. We know this branch won't be selected
 			println!("beta cut");
 			return (coords, val);
@@ -147,11 +150,12 @@ impl Decision {
 
 	/// albet: alpha < beta
 	fn recursive(&self,
-		board: GoBoard,
+		board: &mut GoBoard,
 		turn: Turn,
 		teams: (Team, Team),
 		nb_layers: u32,
-		albet : (i32, i32)
+		albet : (i32, i32),
+		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
 		let playing_team: Team = Decision::playing_team(&turn, &teams, &self.player).clone();
 
@@ -163,7 +167,7 @@ impl Decision {
 				Tile::FREE => panic!("bad team type"),
 			};
 			// is there moves where the coords value matter for this ?
-			return ((0, 0), (self.heuristic)(board, updated_player));
+			return ((0, 0), (heuristic)(&board, updated_player));
 		}
 
 		// get potential next moves
@@ -176,10 +180,10 @@ impl Decision {
 		let default_result = ((0, 0), turn.init());
 		let to_return = match turn.is_min() {
 			true => {
-				self.algo_min(&moves, &board, &playing_team, &teams, nb_layers, albet)
+				self.algo_min(&moves, board, &playing_team, &teams, nb_layers, albet, heuristic)
 			},
 			false => {
-				self.algo_max(&moves, &board, &playing_team, &teams, nb_layers, albet)
+				self.algo_max(&moves, board, &playing_team, &teams, nb_layers, albet, heuristic)
 			},
 		};
 		if to_return.1 == 2 {
@@ -199,21 +203,20 @@ impl Decision {
 	/// to evaluate the best move. The higher will improve the quality of result
 	/// but also computationnal time.
 	pub fn get_optimal_move (
-		board: &GoBoard,
+		board: &mut GoBoard,
 		teams: &(Team, Team),
 		player: Team,
 		nb_layers: u32,
-		heur: HeuristicFn
+		heuristic: HeuristicFn
 	) -> (usize, usize) {
 		if board.is_empty() {
 			return (9, 9);
 		}
 		let dec = Decision {
-			heuristic: heur,
 			player: player.clone()
 		};
-		let (coords, _) = dec.recursive(board.clone(), Turn::Player, *teams, nb_layers,
-				(-ia::INFINITE, ia::INFINITE));
+		let (coords, _) = dec.recursive(board, Turn::Player, *teams, nb_layers,
+				(-ia::INFINITE, ia::INFINITE), heuristic);
 		coords
 	}
 }
