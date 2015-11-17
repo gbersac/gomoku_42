@@ -100,6 +100,7 @@ impl Decision {
 			results.push(res);
 		}
 		// select min or max according to convenience
+		println!("nb iter {:?} nb_layers {}", moves.len(), nb_layers);
 		let res = results.iter().fold(turn.default_result(), turn.sort_fn());
 		res
 	}
@@ -166,12 +167,14 @@ impl Decision {
 				Tile::WHITE => teams.1,
 				Tile::FREE => panic!("bad team type"),
 			};
+			println!("heuristic computation");
 			// is there moves where the coords value matter for this ?
 			return ((0, 0), (heuristic)(&board, updated_player));
 		}
 
 		// get potential next moves
 		let moves = super::move_to_evaluate::move_to_evaluate(&board, &playing_team);
+		println!("move_to_evaluate {:?} nb_layers {}", moves.len(), nb_layers);
 		if moves.len() == 0 {
 			unimplemented!();
 		}
