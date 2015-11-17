@@ -38,3 +38,6 @@ include_glutin = ["pistoncore-glutin_window"]
 
 [dependencies.clap]
 features = ["yaml"]
+
+[dependencies]
+chrono = "0.2.16"

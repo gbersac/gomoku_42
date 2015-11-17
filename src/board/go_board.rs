@@ -57,13 +57,11 @@ impl GoBoard {
 			self.unset_gap(coords, 1);
 			self.unset_gap(coords, 2);
 			team.add_captured(2);
-			println!("captured left {:?}", team);
 		}
 		if  right {
 			self.unset_gap(coords, -1);
 			self.unset_gap(coords, -2);
 			team.add_captured(2);
-			println!("captured right {:?}", team);
 		}
 	}
 

@@ -39,3 +39,18 @@ impl Team {
         self.captured += nb_captured;
     }
 }
+
+use std::fmt::{Formatter, Display, Error};
+
+impl Display for Team
+{
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
+    {
+        match self.get_tile() {
+            Tile::BLACK => write!(f, "black"),
+            Tile::WHITE => write!(f, "white"),
+            _ => panic!("forbiden team tile"),
+        };
+        Ok(())
+    }
+}

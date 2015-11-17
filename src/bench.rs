@@ -8,7 +8,7 @@ fn stupid_heuristic(board: &GoBoard, team: Team) -> i32 {
 }
 
 #[bench]
-fn minmax_algo(b: &mut test::Bencher) {
+fn minmax_algo_3_layers(b: &mut test::Bencher) {
 	let s = r#"19
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .

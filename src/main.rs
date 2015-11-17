@@ -2,6 +2,7 @@
 
 #[macro_use]
 extern crate clap;
+extern crate chrono;
 
 mod board;
 mod display;
