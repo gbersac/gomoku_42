@@ -89,15 +89,15 @@ impl <T,
 
 fn free_three (
     list: &Vec<Tile>,
-) -> isize {
+) -> i32 {
     let (result, pawn, count) = list.iter().fold((0, Tile::FREE, 0), |(result, pawn, count), item| {
             match (*item, pawn, count) {
-                (_, _, 4) => return (std::isize::MAX, Tile::FREE, 0),
-                (_, _, -4) => return (std::isize::MIN, Tile::FREE, 0),
+                (Tile::WHITE, _, 3) => return (std::i32::MAX, Tile::FREE, 0),
+                (Tile::BLACK, _, 3) => return (!std::i32::MAX, Tile::FREE, 0),
                 (item, Tile::FREE, _) => (result, item, 1),
                 (item, pawn, count) if item == pawn => (result, item, count + 1),
-                (Tile::BLACK, _, count) => (result + {count * {count+1}}/2, Tile::BLACK, 1),
                 (Tile::WHITE, _, count) => (result - {count * {count+1}}/2, Tile::WHITE, 1),
+                (Tile::BLACK, _, count) => (result + {count * {count+1}}/2, Tile::BLACK, 1),
                 (_, Tile::WHITE, count) => (result + {count * {count+1}}/2, Tile::FREE, 0),
                 (_, Tile::BLACK, count) => (result - {count * {count+1}}/2, Tile::FREE, 0),
             }
@@ -106,31 +106,52 @@ fn free_three (
     result + match pawn {
         Tile::FREE => 0,
         Tile::WHITE => (count * (count+1)) / 2,
-        Tile::BLACK => -(count * (count+1)) / 2,
+        Tile::BLACK => (count * (count+1)) / -2,
     }
+}
+
+#[test]
+fn test_free_three() {
+    assert!(0 == free_three(&vec!()));
+    assert!(std::i32::MAX == free_three(&vec!(Tile::WHITE, Tile::WHITE, Tile::WHITE, Tile::WHITE)));
+    assert!(!std::i32::MAX == free_three(&vec!(Tile::BLACK, Tile::BLACK, Tile::BLACK, Tile::BLACK)));
+    assert!(0 < free_three(&vec!(Tile::WHITE, Tile::FREE, Tile::WHITE, Tile::FREE)));
+    assert!(0 > free_three(&vec!(Tile::BLACK, Tile::FREE, Tile::BLACK, Tile::FREE)));
 }
 
 fn captures (
     list: &Vec<Tile>,
-) -> isize {
+) -> i32 {
     let (result, _, _) = list.iter().fold((0, Tile::FREE, 0), |(result, pawn, count), item| {
-            match (*item, pawn, count) {
-                (Tile::FREE, _, _) => (result, Tile::FREE, 0),
-                (item, Tile::FREE, _) => (result, item, 0),
-                (item, pawn, 0) if item != pawn => (result, item, 1),
-                (item, pawn, 0) if item == pawn => (result, Tile::FREE, 0),
-                (item, pawn, count) if item == pawn => (result, pawn, count + 1),
-                (Tile::BLACK, Tile::WHITE, count) => (result - count, Tile::FREE, 0),
-                (Tile::WHITE, Tile::BLACK, count) => (result + count, Tile::FREE, 0),
-                (Tile::BLACK, Tile::BLACK, _) => unimplemented!(),
-                (Tile::WHITE, Tile::WHITE, _) => unimplemented!(),
-            }
-        }
-    );
-    match result {
-        result if result > 1 => result,
-        _ => 0,
-    }
+             match (*item, pawn, count) {
+                 (Tile::FREE, _, _) => (result, Tile::FREE, 0),
+                 (item, Tile::FREE, _) => (result, item, 0),
+                 (item, pawn, 0) if item != pawn => (result, item, 1),
+                 (item, pawn, 0) if item == pawn => (result, Tile::FREE, 0),
+                 (item, pawn, count) if item == pawn => (result, pawn, count + 1),
+                 (Tile::BLACK, Tile::WHITE, count) => (result - count, Tile::FREE, 0),
+                 (Tile::WHITE, Tile::BLACK, count) => (result + count, Tile::FREE, 0),
+                 (Tile::BLACK, Tile::BLACK, _) => unimplemented!(),
+                 (Tile::WHITE, Tile::WHITE, _) => unimplemented!(),
+             }
+         }
+     );
+     match result {
+         -1...1 => 0,
+         result => result,
+     }
+
+}
+
+#[test]
+fn test_captures() {
+    assert!(0 == captures(&vec!()));
+    assert!(0 == captures(&vec!(Tile::WHITE, Tile::BLACK, Tile::WHITE)));
+    assert!(0 < captures(&vec!(Tile::WHITE, Tile::BLACK, Tile::BLACK, Tile::WHITE)));
+    assert!(0 == captures(&vec!(Tile::BLACK, Tile::WHITE, Tile::BLACK)));
+    assert!(0 > captures(&vec!(Tile::BLACK, Tile::WHITE, Tile::WHITE, Tile::BLACK)));
+    assert!(captures(&vec!(Tile::WHITE, Tile::BLACK, Tile::BLACK, Tile::WHITE)) < captures(&vec!(Tile::WHITE, Tile::BLACK, Tile::BLACK, Tile::BLACK, Tile::WHITE)));
+    assert!(captures(&vec!(Tile::BLACK, Tile::WHITE, Tile::WHITE, Tile::BLACK)) > captures(&vec!(Tile::BLACK, Tile::WHITE, Tile::WHITE, Tile::WHITE, Tile::BLACK)));
 }
 
 #[allow(unused_variables)]
@@ -151,7 +172,287 @@ pub fn heuristic(board: GoBoard, team: Team) -> i32 {
         segment_5
     ).collect();
 
-    lines.iter().fold(0, |acc, item|
-        acc + free_three(item) + captures(item) * if team.get_tile() == Tile::WHITE {-1} else {1}
-    ) as i32
+    let result = lines.iter().fold(0, |acc, item|
+        match (free_three(item), captures(item)) {
+            (three, _) if three == std::i32::MAX || three == !std::i32::MAX => return three,
+            (_, capture) => capture,
+        } + acc
+    );
+    match team.get_tile() {
+        Tile::WHITE => result,
+        Tile::BLACK => !result,
+        Tile::FREE => unimplemented!(),
+    }
+}
+
+#[test]
+fn test_win_free_three() {
+    assert! (
+         std::i32::MAX == heuristic (
+            GoBoard::parse_with_size (&r#"19
+            W W W W . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::WHITE)
+        )
+    );
+    assert! (
+         !std::i32::MAX == heuristic (
+            GoBoard::parse_with_size (&r#"19
+            W W W W . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::BLACK)
+        )
+    );
+    assert! (
+         !std::i32::MAX == heuristic (
+            GoBoard::parse_with_size (&r#"19
+            B B B B . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::WHITE)
+        )
+    );
+    assert! (
+         std::i32::MAX == heuristic (
+            GoBoard::parse_with_size (&r#"19
+            B B B B . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::BLACK)
+        )
+    );
+    assert! (
+         !std::i32::MAX != heuristic (
+            GoBoard::parse_with_size (&r#"19
+            W W W . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::BLACK)
+        )
+    );
+    assert! (
+         std::i32::MAX != heuristic (
+            GoBoard::parse_with_size (&r#"19
+            B B B . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::BLACK)
+        )
+    );
+}
+
+#[test]
+fn test_win_capture() {
+    assert! (
+         0 < heuristic (
+            GoBoard::parse_with_size (&r#"19
+            W . . . . . . . . . . . . . . . . . .
+            . B . . . . . . . . . . . . . . . . .
+            . . B . . . . . . . . . . . . . . . .
+            . . . W . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::WHITE)
+        )
+    );
+}
+
+#[test]
+fn test_null() {
+    assert! (
+         0 == heuristic (
+            GoBoard::parse_with_size (&r#"19
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::WHITE)
+        )
+    );
+    assert! (
+         0 == heuristic (
+            GoBoard::parse_with_size (&r#"19
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . W . . . . . . . . . . . . . . . B .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::WHITE)
+        )
+    );
+    assert! (
+         0 == heuristic (
+            GoBoard::parse_with_size (&r#"19
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . W W W . . . . . . . . . . . B B B .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(Tile::WHITE)
+        )
+    );
 }

@@ -4,4 +4,4 @@
 
 A gomoku game with an artificial intelligence. The goban has a width of 19 tiles. Developped using the [rust programming language](https://www.rust-lang.org/).
 
-cargo run -- --player human --friend human
+cargo run --release -- --player human --friend ia
