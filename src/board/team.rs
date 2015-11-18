@@ -10,7 +10,7 @@ impl Team {
 
 	/// The `new` constructor function returns the Team.
 
-	fn new(color: Tile) -> Team {
+	pub fn new(color: Tile) -> Team {
 	    Team {
 	    	color: color,
 	    	captured: 0,

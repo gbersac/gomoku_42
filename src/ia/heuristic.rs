@@ -94,7 +94,6 @@ impl <T,
 fn free_three (
     list: &Vec<Tile>,
 ) -> i32 {
-    println!("{:?}", list);
     let (result, pawn, count) = list.iter().fold((0, FREE, 0), |(result, pawn, count), item| {
             if result == std::i32::MAX || result == !std::i32::MAX {
                 (result, FREE, 0)
@@ -166,12 +165,12 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
     }
 }
 
-/*
+
 #[test]
 fn test_win_free_three() {
     assert! (
          std::i32::MAX == heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             W W W W . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -197,7 +196,7 @@ fn test_win_free_three() {
     );
     assert! (
          !std::i32::MAX == heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             W W W W . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -223,7 +222,7 @@ fn test_win_free_three() {
     );
     assert! (
          !std::i32::MAX == heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             B B B B . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -249,7 +248,7 @@ fn test_win_free_three() {
     );
     assert! (
          std::i32::MAX == heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             B B B B . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -275,7 +274,7 @@ fn test_win_free_three() {
     );
     assert! (
          !std::i32::MAX != heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             W W W . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -301,7 +300,7 @@ fn test_win_free_three() {
     );
     assert! (
          std::i32::MAX != heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             B B B . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -331,7 +330,7 @@ fn test_win_free_three() {
 fn test_null() {
     assert! (
          0 == heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -357,7 +356,7 @@ fn test_null() {
     );
     assert! (
          0 == heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -383,7 +382,7 @@ fn test_null() {
     );
     assert! (
          0 == heuristic (
-            GoBoard::parse_with_size (r#"19
+            &GoBoard::parse_with_size (&r#"19
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . . . . .
@@ -407,4 +406,4 @@ fn test_null() {
             Team::new(WHITE)
         )
     );
-}*/
+}
