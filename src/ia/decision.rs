@@ -89,11 +89,10 @@ impl Decision {
 			// is there moves where the coords value matter for this ?
 			self.nb_final += 1;
 			let begin = UTC::now();
-			let res = ((0, 0), (heuristic)(&board, updated_player));
+			let (coords, value) = ((0, 0), (heuristic)(&board, updated_player));
 			let end = UTC::now();
-			// println!("begin {:?} end {:?} diff {:?}", begin, end, (end - begin));
 			self.time_in_heuristic = self.time_in_heuristic + (end - begin);
-			return res;
+			return (coords, value * turn.sign_alternation());
 		}
 
 		//else recursive to call each childs
@@ -119,9 +118,14 @@ impl Decision {
 			if one_val > best_value {
 				best_value = one_val;
 				best_coord = one_coord;
+				alpha = std::cmp::max(alpha, best_value);
+				if alpha >= beta {
+					// println!("elagage alpha beta");
+					break ;
+				}
 			}
 		}
-		(best_coord, best_value)
+		(best_coord, -best_value)
 	}
 
 	fn print_result(&self,
@@ -168,7 +172,7 @@ impl Decision {
 		let (coords, _) = dec.recursive(board, Turn::Player, *teams, nb_layers,
 				(ia::NINFINITE, ia::INFINITE), heuristic);
 		let end = UTC::now();
-		dec.print_result(coords, end - begin, nb_layers);
+		// dec.print_result(coords, end - begin, nb_layers);
 		coords
 	}
 }

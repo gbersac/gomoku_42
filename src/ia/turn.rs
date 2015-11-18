@@ -68,4 +68,11 @@ impl Turn {
             false => ((0, 0), -ia::INFINITE),
         }
     }
+
+    pub fn sign_alternation(&self) -> i32 {
+        match *self {
+            Turn::Player => -1,
+            Turn::Adversary => 1,
+        }
+    }
 }

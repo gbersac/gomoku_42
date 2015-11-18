@@ -15,10 +15,13 @@ pub use self::heuristic::heuristic;
 pub const INFINITE: i32 = std::i32::MAX;
 pub const NINFINITE: i32 = std::i32::MIN;
 
-pub fn neg_infinite(inf: i32) -> i32 {
-    if inf == INFINITE {
+/// Return the opposite of the value. Special case for infinity.
+pub fn neg_infinite(value: i32) -> i32 {
+    if value == INFINITE {
     	NINFINITE
+    } else if value == NINFINITE {
+    	INFINITE
     } else {
-    	NINFINITE
+        -value
     }
 }
