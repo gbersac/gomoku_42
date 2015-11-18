@@ -24,6 +24,7 @@ use display::draw;
 
 use board::GoBoard;
 use board::Team;
+use board::Tile;
 
 use ia::Decision;
 use ia::heuristic;
@@ -93,18 +94,56 @@ impl Console {
             dimension.1 / size,
         ])
     }
+    
+    fn set_raw (&mut self, (x, y): (usize, usize)) -> (usize, usize) {
+        let position: (usize, usize) = (
+            x,
+            y
+        );
 
-    fn play (
-        &mut self,
-        coordinate: (u32, u32),
-        length: u32,
-    ) {
-        if let Some(coordinate) = self.event.check_inside_window (
-            coordinate,
-            length,
-        ) {
-            self.event.set_coordinate(coordinate);
-        }
+        self.board.set_raw (
+            position,
+            self.friend.0.get_tile()
+        );
+        self.turn = !self.turn;
+        position
+    }
+    
+    fn set (&mut self, event: &Event, team: &mut Team) -> (usize, usize) {
+        let position = self.event.get_coordinate();
+
+        if let Some(Button::Mouse(_)) = event.press_args() {
+            if self.board.set(position, team) {
+                self.turn = !self.turn;
+            }
+        };
+        position
+    }
+
+    fn play (&mut self, event: &Event) -> Option<Tile> {
+        let (x, y):(usize, usize) = match (self.turn, self.player.clone(), self.friend.clone()) {
+            (true, (player, Player::Ia), (friend, _)) | (false, (player, _), (friend, Player::Ia)) => {
+                let position = Decision::get_optimal_move (
+                    &mut self.board,
+                    &(player, friend),
+                    friend,
+                    self.layer,
+                    heuristic
+                );
+                self.set_raw(position)
+            },
+            (true, (_, Player::Human), (_, _)) => {
+                let mut team = self.player.0;
+                
+                self.set(event, &mut team)
+            },
+            (false, (_, _), (_, Player::Human)) => {
+                let mut team = self.friend.0;
+                
+                self.set(event, &mut team)
+            },
+        };
+        self.board.is_win(x, y)
     }
 
     pub fn start (
@@ -128,57 +167,16 @@ impl Console {
             if let Some(coordinate) = event.mouse_cursor(|x, y| {
                 (x as u32, y as u32)
             }) {
-                self.play(coordinate, limit);
+                if let Some(coordinate) = self.event.check_inside_window (
+                    coordinate,
+                    limit,
+                ) {
+                    self.event.set_coordinate(coordinate);
+                }
             }
-            match (self.turn, self.player.clone(), self.friend.clone()) {
-                (true, (player, Player::Ia), (friend, _)) => {
-                    let position = Decision::get_optimal_move (
-                        &mut self.board,
-                        &(player, friend),
-                        friend,
-                        self.layer,
-                        heuristic
-                    );
-                    self.board.set_raw (
-                        (
-                            position.0 as usize,
-                            position.1 as usize
-                        ),
-                        self.player.0.get_tile()
-                    );
-                    self.turn = !self.turn;
-                },
-                (false, (player, _), (friend, Player::Ia)) => {
-                    let position = Decision::get_optimal_move (
-                        &mut self.board,
-                        &(player, friend),
-                        friend,
-                        self.layer,
-                        heuristic
-                    );
-                    self.board.set_raw (
-                        (
-                            position.0 as usize,
-                            position.1 as usize
-                        ),
-                        self.friend.0.get_tile()
-                    );
-                    self.turn = !self.turn;
-                },
-                (true, (_, Player::Human), (_, _)) => {
-                    if let Some(Button::Mouse(_)) = event.press_args() {
-                        if self.board.set(self.event.get_coordinate(), &mut self.player.0) {
-                            self.turn = !self.turn;
-                        }
-                    }
-                },
-                (false, (_, _), (_, Player::Human)) => {
-                    if let Some(Button::Mouse(_)) = event.press_args() {
-                        if self.board.set(self.event.get_coordinate(), &mut self.friend.0) {
-                            self.turn = !self.turn;
-                        }
-                    }
-                },
+            if let Some(team) = self.play(&event) {
+                println!("{} win! Give a cookie at this player!", team);
+                break ;
             }
             if let Some(args) = event.render_args() {
                 gl.draw(args.viewport(), |context, g| {
