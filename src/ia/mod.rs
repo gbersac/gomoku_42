@@ -9,6 +9,16 @@ mod test_decision;
 mod test_move_to_evaluate;
 mod move_to_evaluate;
 
-pub const INFINITE: i32 = std::i32::MAX;
 pub use self::decision::{Decision};
 pub use self::heuristic::heuristic;
+
+pub const INFINITE: i32 = std::i32::MAX;
+pub const NINFINITE: i32 = std::i32::MIN;
+
+pub fn neg_infinite(inf: i32) -> i32 {
+    if inf == INFINITE {
+    	NINFINITE
+    } else {
+    	NINFINITE
+    }
+}

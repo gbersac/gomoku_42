@@ -1,3 +1,4 @@
+use std;
 use std::thread;
 use std::sync::mpsc;
 use board::{GoBoard, Team, Tile};
@@ -61,83 +62,18 @@ impl Decision {
 		board.set(coords, &mut playing_team);
 		let teams = Decision::updated_team(&teams, playing_team.clone());
 		let (_, heur) = self.recursive(
-				board, turn.other(), teams.clone(), nb_layers - 1, albet, heuristic);
+				board, turn, teams.clone(), nb_layers, albet, heuristic);
 		(coords, heur)
 	}
 
-	fn select_best_move(&mut self,
-		moves: &Vec<(usize, usize)>,
-		board: &mut GoBoard,
-		mut playing_team: Team,
-		teams: &(Team, Team),
-		nb_layers: u32,
-		turn: Turn,
-		albet: &(i32, i32),
-		heuristic: HeuristicFn
-	) -> ((usize, usize), i32) {
-		let mut results = Vec::with_capacity(moves.len());
-		for mov in moves {
-			let res = self.compute_one_move(
-					*mov, &mut board.clone(), playing_team.clone(), teams.clone(),
-					nb_layers, Turn::Adversary, *albet, heuristic);
-			results.push(res);
-		}
-		// println!("nb iter {:?} nb_layers {}", moves.len(), nb_layers);
-		let res = results.iter().fold(turn.default_result(), turn.sort_fn());
-		res
-	}
-
-	fn algo_min(&mut self,
-		moves: &Vec<(usize, usize)>,
-		board: &mut GoBoard,
-		playing_team: &Team,
-		teams: &(Team, Team),
-		nb_layers: u32,
-		(alpha, mut beta) : (i32, i32),
-		heuristic: HeuristicFn
-	) -> ((usize, usize), i32) {
-		let (mut coords, mut val) = self.select_best_move(
-				moves, board, playing_team.clone(), &teams,
-				nb_layers, Turn::Adversary, &(alpha, beta), heuristic);
-		if alpha > val { //alpha cut. We know this branch won't be selected
-			println!("alpha cut");
-			return (coords, val);
-		}
-		if beta < val { // beta = Min(beta, Val)
-			beta = val;
-		}
-		(coords, val)
-	}
-
-	fn algo_max(&mut self,
-		moves: &Vec<(usize, usize)>,
-		board: &mut GoBoard,
-		playing_team: &Team,
-		teams: &(Team, Team),
-		nb_layers: u32,
-		(mut alpha, beta) : (i32, i32),
-		heuristic: HeuristicFn
-	) -> ((usize, usize), i32) {
-		let (mut coords, mut val) = self.select_best_move(
-				moves, board, playing_team.clone(), &teams,
-				nb_layers, Turn::Player, &(alpha, beta), heuristic);
-		if val > beta { //beta cut. We know this branch won't be selected
-			println!("beta cut");
-			return (coords, val);
-		}
-		if alpha > val { // alpha = Max(alpha, Val)
-			alpha = val;
-		}
-		(coords, val)
-	}
-
 	/// albet: alpha < beta
+	/// [algo explication](https://en.wikipedia.org/wiki/Negamax)
 	fn recursive(&mut self,
 		board: &mut GoBoard,
 		turn: Turn,
 		teams: (Team, Team),
 		nb_layers: u32,
-		albet : (i32, i32),
+		(mut alpha, mut beta) : (i32, i32),
 		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
 		self.nb_node += 1;
@@ -160,30 +96,40 @@ impl Decision {
 			return res;
 		}
 
+		//else recursive to call each childs
+
 		// get potential next moves
 		let moves = super::move_to_evaluate::move_to_evaluate(&board, &playing_team);
 		if moves.len() == 0 {
 			unimplemented!();
 		}
 
-		// test each move
-		let default_result = ((0, 0), turn.init());
-		let to_return = match turn.is_min() {
-			true => {
-				self.algo_min(&moves, board, &playing_team, &teams, nb_layers, albet, heuristic)
-			},
-			false => {
-				self.algo_max(&moves, board, &playing_team, &teams, nb_layers, albet, heuristic)
-			},
-		};
-		to_return
+		// best heuristic value for one move set to -infinite
+		let mut best_value = ia::NINFINITE;
+		let mut best_coord = (0, 0);
+		for mov in moves {
+			let (one_coord, one_val) = self.compute_one_move(mov,
+					&mut board.clone(),
+					playing_team.clone(),
+					teams.clone(),
+					nb_layers - 1,
+					turn.other(),
+					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
+					heuristic);
+			if one_val > best_value {
+				best_value = one_val;
+				best_coord = one_coord;
+			}
+		}
+		(best_coord, best_value)
 	}
 
 	fn print_result(&self,
 		(x_result, y_result): (usize, usize),
-		total_time: Duration
+		total_time: Duration,
+		nb_layers: u32
 	) {
-		println!("###IA search best move for team {}", self.player);
+		println!("###IA search best move for team {}, num of layers {}", self.player, nb_layers);
 		println!("Number of heuristic calls {}", self.nb_final);
 		println!("Number of node            {}", self.nb_node);
 		println!("Time to compute       {: >#2}s {}ms", total_time.num_seconds(), total_time.num_milliseconds());
@@ -220,9 +166,9 @@ impl Decision {
 		};
 		let begin = UTC::now();
 		let (coords, _) = dec.recursive(board, Turn::Player, *teams, nb_layers,
-				(-ia::INFINITE, ia::INFINITE), heuristic);
+				(ia::NINFINITE, ia::INFINITE), heuristic);
 		let end = UTC::now();
-		dec.print_result(coords, end - begin);
+		dec.print_result(coords, end - begin, nb_layers);
 		coords
 	}
 }

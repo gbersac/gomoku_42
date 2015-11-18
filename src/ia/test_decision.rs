@@ -80,5 +80,6 @@ W . . . . . . . . . . . . . . . . . .
 	"#;
 	test_one(s, heur_tile_coords, 2, (1, 1));
 	test_one(s, heur_tile_coords, 3, (1, 1));
+	test_one(s, heur_tile_coords, 4, (1, 1));
 	// assert!(false);
 }
