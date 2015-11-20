@@ -56,6 +56,7 @@ pub struct Console {
     layer: u32,
     turn: bool, // Player one = true, player two = false.
     help: bool,
+    win: bool,
 }
 
 impl Console {
@@ -79,6 +80,7 @@ impl Console {
             turn: true,
             layer: layer,
             help: help,
+            win: false,
 		}
     }
 
@@ -94,7 +96,7 @@ impl Console {
             dimension.1 / size,
         ])
     }
-    
+
     fn set_raw (&mut self, (x, y): (usize, usize)) -> (usize, usize) {
         let position: (usize, usize) = (
             x,
@@ -108,7 +110,7 @@ impl Console {
         self.turn = !self.turn;
         position
     }
-    
+
     fn set (&mut self, event: &Event, team: &mut Team) -> (usize, usize) {
         let position = self.event.get_coordinate();
 
@@ -134,12 +136,12 @@ impl Console {
             },
             (true, (_, Player::Human), (_, _)) => {
                 let mut team = self.player.0;
-                
+
                 self.set(event, &mut team)
             },
             (false, (_, _), (_, Player::Human)) => {
                 let mut team = self.friend.0;
-                
+
                 self.set(event, &mut team)
             },
         };
@@ -174,9 +176,11 @@ impl Console {
                     self.event.set_coordinate(coordinate);
                 }
             }
-            if let Some(team) = self.play(&event) {
-                println!("{} win! Give a cookie at this player!", team);
-                break ;
+            if self.win == false {
+                if let Some(team) = self.play(&event) {
+                    println!("{} win! Give a cookie at this player!", team);
+                    self.win = true;
+                }
             }
             if let Some(args) = event.render_args() {
                 gl.draw(args.viewport(), |context, g| {
@@ -205,6 +209,7 @@ impl Default for Console {
             layer: 3,
             turn: true,
             help: false,
+            win: false,
 		}
     }
 }
