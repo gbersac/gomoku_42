@@ -29,6 +29,7 @@ use board::Tile;
 use ia::Decision;
 use ia::heuristic;
 
+pub const GO_WIDTH : usize = 19;
 pub const CASE_WIDTH: graphics::types::Resolution = 40;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -47,6 +48,8 @@ impl Player {
 	}
 }
 
+const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
+
 #[derive(Debug, Clone)]
 pub struct Console {
     board: GoBoard,
@@ -55,8 +58,8 @@ pub struct Console {
     friend: (Team, Player),
     layer: u32,
     turn: bool, // Player one = true, player two = false.
-    help: bool,
     win: bool,
+    help: bool,
 }
 
 impl Console {
@@ -79,8 +82,8 @@ impl Console {
             friend: (team_friend, friend),
             turn: true,
             layer: layer,
-            help: help,
             win: false,
+            help: help,
 		}
     }
 
@@ -97,42 +100,49 @@ impl Console {
         ])
     }
 
-    fn set_raw (&mut self, (x, y): (usize, usize)) -> (usize, usize) {
-        let position: (usize, usize) = (
-            x,
-            y
-        );
-
+    fn set_raw (&mut self, (x, y): (u32, u32), team: &Team) -> (u32, u32) {
         self.board.set_raw (
-            position,
-            self.friend.0.get_tile()
+            (x as usize, y as usize),
+            team.get_tile()
         );
         self.turn = !self.turn;
-        position
+        (x, y)
     }
 
-    fn set (&mut self, event: &Event, team: &mut Team) -> (usize, usize) {
-        let position = self.event.get_coordinate();
+    fn set (&mut self, event: &Event, team: &mut Team) -> (u32, u32) {
+        let (x, y) = self.event.get_coordinate();
 
-        if let Some(Button::Mouse(_)) = event.press_args() {
-            if self.board.set(position, team) {
-                self.turn = !self.turn;
-            }
-        };
-        position
+        if x < self.board.get_size() as u32 && y < self.board.get_size() as u32 {
+            if let Some(Button::Mouse(_)) = event.press_args() {
+                if self.board.set((x as usize, y as usize), team) {
+                    self.turn = !self.turn;
+                }
+            };
+        }
+        (x, y)
     }
 
     fn play (&mut self, event: &Event) -> Option<Tile> {
-        let (x, y):(usize, usize) = match (self.turn, self.player.clone(), self.friend.clone()) {
-            (true, (player, Player::Ia), (friend, _)) | (false, (player, _), (friend, Player::Ia)) => {
-                let position = Decision::get_optimal_move (
+        let (x, y):(u32, u32) = match (self.turn, self.player.clone(), self.friend.clone()) {
+            (true, (ref player, Player::Ia), (friend, _)) => {
+                let (x, y) = Decision::get_optimal_move (
                     &mut self.board,
-                    &(player, friend),
+                    &(*player, friend),
                     friend,
                     self.layer,
                     heuristic
                 );
-                self.set_raw(position)
+                self.set_raw((x as u32, y as u32), player)
+            },
+            (false, (player, _), (ref friend, Player::Ia)) => {
+                let (x, y) = Decision::get_optimal_move (
+                    &mut self.board,
+                    &(player, *friend),
+                    *friend,
+                    self.layer,
+                    heuristic
+                );
+                self.set_raw((x as u32, y as u32), friend)
             },
             (true, (_, Player::Human), (_, _)) => {
                 let mut team = self.player.0;
@@ -145,7 +155,7 @@ impl Console {
                 self.set(event, &mut team)
             },
         };
-        self.board.is_win(x, y)
+        self.board.is_win(x as usize, y as usize)
     }
 
     pub fn start (
@@ -166,25 +176,32 @@ impl Console {
             if let Some(resize) = event.resize(|w, h| (w as u32, h as u32)) {
                 self.event.set_dimension(resize);
             }
-            if let Some(coordinate) = event.mouse_cursor(|x, y| {
-                (x as u32, y as u32)
-            }) {
-                if let Some(coordinate) = self.event.check_inside_window (
-                    coordinate,
-                    limit,
-                ) {
-                    self.event.set_coordinate(coordinate);
-                }
-            }
             if self.win == false {
+                if let Some(coordinate) = event.mouse_cursor(|x, y| {
+                    (x as u32, y as u32)
+                }) {
+                    if let Some(coordinate) = self.event.check_inside_window (
+                        coordinate,
+                        limit,
+                    ) {
+                        self.event.set_coordinate(coordinate);
+                    }
+                }
                 if let Some(team) = self.play(&event) {
-                    println!("{} win! Give a cookie at this player!", team);
+                    println!("{} win! Give a cookie to him!", team);
                     self.win = true;
                 }
             }
             if let Some(args) = event.render_args() {
                 gl.draw(args.viewport(), |context, g| {
+                    graphics::clear(ORANGE, g);
                     draw::draw_render(&self.board, dimension, limit, (&context, g));
+                    if self.help {
+                        draw::draw_help(&self.board, dimension, (0, 0), (&context, g));
+                    }
+                    if self.event.get_over() {
+                        draw::draw_over(&self.board, dimension, self.event.get_coordinate(), (&context, g));
+                    }
                 });
             }
             event.update(|_| {});
@@ -208,8 +225,8 @@ impl Default for Console {
             friend: (team_friend, Player::Ia),
             layer: 3,
             turn: true,
-            help: false,
             win: false,
+            help: false,
 		}
     }
 }
