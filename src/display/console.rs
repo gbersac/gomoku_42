@@ -128,7 +128,7 @@ impl Console {
                 let (x, y) = Decision::get_optimal_move (
                     &mut self.board,
                     &(*player, friend),
-                    friend,
+                    *player,
                     self.layer,
                     heuristic
                 );
@@ -156,6 +156,28 @@ impl Console {
             },
         };
         self.board.is_win(x as usize, y as usize)
+    }
+
+    fn help_optimal_move (&mut self) -> (u32, u32) {
+        let (x, y) = if self.turn {
+            Decision::get_optimal_move (
+                &mut self.board,
+                &(self.player.0, self.friend.0),
+                self.player.0,
+                self.layer,
+                heuristic
+            )
+        }
+        else {
+            Decision::get_optimal_move (
+                &mut self.board,
+                &(self.player.0, self.friend.0),
+                self.friend.0,
+                self.layer,
+                heuristic
+            )
+        };
+        (x as u32, y as u32)
     }
 
     pub fn start (
@@ -197,10 +219,17 @@ impl Console {
                     graphics::clear(ORANGE, g);
                     draw::draw_render(&self.board, dimension, limit, (&context, g));
                     if self.help {
-                        draw::draw_help(&self.board, dimension, (0, 0), (&context, g));
+                        let cord = self.help_optimal_move();
+                        draw::draw_help(&self.board, dimension, cord, (
+                            &context,
+                            g
+                        ));
                     }
                     if self.event.get_over() {
-                        draw::draw_over(&self.board, dimension, self.event.get_coordinate(), (&context, g));
+                        draw::draw_over(&self.board, dimension, self.event.get_coordinate(), (
+                            &context,
+                            g
+                        ));
                     }
                 });
             }
