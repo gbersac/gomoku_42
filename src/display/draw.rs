@@ -22,6 +22,7 @@ const BORDER_SIZE : f64 = 0.5f64;
 const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
 const BLACK: graphics::types::Color = [0f32, 0f32, 0f32, 1f32];
 const WHITE: graphics::types::Color = [1f32, 1f32, 1f32, 1f32];
+const OVER: graphics::types::Color = [1f32, 1f32, 1f32, 0.7f32];
 
 fn draw_tile_color<G> (
     color: Color,
@@ -105,8 +106,6 @@ pub fn draw_render<G> (
     limit: u32,
     (context, g): (&Context, &mut G),
 ) where G: Graphics {
-    graphics::clear(ORANGE, g);
-
     for x in 0..limit {
         for y in 0..limit {
             draw_line_color(BLACK, dimension, [x, y], (&context, g)); //5F5845
@@ -121,5 +120,33 @@ pub fn draw_render<G> (
                 _ => {},
             }
         }
+    }
+}
+
+pub fn draw_over<G> (
+    board: &GoBoard,
+    dimension: Size,
+    (x, y): (u32, u32),
+    (context, g): (&Context, &mut G),
+) where G: Graphics {
+    match board.get((x as usize, y as usize)) {
+        Tile::FREE => {
+            draw_tile_color(OVER, dimension, [x, y], (&context, g))
+        },
+        _ => {},
+    }
+}
+
+pub fn draw_help<G> (
+    board: &GoBoard,
+    dimension: Size,
+    (x, y): (u32, u32),
+    (context, g): (&Context, &mut G),
+) where G: Graphics {
+    match board.get((x as usize, y as usize)) {
+        Tile::FREE => {
+            draw_tile_color(OVER, dimension, [x, y], (&context, g))
+        },
+        _ => {},
     }
 }

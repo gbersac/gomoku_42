@@ -41,10 +41,8 @@ impl Mouse {
 
     pub fn get_coordinate (
         &self,
-    ) -> (usize, usize) {
-        let coordinate = self.coordinate_cell;
-
-        (coordinate.0 as usize, coordinate.1 as usize)
+    ) -> (u32, u32) {
+        self.coordinate_cell
     }
 
     fn set_over (
@@ -52,6 +50,12 @@ impl Mouse {
         mouse: bool,
     ) {
         self.overed = mouse;
+    }
+
+    pub fn get_over (
+        &mut self,
+    ) -> bool {
+        self.overed
     }
 
     pub fn check_inside_window (
