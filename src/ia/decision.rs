@@ -8,9 +8,12 @@ use chrono::{UTC, Duration};
 #[derive(Clone)]
 pub struct Decision {
 	player: Team,
+	nb_layers: u32,
 	nb_node: usize,
 	nb_final: usize,
-	time_in_heuristic: Duration
+	time_in_heuristic: Duration,
+	total_time: Duration,
+	result: (usize, usize)
 }
 
 impl Decision {
@@ -126,17 +129,13 @@ impl Decision {
 		(best_coord, -best_value)
 	}
 
-	fn print_result(&self,
-		(_, _): (usize, usize),
-		total_time: Duration,
-		nb_layers: u32
-	) {
-		println!("###IA search best move for team {}, num of layers {}", self.player, nb_layers);
+	pub fn print_result(&self) {
+		println!("###IA search best move for team {}, num of layers {}", self.player, self.nb_layers);
 		println!("Number of heuristic calls {}", self.nb_final);
 		println!("Number of node            {}", self.nb_node);
-		println!("Time to compute       {: >#2}s {}ms", total_time.num_seconds(), total_time.num_milliseconds());
-		println!("Time in heuristic     {: >#2}s {}ms", self.time_in_heuristic.num_seconds(), self.time_in_heuristic.num_milliseconds());
-		let time_out_of_heuristic = total_time - self.time_in_heuristic;
+		println!("Time to compute   {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
+		println!("Time in heuristic {: >#2}s {}ms", self.time_in_heuristic.num_seconds(), self.time_in_heuristic.num_milliseconds());
+		let time_out_of_heuristic = self.total_time - self.time_in_heuristic;
 		println!("Time out of heuristic {: >#2}s {}ms", time_out_of_heuristic.num_seconds(), time_out_of_heuristic.num_milliseconds());
 	}
 
@@ -156,22 +155,31 @@ impl Decision {
 		player: Team,
 		nb_layers: u32,
 		heuristic: HeuristicFn
-	) -> (usize, usize) {
-		if board.is_empty() {
-			return (9, 9);
-		}
+	) -> Decision {
 		let mut dec = Decision {
 			player: player.clone(),
 			nb_node: 0,
 			nb_final: 0,
-			time_in_heuristic: Duration::zero()
+			time_in_heuristic: Duration::zero(),
+			total_time: Duration::zero(),
+			result: (0, 0),
+			nb_layers: nb_layers
 		};
+		if board.is_empty() {
+			dec.result = (9, 9);
+			return dec;
+		}
 		let begin = UTC::now();
 		let (coords, _) = dec.recursive(board, Turn::Player, *teams, nb_layers,
 				(ia::NINFINITE, ia::INFINITE), heuristic);
 		let end = UTC::now();
-		dec.print_result(coords, end - begin, nb_layers);
-		coords
+		dec.result = coords;
+		dec.total_time = end - begin;
+		dec
+	}
+
+	pub fn get_result(&self) -> (usize, usize) {
+	    self.result
 	}
 }
 
