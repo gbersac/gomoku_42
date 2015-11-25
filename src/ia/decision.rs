@@ -137,7 +137,7 @@ impl Decision {
 		println!("Time to compute   {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
 		println!("Time in heuristic {: >#2}s {}ms", self.time_in_heuristic.num_seconds(), self.time_in_heuristic.num_milliseconds());
 		let time_out_of_heuristic = self.total_time - self.time_in_heuristic;
-		println!("Time out of heuristic {: >#2}s {}ms", time_out_of_heuristic.num_seconds(), time_out_of_heuristic.num_milliseconds());
+		println!("Time out of heuristic {: >#2}s {}ms\n", time_out_of_heuristic.num_seconds(), time_out_of_heuristic.num_milliseconds());
 	}
 
 	/// Return the coordinates of the move which is considered to maximise the

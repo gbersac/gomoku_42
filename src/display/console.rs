@@ -16,7 +16,7 @@ use self::glfw_window::GlfwWindow as Window;
 #[cfg(feature = "include_glutin")]
 use self::glutin_window::GlutinWindow as Window;
 
-use self::opengl_graphics::{ GlGraphics, OpenGL };
+use self::opengl_graphics::GlGraphics;
 
 use self::piston::input::*;
 use self::piston::event_loop::*;
@@ -31,7 +31,8 @@ use board::Tile;
 use ia::Decision;
 use ia::heuristic;
 
-pub const CASE_WIDTH: graphics::types::Resolution = 40;
+const CASE_WIDTH: graphics::types::Resolution = 40;
+const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Player {
@@ -48,8 +49,6 @@ impl Player {
 	    }
 	}
 }
-
-const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
 
 #[derive(Debug, Clone)]
 pub struct Console {
@@ -90,6 +89,8 @@ impl Console {
 		}
     }
 
+    /// The `get_size` function returns window size.
+
     fn get_size (
         &self
     ) -> piston::window::Size {
@@ -103,6 +104,8 @@ impl Console {
         ])
     }
 
+    /// The `get_turn_is_ia` function returns a boolean if a IA must play.
+
     fn get_turn_is_ia (&self) -> bool {
         match (self.turn, &self.player, &self.friend) {
             (true, _, &(_, Player::Ia)) => true,
@@ -111,14 +114,7 @@ impl Console {
         }
     }
 
-    fn set_raw (&mut self, (x, y): (u32, u32), team: &Team) -> (u32, u32) {
-        self.board.set_raw (
-            (x as usize, y as usize),
-            team.get_tile()
-        );
-        self.turn = !self.turn;
-        (x, y)
-    }
+    /// The `set` function updates the turn and set the human coordinate.
 
     fn set (&mut self, event: &Event, team: &mut Team) -> (u32, u32) {
         let (x, y) = self.event.get_coordinate();
@@ -129,9 +125,26 @@ impl Console {
                     self.turn = !self.turn;
                 }
             };
+            (x, y)
         }
-        (x, y)
+        else {
+            (0, 0)
+        }
     }
+
+    /// The `set_raw` function updates the turn and set the IA coordinate.
+
+    fn set_raw (&mut self, (x, y): (usize, usize), team: &Team) -> (u32, u32) {
+        self.board.set_raw (
+            (x, y),
+            team.get_tile()
+        );
+        self.turn = !self.turn;
+        (x as u32, y as u32)
+    }
+
+    /// The `is_ia_versus` function returns a boolean if the player one
+    /// and two are typed like IA.
 
     fn is_ia_versus (&self) -> bool {
         match (&self.player, &self.friend) {
@@ -140,29 +153,37 @@ impl Console {
         }
     }
 
+    /// The `play` function sets the board with the new tail coordinate.
+
     fn play (&mut self, event: &Event) -> Option<Tile> {
-        let (x, y):(u32, u32) = match (self.turn, self.player.clone(), self.friend.clone()) {
+        let (x, y):(u32, u32) = match (
+            self.turn,
+            self.player.clone(),
+            self.friend.clone()
+        ) {
             (true, (ref player, Player::Ia), (friend, _)) => {
-                let (x, y) = Decision::get_optimal_move (
+                let decision = Decision::get_optimal_move (
                     &mut self.board,
                     &(*player, friend),
                     *player,
                     self.layer,
                     heuristic
-                ).get_result();
+                );
 
-                self.set_raw((x as u32, y as u32), player)
+                decision.print_result();
+                self.set_raw(decision.get_result(), player)
             },
             (false, (player, _), (ref friend, Player::Ia)) => {
-                let (x, y) = Decision::get_optimal_move (
+                let decision = Decision::get_optimal_move (
                     &mut self.board,
                     &(player, *friend),
                     *friend,
                     self.layer,
                     heuristic
-                ).get_result();
+                );
 
-                self.set_raw((x as u32, y as u32), friend)
+                decision.print_result();
+                self.set_raw(decision.get_result(), friend)
             },
             (true, (_, Player::Human), (_, _)) => {
                 let mut team = self.player.0;
@@ -178,6 +199,8 @@ impl Console {
         };
         self.board.is_win(x as usize, y as usize)
     }
+
+    /// The `help_optimal_move` function returns the recommended coordinate to play.
 
     fn help_optimal_move (&mut self) -> (u32, u32) {
         let (x, y) = if self.turn {
@@ -200,6 +223,8 @@ impl Console {
         };
         (x as u32, y as u32)
     }
+
+    /// The `input` function listens all mouse event like resize and click.
 
     fn input (
         &mut self,
@@ -227,6 +252,8 @@ impl Console {
         }
     }
 
+    /// The `draw` function refreshs the window with a new board.
+
     fn draw (
         &mut self,
         gl: &mut GlGraphics,
@@ -239,22 +266,31 @@ impl Console {
             graphics::clear(ORANGE, g);
             draw::draw_render(&self.board, dimension, limit, (&context, g));
             if self.help
-            && self.get_turn_is_ia() == false
-            && self.win == false {
+            && self.win == false
+            && self.get_turn_is_ia() == false {
                 let cord = self.help_optimal_move();
+
                 draw::draw_help(&self.board, dimension, cord, (
                     &context,
                     g
                 ));
             }
             if self.event.get_over() {
-                draw::draw_over(&self.board, dimension, self.event.get_coordinate(), (
-                    &context,
-                    g
-                ));
+                let (x, y) = self.event.get_coordinate();
+
+                if x < self.board.get_size() as u32 && y < self.board.get_size() as u32 {
+                    draw::draw_over (
+                        &self.board,
+                        dimension,
+                        (x, y),
+                        (&context, g)
+                    );
+                }
             }
         });
     }
+
+    /// The `start` function loops the board.
 
     pub fn start (
         &mut self,

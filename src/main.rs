@@ -1,3 +1,4 @@
+#![allow(unused_features)]
 #![feature(test)]
 
 #[macro_use]

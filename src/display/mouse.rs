@@ -86,14 +86,6 @@ impl Mouse {
     }
 }
 
-impl Display for Mouse {
-	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        let _ = write!(f, stringify!(self.coordinate_cell.width));
-		let _ = write!(f, stringify!(self.coordinate_cell.height));
-		Ok(())
-	}
-}
-
 impl Default for Mouse {
     fn default() -> Self {
         Mouse {
@@ -101,5 +93,13 @@ impl Default for Mouse {
           coordinate_cell: (0u32, 0u32),
           dimension: (0u32, 0u32),
         }
+    }
+}
+
+impl Display for Mouse {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        let _ = write!(f, stringify!(self.coordinate_cell.width));
+        let _ = write!(f, stringify!(self.coordinate_cell.height));
+        Ok(())
     }
 }

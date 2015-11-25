@@ -24,6 +24,9 @@ const BLACK: graphics::types::Color = [0f32, 0f32, 0f32, 1f32];
 const WHITE: graphics::types::Color = [1f32, 1f32, 1f32, 1f32];
 const OVER: graphics::types::Color = [1f32, 1f32, 1f32, 0.7f32];
 
+/// The `draw_tile_color` function draws a tile according to a coordinate,
+/// dimension and color.
+
 fn draw_tile_color<G> (
     color: Color,
     dimension: Size,
@@ -44,6 +47,8 @@ fn draw_tile_color<G> (
     );
 }
 
+/// The `draw_border_color` function removes the border grid.
+
 fn draw_border_color<G> (
     color: Color,
     dimension: Size,
@@ -54,15 +59,19 @@ fn draw_border_color<G> (
         std::cmp::min(dimension.width, dimension.height) / 2u32
     } as f64 - BORDER_SIZE);
 
-    rect_border.draw(
+    rect_border.draw (
         [
             0f64,
             0f64,
             {dimension.width * max} as f64,
             {dimension.height * max} as f64,
         ],
-        &context.draw_state, context.transform, g);
+        &context.draw_state, context.transform, g
+    );
 }
+
+
+/// The `draw_line_color` function draws a cell line.
 
 fn draw_line_color<G> (
     color: Color,
@@ -100,6 +109,8 @@ fn draw_line_color<G> (
     );
 }
 
+/// The `draw_render` function draws the grid!
+
 pub fn draw_render<G> (
     board: &GoBoard,
     dimension: Size,
@@ -123,6 +134,8 @@ pub fn draw_render<G> (
     }
 }
 
+/// The `draw_over` function draws the over tile.
+
 pub fn draw_over<G> (
     board: &GoBoard,
     dimension: Size,
@@ -136,6 +149,8 @@ pub fn draw_over<G> (
         _ => {},
     }
 }
+
+/// The `draw_over` function draws the help tile.
 
 pub fn draw_help<G> (
     board: &GoBoard,
