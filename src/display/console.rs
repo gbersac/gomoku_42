@@ -16,6 +16,8 @@ use self::glfw_window::GlfwWindow as Window;
 #[cfg(feature = "include_glutin")]
 use self::glutin_window::GlutinWindow as Window;
 
+use self::opengl_graphics::{ GlGraphics, OpenGL };
+
 use self::piston::input::*;
 use self::piston::event_loop::*;
 
@@ -131,6 +133,13 @@ impl Console {
         (x, y)
     }
 
+    fn is_ia_versus (&self) -> bool {
+        match (&self.player, &self.friend) {
+            (&(_, Player::Ia), &(_, Player::Ia)) => true,
+            _ => false,
+        }
+    }
+
     fn play (&mut self, event: &Event) -> Option<Tile> {
         let (x, y):(u32, u32) = match (self.turn, self.player.clone(), self.friend.clone()) {
             (true, (ref player, Player::Ia), (friend, _)) => {
@@ -163,6 +172,7 @@ impl Console {
             (false, (_, _), (_, Player::Human)) => {
                 let mut team = self.friend.0;
 
+
                 self.set(event, &mut team)
             },
         };
@@ -191,6 +201,61 @@ impl Console {
         (x as u32, y as u32)
     }
 
+    fn input (
+        &mut self,
+        event: &Event,
+        limit: u32
+    ) {
+        if let Some(resize) = event.resize(|w, h| (w as u32, h as u32)) {
+            self.event.set_dimension(resize);
+        }
+        if self.win == false {
+            if let Some(coordinate) = event.mouse_cursor(|x, y| {
+                (x as u32, y as u32)
+            }) {
+                if let Some(coordinate) = self.event.check_inside_window (
+                    coordinate,
+                    limit,
+                ) {
+                    self.event.set_coordinate(coordinate);
+                }
+            }
+            if let Some(team) = self.play(&event) {
+                println!("{} win! Give a cookie to him!", team);
+                self.win = true;
+            }
+        }
+    }
+
+    fn draw (
+        &mut self,
+        gl: &mut GlGraphics,
+        event: &RenderArgs,
+        limit: u32
+    ) {
+        let dimension = self.get_size();
+
+        gl.draw(event.viewport(), |context, g| {
+            graphics::clear(ORANGE, g);
+            draw::draw_render(&self.board, dimension, limit, (&context, g));
+            if self.help
+            && self.get_turn_is_ia() == false
+            && self.win == false {
+                let cord = self.help_optimal_move();
+                draw::draw_help(&self.board, dimension, cord, (
+                    &context,
+                    g
+                ));
+            }
+            if self.event.get_over() {
+                draw::draw_over(&self.board, dimension, self.event.get_coordinate(), (
+                    &context,
+                    g
+                ));
+            }
+        });
+    }
+
     pub fn start (
         &mut self,
     ) {
@@ -199,54 +264,27 @@ impl Console {
             "Gomoku",
             self.event.get_dimension(),
         ).exit_on_esc(true).opengl(opengl).build().unwrap();
-        let window = std::rc::Rc::new(std::cell::RefCell::new(window));
         let ref mut gl = opengl_graphics::GlGraphics::new(opengl);
+        let window = std::rc::Rc::new(std::cell::RefCell::new(window));
         let limit: u32 = self.board.get_size() as u32;
 
-        for event in window.clone().events() {
-            let dimension = self.get_size();
-
-            if let Some(resize) = event.resize(|w, h| (w as u32, h as u32)) {
-                self.event.set_dimension(resize);
-            }
-            if self.win == false {
-                if let Some(coordinate) = event.mouse_cursor(|x, y| {
-                    (x as u32, y as u32)
-                }) {
-                    if let Some(coordinate) = self.event.check_inside_window (
-                        coordinate,
-                        limit,
-                    ) {
-                        self.event.set_coordinate(coordinate);
-                    }
-                }
-                if let Some(team) = self.play(&event) {
-                    println!("{} win! Give a cookie to him!", team);
-                    self.win = true;
+        if self.is_ia_versus() {
+            for event in window.clone().events() {
+                if let Some(render) = event.render_args() {
+                    self.input(&event, limit);
+                    self.draw(gl, &render, limit);
+                    event.update(|_| {});
                 }
             }
-            if let Some(args) = event.render_args() {
-                gl.draw(args.viewport(), |context, g| {
-                    graphics::clear(ORANGE, g);
-                    draw::draw_render(&self.board, dimension, limit, (&context, g));
-                    if self.help
-                    && self.get_turn_is_ia() == false
-                    && self.win == false {
-                        let cord = self.help_optimal_move();
-                        draw::draw_help(&self.board, dimension, cord, (
-                            &context,
-                            g
-                        ));
-                    }
-                    if self.event.get_over() {
-                        draw::draw_over(&self.board, dimension, self.event.get_coordinate(), (
-                            &context,
-                            g
-                        ));
-                    }
-                });
+        }
+        else {
+            for event in window.clone().events() {
+                self.input(&event, limit);
+                if let Some(render) = event.render_args() {
+                    self.draw(gl, &render, limit);
+                    event.update(|_| {});
+                }
             }
-            event.update(|_| {});
         }
     }
 }
