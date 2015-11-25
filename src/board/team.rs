@@ -50,3 +50,15 @@ impl Display for Team
         Ok(())
     }
 }
+
+impl Default for Team {
+
+    /// The `new` constructor function returns the interface team.
+
+    fn default () -> Self {
+        Team {
+            color: Tile::default(),
+            captured: 0,
+        }
+    }
+}

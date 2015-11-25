@@ -1,3 +1,4 @@
+use std::fmt::{Formatter, Display, Error};
 use std;
 use board::{GoBoard, Team, Tile};
 use ia;
@@ -5,7 +6,7 @@ use ia::turn::Turn;
 use ia::heuristic::HeuristicFn;
 use chrono::{UTC, Duration};
 
-#[derive(Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Decision {
 	player: Team,
 	nb_layers: u32,
@@ -132,7 +133,7 @@ impl Decision {
 	pub fn print_result(&self) {
 		println!("###IA search best move for team {}, num of layers {}", self.player, self.nb_layers);
 		println!("Number of heuristic calls {}", self.nb_final);
-		println!("Number of node            {}", self.nb_node);
+		println!("Number of node			{}", self.nb_node);
 		println!("Time to compute   {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
 		println!("Time in heuristic {: >#2}s {}ms", self.time_in_heuristic.num_seconds(), self.time_in_heuristic.num_milliseconds());
 		let time_out_of_heuristic = self.total_time - self.time_in_heuristic;
@@ -179,7 +180,31 @@ impl Decision {
 	}
 
 	pub fn get_result(&self) -> (usize, usize) {
-	    self.result
+		self.result
+	}
+}
+
+impl Default for Decision {
+
+	/// The `new` constructor function returns the interface decision.
+
+	fn default () -> Self {
+		Decision {
+			player: Team::default(),
+			nb_layers: 0u32,
+			nb_node: 0usize,
+			nb_final: 0usize,
+			time_in_heuristic: Duration::zero(),
+			total_time: Duration::zero(),
+			result: (0usize, 0usize)
+		}
+	}
+}
+
+impl Display for Decision {
+	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+		let _ = write!(f, "{:?}", self.result);
+		Ok(())
 	}
 }
 

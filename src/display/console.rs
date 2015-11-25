@@ -29,7 +29,6 @@ use board::Tile;
 use ia::Decision;
 use ia::heuristic;
 
-pub const GO_WIDTH : usize = 19;
 pub const CASE_WIDTH: graphics::types::Resolution = 40;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -60,6 +59,7 @@ pub struct Console {
     turn: bool, // Player one = true, player two = false.
     win: bool,
     help: bool,
+    help_decision: Decision,
 }
 
 impl Console {
@@ -84,6 +84,7 @@ impl Console {
             layer: layer,
             win: false,
             help: help,
+            help_decision: Decision::default(),
 		}
     }
 
@@ -98,6 +99,14 @@ impl Console {
             dimension.0 / size,
             dimension.1 / size,
         ])
+    }
+
+    fn get_turn_is_ia (&self) -> bool {
+        match (self.turn, &self.player, &self.friend) {
+            (true, _, &(_, Player::Ia)) => true,
+            (false, &(_, Player::Ia), _) => true,
+            _ => false,
+        }
     }
 
     fn set_raw (&mut self, (x, y): (u32, u32), team: &Team) -> (u32, u32) {
@@ -131,7 +140,8 @@ impl Console {
                     *player,
                     self.layer,
                     heuristic
-                );
+                ).get_result();
+
                 self.set_raw((x as u32, y as u32), player)
             },
             (false, (player, _), (ref friend, Player::Ia)) => {
@@ -141,7 +151,8 @@ impl Console {
                     *friend,
                     self.layer,
                     heuristic
-                );
+                ).get_result();
+
                 self.set_raw((x as u32, y as u32), friend)
             },
             (true, (_, Player::Human), (_, _)) => {
@@ -166,7 +177,7 @@ impl Console {
                 self.player.0,
                 self.layer,
                 heuristic
-            )
+            ).get_result()
         }
         else {
             Decision::get_optimal_move (
@@ -175,7 +186,7 @@ impl Console {
                 self.friend.0,
                 self.layer,
                 heuristic
-            )
+            ).get_result()
         };
         (x as u32, y as u32)
     }
@@ -218,7 +229,9 @@ impl Console {
                 gl.draw(args.viewport(), |context, g| {
                     graphics::clear(ORANGE, g);
                     draw::draw_render(&self.board, dimension, limit, (&context, g));
-                    if self.help {
+                    if self.help
+                    && self.get_turn_is_ia() == false
+                    && self.win == false {
                         let cord = self.help_optimal_move();
                         draw::draw_help(&self.board, dimension, cord, (
                             &context,
@@ -256,6 +269,7 @@ impl Default for Console {
             turn: true,
             win: false,
             help: false,
+            help_decision: Decision::default(),
 		}
     }
 }
