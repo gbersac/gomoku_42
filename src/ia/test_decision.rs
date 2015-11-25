@@ -8,8 +8,8 @@ fn test_one(s: &str, heur: HeuristicFn, nb_layers: u32, expected: (usize, usize)
 	println!("Test\n{}", board);
 	let result =
 			Decision::get_optimal_move(&mut board, &(team_b, team_w.clone()), team_w, nb_layers, heur);
-	println!("result {:?}\n", result);
-	assert!(expected == result);
+	println!("result {:?}\n", result.get_result());
+	assert!(expected == result.get_result());
 }
 
 fn heur_capture(board: &GoBoard, team: Team) -> i32 {
