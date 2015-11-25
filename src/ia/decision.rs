@@ -1,6 +1,4 @@
 use std;
-use std::thread;
-use std::sync::mpsc;
 use board::{GoBoard, Team, Tile};
 use ia;
 use ia::turn::Turn;
@@ -73,7 +71,7 @@ impl Decision {
 		turn: Turn,
 		teams: (Team, Team),
 		nb_layers: u32,
-		(mut alpha, mut beta) : (i32, i32),
+		(mut alpha, beta) : (i32, i32),
 		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
 		self.nb_node += 1;
@@ -129,7 +127,7 @@ impl Decision {
 	}
 
 	fn print_result(&self,
-		(x_result, y_result): (usize, usize),
+		(_, _): (usize, usize),
 		total_time: Duration,
 		nb_layers: u32
 	) {
@@ -172,7 +170,7 @@ impl Decision {
 		let (coords, _) = dec.recursive(board, Turn::Player, *teams, nb_layers,
 				(ia::NINFINITE, ia::INFINITE), heuristic);
 		let end = UTC::now();
-		// dec.print_result(coords, end - begin, nb_layers);
+		dec.print_result(coords, end - begin, nb_layers);
 		coords
 	}
 }

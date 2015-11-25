@@ -31,10 +31,6 @@ impl Team {
     	self.color.ennemy()
     }
 
-    pub fn captured(&self) -> u32 {
-        self.captured
-    }
-
     pub fn add_captured(&mut self, nb_captured: u32) {
         self.captured += nb_captured;
     }
@@ -46,7 +42,7 @@ impl Display for Team
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error>
     {
-        match self.get_tile() {
+        let _ = match self.get_tile() {
             Tile::BLACK => write!(f, "black"),
             Tile::WHITE => write!(f, "white"),
             _ => panic!("forbiden team tile"),
