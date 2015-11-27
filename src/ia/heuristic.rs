@@ -99,25 +99,25 @@ fn free_three (
                 (result, FREE, 0)
             }
             else {
-                match (*item, pawn, count) {
-                    (WHITE, WHITE, 4)  => (std::i32::MAX, FREE, 0),
-                    (BLACK, BLACK, 4)  => (!std::i32::MAX, FREE, 0),
-                    (FREE, FREE, _) => (result, FREE, 0),
-                    (item, pawn, count) if item == pawn => (result, item, count + 1),
-                    (WHITE, FREE, count) => (result - {count * {count+1}}/2, WHITE, 1), // W _
-                    (BLACK, FREE, count) => (result + {count * {count+1}}/2, BLACK, 1), // B _
-                    (BLACK, WHITE, count) => (result-1 + {count * {count+1}}/2, BLACK, 1), // B B W
-                    (WHITE, BLACK, count) => (result+1 - {count * {count+1}}/2, WHITE, 1), // W W B
-                    (_, WHITE, count) => (result + {count * {count+1}}/2, FREE, 0),
-                    (_, BLACK, count) => (result - {count * {count+1}}/2, FREE, 0),
+                match (pawn, *item, count) {
+                    (WHITE, WHITE, 4) => (std::i32::MAX, FREE, 0), // W W W W W
+                    (BLACK, BLACK, -4) => (!std::i32::MAX, FREE, 0), // B B B B B
+                    (FREE, FREE, _) => (result, FREE, 0), // ... _ _
+                    (WHITE, WHITE, count) => (result, WHITE, count + 1), // ... W W
+                    (BLACK, BLACK, count) => (result, BLACK, count - 1), // ... B B
+                    (WHITE, BLACK, count) => (result + {count * {count+1}}/2, BLACK, -1), // W B
+                    (BLACK, WHITE, count) => (result - {count * {count-1}}/2, WHITE, 1), // B W
+                    (FREE, WHITE, count) => (result - {count * {count+1}}/2, WHITE, 1), // _ W
+                    (FREE, BLACK, count) => (result + {count * {count-1}}/2, BLACK, -1), // _ B
+                    (WHITE, FREE, count) => (result + {count * {count+1}}/2, FREE, 0), // W _
+                    (BLACK, FREE, count) => (result - {count * {count-1}}/2, FREE, 0), // B _
                 }
             }
         }
     );
     result + match pawn {
         FREE => 0,
-        WHITE => (count * (count+1)) / 2,
-        BLACK => (count * (count+1)) / -2,
+        _ => (count * (count+1)) / 2,
     }
 }
 
@@ -126,8 +126,10 @@ fn test_free_three() {
     assert!(0 == free_three(&vec!()));
     assert!(std::i32::MAX == free_three(&vec!(WHITE, WHITE, WHITE, WHITE, WHITE)));
     assert!(std::i32::MAX == free_three(&vec!(FREE, WHITE, WHITE, WHITE, WHITE, WHITE, FREE)));
+    assert!(!std::i32::MAX == free_three(&vec!(FREE, BLACK, BLACK, BLACK, BLACK, BLACK, FREE)));
     assert!(std::i32::MAX == free_three(&vec!(BLACK, WHITE, WHITE, WHITE, WHITE, WHITE, FREE)));
     assert!(!std::i32::MAX == free_three(&vec!(BLACK, BLACK, BLACK, BLACK, BLACK)));
+    assert!(0 == free_three(&vec!(FREE, BLACK, WHITE, FREE)));
     assert!(0 < free_three(&vec!(WHITE, FREE, WHITE, FREE)));
     assert!(0 > free_three(&vec!(BLACK, FREE, BLACK, FREE)));
     assert!(0 < free_three(&vec!(FREE, FREE, FREE, FREE, FREE, FREE, FREE, FREE, FREE, WHITE, FREE, FREE, FREE, FREE, FREE, FREE, FREE, FREE, FREE)));
@@ -155,11 +157,16 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
     ).collect();
 
     let result = lines.iter().fold(0, |acc, item|
-        match free_three(item) {
-             score if score == std::i32::MAX || score == !std::i32::MAX => return score,
-             score => if let Some(res) = acc.checked_add(score) {
-                 res
-             } else { return acc },
+        if acc == std::i32::MAX || acc == !std::i32::MAX {
+            acc
+        }
+        else {
+            match free_three(item) {
+                 it if it == std::i32::MAX || it == !std::i32::MAX => return it,
+                 it => if let Some(res) = acc.checked_add(it) {
+                     res
+                 } else { return acc },
+            }
         }
     );
     match team.get_tile() {
@@ -278,6 +285,110 @@ fn test_coherent() {
 
 #[test]
 fn test_win_free_three() {
+    assert! (
+         std::i32::MIN == heuristic (
+            &GoBoard::parse_with_size (&r#"19
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . B . . . . . . . . . . . .
+            . . . . . . B . . . . . . . . . . . .
+            . . . . . . B W W W W W . . . . . . .
+            . . . . . . B . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(BLACK)
+        )
+    );
+    assert! (
+         std::i32::MAX == heuristic (
+            &GoBoard::parse_with_size (&r#"19
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . B . . . . . . . . . . . .
+            . . . . . . B . . . . . . . . . . . .
+            . . . . . . B W W W W W . . . . . . .
+            . . . . . . B . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(WHITE)
+        )
+    );
+    assert! (
+         std::i32::MAX == heuristic (
+            &GoBoard::parse_with_size (&r#"19
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . W W W W W . . . . . . .
+            . . . . . . B B B B . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(WHITE)
+        )
+    );
+    assert! (
+         std::i32::MIN == heuristic (
+            &GoBoard::parse_with_size (&r#"19
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . W W W W W . . . . . . .
+            . . . . . . B B B B . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . . . . .
+            "#.to_string()),
+            Team::new(BLACK)
+        )
+    );
     assert! (
          std::i32::MAX == heuristic (
             &GoBoard::parse_with_size (&r#"19
