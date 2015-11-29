@@ -17,9 +17,6 @@ src/ia/.nfs.2005506a.22cf
 /.rust/
 /.rust/*
 
-# Cargo
-Cargo.lock
-
 # Swap
 *.rs.swp
 *.swp
