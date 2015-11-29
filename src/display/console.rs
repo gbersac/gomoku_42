@@ -161,11 +161,11 @@ impl Console {
             self.player.clone(),
             self.friend.clone()
         ) {
-            (true, (ref player, Player::Ia), (friend, _)) => {
+            (true, (ref player, Player::Ia), (ref friend, _)) => {
                 let decision = Decision::get_optimal_move (
                     &mut self.board,
-                    &(*player, friend),
-                    *player,
+                    &(*player, *friend),
+                    *friend,
                     self.layer,
                     heuristic
                 );
@@ -173,11 +173,11 @@ impl Console {
                 decision.print_result();
                 self.set_raw(decision.get_result(), player)
             },
-            (false, (player, _), (ref friend, Player::Ia)) => {
+            (false, (ref player, _), (ref friend, Player::Ia)) => {
                 let decision = Decision::get_optimal_move (
                     &mut self.board,
-                    &(player, *friend),
-                    *friend,
+                    &(*player, *friend),
+                    *player,
                     self.layer,
                     heuristic
                 );
