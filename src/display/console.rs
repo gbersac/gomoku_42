@@ -108,8 +108,8 @@ impl Console {
 
     fn get_turn_is_ia (&self) -> bool {
         match (self.turn, &self.player, &self.friend) {
-            (true, _, &(_, Player::Ia)) => true,
-            (false, &(_, Player::Ia), _) => true,
+            (false, _, &(_, Player::Ia)) => true,
+            (true, &(_, Player::Ia), _) => true,
             _ => false,
         }
     }
@@ -265,6 +265,7 @@ impl Console {
         gl.draw(event.viewport(), |context, g| {
             graphics::clear(ORANGE, g);
             draw::draw_render(&self.board, dimension, limit, (&context, g));
+
             if self.help
             && self.win == false
             && self.get_turn_is_ia() == false {
