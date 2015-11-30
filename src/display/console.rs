@@ -60,7 +60,7 @@ pub struct Console {
     turn: bool, // Player one = true, player two = false.
     win: bool,
     help: bool,
-    help_decision: Decision,
+    help_decision: (u32, u32),
 }
 
 impl Console {
@@ -85,7 +85,7 @@ impl Console {
             layer: layer,
             win: false,
             help: help,
-            help_decision: Decision::default(),
+            help_decision: (size/2, size/2),
 		}
     }
 
@@ -123,6 +123,9 @@ impl Console {
             if let Some(Button::Mouse(_)) = event.press_args() {
                 if self.board.set((x as usize, y as usize), team) {
                     self.turn = !self.turn;
+                    if self.get_turn_is_ia() == false {
+                        self.help_decision = self.help_optimal_move();
+                    }
                 }
             };
             (x, y)
@@ -140,6 +143,9 @@ impl Console {
             team.get_tile()
         );
         self.turn = !self.turn;
+        if self.get_turn_is_ia() == false {
+            self.help_decision = self.help_optimal_move();
+        }
         (x as u32, y as u32)
     }
 
@@ -269,9 +275,7 @@ impl Console {
             if self.help
             && self.win == false
             && self.get_turn_is_ia() == false {
-                let cord = self.help_optimal_move();
-
-                draw::draw_help(&self.board, dimension, cord, (
+                draw::draw_help(&self.board, dimension, self.help_decision, (
                     &context,
                     g
                 ));
@@ -344,7 +348,7 @@ impl Default for Console {
             turn: true,
             win: false,
             help: false,
-            help_decision: Decision::default(),
+            help_decision: (size/2, size/2),
 		}
     }
 }
