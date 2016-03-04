@@ -132,64 +132,6 @@ impl Decision {
 		(best_coord, -best_value)
 	}
 
-	/// albet: alpha < beta
-	/// [algo explication](https://en.wikipedia.org/wiki/Negamax)
-	fn first_recursive(&mut self,
-		board: &mut GoBoard,
-		turn: Turn,
-		teams: (Team, Team),
-		nb_layers: u32,
-		(mut alpha, beta) : (i32, i32),
-		heuristic: HeuristicFn
-	) -> ((usize, usize), i32) {
-		let playing_team: Team = Decision::playing_team(&turn, &teams, &mut self.player).clone();
-		// get potential next moves
-		let moves = super::move_to_evaluate::move_to_evaluate(&board, &playing_team);
-		if moves.len() == 0 {
-			unimplemented!();
-		}
-
-		// best heuristic value for one move set to -infinite
-		let mut best_value = ia::NINFINITE;
-		let mut best_coord = (0, 0);
-		let (tx, rx) = mpsc::channel();
-
-		//spawn one resolution thread for each move
-		for mov in &moves {
-			let tx = tx.clone();
-
-			// //clone a lot of stuff so that we could send them to the thread
-			let mut self_c = self.clone();
-			let albet_c = (alpha, beta).clone();
-			let mut board_c = board.clone();
-			let teams_c = teams.clone();
-			let mov_c = mov.clone();
-			let turn_o = turn.other();
-
-			thread::spawn(move || {
-				let res = self_c.compute_one_move(mov_c,
-						&mut board_c,
-						playing_team.clone(),
-						teams.clone(),
-						nb_layers - 1,
-						turn_o,
-						(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
-						heuristic);
-				let _ = tx.send(res);
-			});
-		}
-
-		let mut results = Vec::with_capacity(moves.len());
-		for _ in 0..moves.len() {
-			let res = rx.recv().unwrap();
-			results.push(res);
-		}
-
-		// select min or max according to convenience
-		let res = results.iter().max_by_key(|x| x.1);
-		*(res.unwrap())
-	}
-
 	pub fn print_result(&self) {
 		println!("###IA search best move for team {}, num of layers {}", self.player, self.nb_layers);
 		println!("Number of heuristic calls {}", self.nb_final);

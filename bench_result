@@ -3,3 +3,9 @@ test bench::heuristic_bench      ... bench:      11,342 ns/iter (+/- 661)
 test bench::heuristic_bench_easy ... bench:      11,598 ns/iter (+/- 706)
 test bench::minmax_3_layer_bench ... bench:      11,366 ns/iter (+/- 599)
 test bench::minmax_3_layers_easy ... bench:     197,907 ns/iter (+/- 10,536)
+
+# with multi threading
+test bench::heuristic_bench      ... bench:      10,844 ns/iter (+/- 1,030)
+test bench::heuristic_bench_easy ... bench:      11,067 ns/iter (+/- 255)
+test bench::minmax_3_layer_bench ... bench:      10,022 ns/iter (+/- 1,024)
+test bench::minmax_3_layers_easy ... bench:     468,164 ns/iter (+/- 19,368)
