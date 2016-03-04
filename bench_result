@@ -9,3 +9,9 @@ test bench::heuristic_bench      ... bench:      10,844 ns/iter (+/- 1,030)
 test bench::heuristic_bench_easy ... bench:      11,067 ns/iter (+/- 255)
 test bench::minmax_3_layer_bench ... bench:      10,022 ns/iter (+/- 1,024)
 test bench::minmax_3_layers_easy ... bench:     468,164 ns/iter (+/- 19,368)
+
+# 06d6c296b2ae25a25e8c6b6a91b1a4c6bc3521dd optimize moves_to_evaluate
+test bench::heuristic_bench      ... bench:      11,649 ns/iter (+/- 780)
+test bench::heuristic_bench_easy ... bench:      11,542 ns/iter (+/- 460)
+test bench::minmax_3_layer_bench ... bench:      11,540 ns/iter (+/- 590)
+test bench::minmax_3_layers_easy ... bench:      94,748 ns/iter (+/- 4,149)
