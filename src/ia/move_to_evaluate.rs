@@ -1,13 +1,12 @@
-use board::{GoBoard, Team};
+use board::{GoBoard, Tile};
 
 fn test_pawn(
 	board: &GoBoard,
 	(x, y): (usize, usize),
-	team: &Team,
 	vec_coord: &Vec<(usize, usize)>
 ) -> bool {
 	board.check_index((x, y)) &&
-			board.is_allow(x, y, team) &&
+			board.get((x, y)) == Tile::FREE &&
 			vec_coord.iter().find(|&r| *r == (x, y)).is_none()
 }
 
@@ -26,7 +25,7 @@ fn get_neighbors(x: usize, y: usize) -> Vec<(usize, usize)> {
     to_return
 }
 
-pub fn move_to_evaluate(board: &GoBoard, team: &Team) -> Vec<(usize, usize)> {
+pub fn move_to_evaluate(board: &GoBoard) -> Vec<(usize, usize)> {
 	let mut to_return = Vec::new();
 	for (y, line) in board.tiles.iter().enumerate() {
 		for (x, tile) in line.iter().enumerate() {
@@ -34,7 +33,7 @@ pub fn move_to_evaluate(board: &GoBoard, team: &Team) -> Vec<(usize, usize)> {
 				// I don't really understand why x and y need to be reversed.
 				let neighbors = get_neighbors(y, x);
 				for neighbor in neighbors {
-					if !test_pawn(board, neighbor, team, &to_return) {
+					if !test_pawn(board, neighbor, &to_return) {
 						continue ;
 					}
 					to_return.push(neighbor);

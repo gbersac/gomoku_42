@@ -23,7 +23,7 @@ macro_rules! test_goban_pattern {
 				"o" => $team.get_tile(),
 				"e" => $team.get_ennemy_tile(),
 				"x" => Tile::FREE,
-				_	=> panic!("GoBoard::test_goban_pattern synthax error")
+				_	=> panic!("GoBoard::test_goban_pattern syntax error")
 			};
 			// println!("[{}, {}]{:?} exp {:?}", $coords.0, $coords.1,
 					// $board.get(($coords.0, $coords.1)), expected);
@@ -36,7 +36,6 @@ macro_rules! test_goban_pattern {
 impl GoBoard {
 
 	/// The `get` function returns the tiles coordinates [x; y].
-
     pub fn get(&self, (x, y): (usize, usize)) -> Tile {
 		self.tiles[x][y].clone()
 	}

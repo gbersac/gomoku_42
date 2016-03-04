@@ -1,5 +1,3 @@
-use std::thread;
-use std::sync::mpsc;
 use std::fmt::{Formatter, Display, Error};
 use std;
 use board::{GoBoard, Team, Tile};
@@ -78,7 +76,7 @@ impl Decision {
 		teams: (Team, Team),
 		nb_layers: u32,
 		(mut alpha, beta) : (i32, i32),
-		heuristic: HeuristicFn
+		heuristic: HeuristicFn,
 	) -> ((usize, usize), i32) {
 		self.nb_node += 1;
 		let playing_team: Team = Decision::playing_team(&turn, &teams, &mut self.player).clone();
@@ -102,7 +100,7 @@ impl Decision {
 		//else recursive to call each childs
 
 		// get potential next moves
-		let moves = super::move_to_evaluate::move_to_evaluate(&board, &playing_team);
+		let moves = super::move_to_evaluate::move_to_evaluate(&board);
 		if moves.len() == 0 {
 			unimplemented!();
 		}
@@ -132,10 +130,54 @@ impl Decision {
 		(best_coord, -best_value)
 	}
 
+	/// albet: alpha < beta
+	/// [algo explication](https://en.wikipedia.org/wiki/Negamax)
+	fn first_recursive(&mut self,
+		board: &mut GoBoard,
+		turn: Turn,
+		teams: (Team, Team),
+		nb_layers: u32,
+		(mut alpha, beta) : (i32, i32),
+		heuristic: HeuristicFn,
+	) -> ((usize, usize), i32) {
+		self.nb_node += 1;
+		let playing_team: Team = Decision::playing_team(&turn, &teams, &mut self.player).clone();
+
+		// get potential next moves
+		let moves = super::move_to_evaluate::move_to_evaluate(&board);
+		if moves.len() == 0 {
+			unimplemented!();
+		}
+
+		// best heuristic value for one move set to -infinite
+		let mut best_value = ia::NINFINITE;
+		let mut best_coord = (0, 0);
+		for mov in moves {
+			let (one_coord, one_val) = self.compute_one_move(mov,
+					&mut board.clone(),
+					playing_team.clone(),
+					teams.clone(),
+					nb_layers - 1,
+					turn.other(),
+					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
+					heuristic);
+			if one_val > best_value && board.is_allow(one_coord.0, one_coord.1, &playing_team) {
+				best_value = one_val;
+				best_coord = one_coord;
+				alpha = std::cmp::max(alpha, best_value);
+				if alpha >= beta {
+					// println!("elagage alpha beta");
+					break ;
+				}
+			}
+		}
+		(best_coord, -best_value)
+	}
+
 	pub fn print_result(&self) {
 		println!("###IA search best move for team {}, num of layers {}", self.player, self.nb_layers);
 		println!("Number of heuristic calls {}", self.nb_final);
-		println!("Number of node			{}", self.nb_node);
+		println!("Number of node            {}", self.nb_node);
 		println!("Time to compute   {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
 		println!("Time in heuristic {: >#2}s {}ms", self.time_in_heuristic.num_seconds(), self.time_in_heuristic.num_milliseconds());
 		let time_out_of_heuristic = self.total_time - self.time_in_heuristic;
@@ -173,7 +215,7 @@ impl Decision {
 			return dec;
 		}
 		let begin = UTC::now();
-		let (coords, _) = dec.recursive(board, Turn::Player, *teams, nb_layers,
+		let (coords, _) = dec.first_recursive(board, Turn::Player, *teams, nb_layers,
 				(ia::NINFINITE, ia::INFINITE), heuristic);
 		let end = UTC::now();
 		dec.result = coords;
