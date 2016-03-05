@@ -15,3 +15,5 @@ test bench::heuristic_bench      ... bench:      11,649 ns/iter (+/- 780)
 test bench::heuristic_bench_easy ... bench:      11,542 ns/iter (+/- 460)
 test bench::minmax_3_layer_bench ... bench:      11,540 ns/iter (+/- 590)
 test bench::minmax_3_layers_easy ... bench:      94,748 ns/iter (+/- 4,149)
+
+# 67b62e3fa31b235017edc29574268b9528deb392 change heuristic
