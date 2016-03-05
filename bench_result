@@ -21,3 +21,9 @@ test bench::heuristic_bench      ... bench:       1,468 ns/iter (+/- 47)
 test bench::heuristic_bench_easy ... bench:         533 ns/iter (+/- 70)
 test bench::minmax_3_layer_bench ... bench:       1,356 ns/iter (+/- 53)
 test bench::minmax_3_layers_easy ... bench:      86,808 ns/iter (+/- 2,925)
+
+# 403908a327c356fa6356ae35ffcfb6d4fee11bfb decision: replace set by set_raw
+test bench::heuristic_bench      ... bench:       1,360 ns/iter (+/- 104)
+test bench::heuristic_bench_easy ... bench:         490 ns/iter (+/- 15)
+test bench::minmax_3_layer_bench ... bench:       1,360 ns/iter (+/- 126)
+test bench::minmax_3_layers_easy ... bench:      42,083 ns/iter (+/- 4,424)
