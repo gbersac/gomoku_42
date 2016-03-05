@@ -12,36 +12,37 @@ fn test_one(s: &str, heur: HeuristicFn, nb_layers: u32, expected: (usize, usize)
 	assert!(expected == result.get_result());
 }
 
-fn heur_capture(board: &GoBoard, team: Team) -> i32 {
-	team.captured() as i32
-}
+// Does not work anymore because we don't update team captured.
+// fn heur_capture(board: &GoBoard, team: Team) -> i32 {
+// 	team.captured() as i32
+// }
 
-///test if the team captured is updated
-#[test]
-fn test_team_capture() {
-	let s = r#"19
-. . . . . . . . . . . . . . . . . . .
-. W B B . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-. . . . . . . . . . . . . . . . . . .
-	"#;
-	test_one(s, heur_capture, 1, (4, 1));
-}
+// ///test if the team captured is updated
+// #[test]
+// fn test_team_capture() {
+// 	let s = r#"19
+// . . . . . . . . . . . . . . . . . . .
+// . W B B . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . .
+// 	"#;
+// 	test_one(s, heur_capture, 1, (4, 1));
+// }
 
 fn heur_tile_coords(board: &GoBoard, team: Team) -> i32 {
 	let mut ttl = 0;

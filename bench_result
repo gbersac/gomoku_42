@@ -27,3 +27,15 @@ test bench::heuristic_bench      ... bench:       1,360 ns/iter (+/- 104)
 test bench::heuristic_bench_easy ... bench:         490 ns/iter (+/- 15)
 test bench::minmax_3_layer_bench ... bench:       1,360 ns/iter (+/- 126)
 test bench::minmax_3_layers_easy ... bench:      42,083 ns/iter (+/- 4,424)
+
+# 28b4cea2ca895ce5c21f2f5097993c81b3f96d47 search on one more layer
+test bench::heuristic_bench      ... bench:       1,341 ns/iter (+/- 55)
+test bench::heuristic_bench_easy ... bench:         488 ns/iter (+/- 45)
+test bench::minmax_3_layer_bench ... bench:  83,343,485 ns/iter (+/- 5,979,305)
+test bench::minmax_3_layers_easy ... bench:     198,344 ns/iter (+/- 19,146)
+
+#
+test bench::heuristic_bench      ... bench:       1,495 ns/iter (+/- 65)
+test bench::heuristic_bench_easy ... bench:         540 ns/iter (+/- 50)
+test bench::minmax_3_layer_bench ... bench:  27,429,161 ns/iter (+/- 2,473,496)
+test bench::minmax_3_layers_easy ... bench:     318,992 ns/iter (+/- 11,794)
