@@ -17,3 +17,7 @@ test bench::minmax_3_layer_bench ... bench:      11,540 ns/iter (+/- 590)
 test bench::minmax_3_layers_easy ... bench:      94,748 ns/iter (+/- 4,149)
 
 # 67b62e3fa31b235017edc29574268b9528deb392 change heuristic
+test bench::heuristic_bench      ... bench:       1,468 ns/iter (+/- 47)
+test bench::heuristic_bench_easy ... bench:         533 ns/iter (+/- 70)
+test bench::minmax_3_layer_bench ... bench:       1,356 ns/iter (+/- 53)
+test bench::minmax_3_layers_easy ... bench:      86,808 ns/iter (+/- 2,925)
