@@ -123,7 +123,7 @@ impl Console {
             if let Some(Button::Mouse(_)) = event.press_args() {
                 if self.board.set((x as usize, y as usize), team) {
                     self.turn = !self.turn;
-                    if self.get_turn_is_ia() == false {
+                    if self.help && self.get_turn_is_ia() == false {
                         self.help_decision = self.help_optimal_move();
                     }
                 }
@@ -143,7 +143,7 @@ impl Console {
             team.get_tile()
         );
         self.turn = !self.turn;
-        if self.get_turn_is_ia() == false {
+        if self.help && self.get_turn_is_ia() == false {
             self.help_decision = self.help_optimal_move();
         }
         (x as u32, y as u32)
@@ -199,7 +199,6 @@ impl Console {
             (false, (_, _), (_, Player::Human)) => {
                 let mut team = self.friend.0;
 
-
                 self.set(event, &mut team)
             },
         };
@@ -237,10 +236,12 @@ impl Console {
         event: &Event,
         limit: u32
     ) {
+
         if let Some(resize) = event.resize(|w, h| (w as u32, h as u32)) {
             self.event.set_dimension(resize);
         }
         if self.win == false {
+
             if let Some(coordinate) = event.mouse_cursor(|x, y| {
                 (x as u32, y as u32)
             }) {
@@ -250,6 +251,7 @@ impl Console {
                 ) {
                     self.event.set_coordinate(coordinate);
                 }
+
             }
             if let Some(team) = self.play(&event) {
                 println!("{} win! Give him a cookie !", team.ennemy());
@@ -267,7 +269,6 @@ impl Console {
         limit: u32
     ) {
         let dimension = self.get_size();
-
         gl.draw(event.viewport(), |context, g| {
             graphics::clear(ORANGE, g);
             draw::draw_render(&self.board, dimension, limit, (&context, g));
@@ -311,6 +312,7 @@ impl Console {
 
         if self.is_ia_versus() {
             for event in window.clone().events() {
+                                println!("{} {:?}", self.help, self.help_decision);
                 if let Some(render) = event.render_args() {
                     self.input(&event, limit);
                     self.draw(gl, &render, limit);
@@ -320,6 +322,8 @@ impl Console {
         }
         else {
             for event in window.clone().events() {
+
+                    println!("{} {:?}", self.help, self.help_decision);
                 self.input(&event, limit);
                 if let Some(render) = event.render_args() {
                     self.draw(gl, &render, limit);
