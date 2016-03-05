@@ -312,7 +312,6 @@ impl Console {
 
         if self.is_ia_versus() {
             for event in window.clone().events() {
-                                println!("{} {:?}", self.help, self.help_decision);
                 if let Some(render) = event.render_args() {
                     self.input(&event, limit);
                     self.draw(gl, &render, limit);
@@ -323,7 +322,6 @@ impl Console {
         else {
             for event in window.clone().events() {
 
-                    println!("{} {:?}", self.help, self.help_decision);
                 self.input(&event, limit);
                 if let Some(render) = event.render_args() {
                     self.draw(gl, &render, limit);
