@@ -24,7 +24,7 @@ fn main() {
     let m = App::from_yaml(yml).get_matches();
     let opts = CmdOption::parse(&m);
 
-    let mut game:Console = Console::new (
+    let mut game: Console = Console::new(
         Default::default(),
         opts.layers,
         (opts.player, opts.friend),

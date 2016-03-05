@@ -317,8 +317,7 @@ impl Console {
                     event.update(|_| {});
                 }
             }
-        }
-        else {
+        } else {
             for event in window.clone().events() {
                 self.input(&event, limit);
                 if let Some(render) = event.render_args() {

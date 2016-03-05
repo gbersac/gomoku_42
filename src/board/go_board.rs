@@ -29,7 +29,7 @@ macro_rules! test_goban_pattern {
 					// $board.get(($coords.0, $coords.1)), expected);
 			result = $board.is_exp($coords, $gap, expected) && result;
 		)*
-		result as u32
+		result
 	}}
 }
 
@@ -49,15 +49,15 @@ impl GoBoard {
 	) {
 		let coords = (x, y, downdir, rightdir);
 		let left = test_goban_pattern!(self, team, coords,
-				"o" => 3, "e" => 2, "e" => 1) > 0;
+									   "o" => 3, "e" => 2, "e" => 1);
 		let right = test_goban_pattern!(self, team, coords,
-				"o" => -3, "e" => -2, "e" => -1) > 0;
-		if  left {
+										"o" => -3, "e" => -2, "e" => -1);
+		if left {
 			self.unset_gap(coords, 1);
 			self.unset_gap(coords, 2);
 			team.add_captured(2);
 		}
-		if  right {
+		if right {
 			self.unset_gap(coords, -1);
 			self.unset_gap(coords, -2);
 			team.add_captured(2);
@@ -66,7 +66,6 @@ impl GoBoard {
 
 	/// Test if playing this tile capture ennemy tiles and remove ennemy tiles
 	/// and update number of captured tiles in the team if needed.
-
 	fn capture(&mut self, x: usize, y: usize, team: &mut Team) {
 		self.capture_dir(x, y, 1, 0, team);
 		self.capture_dir(x, y, 0, 1, team);
@@ -75,14 +74,12 @@ impl GoBoard {
 	}
 
 	/// Assigns the value to tiles coordinates [x; y] without any check.
-
 	pub fn set_raw(&mut self, (x, y): (usize, usize), tile: Tile) {
 		self.tiles[x][y] = tile;
 	}
 
 	/// The `set` function assigns the value to tiles coordinates [x; y]
 	/// if possible. Return false otherwise.
-
     pub fn set(&mut self, (x, y): (usize, usize), team: &mut Team) -> bool {
     	if !self.is_allow(x, y, team) {
     		return false;
@@ -94,7 +91,6 @@ impl GoBoard {
 
 	/// The `unset` function assigns the FREE
 	/// to tiles coordinates [x; y].
-
     pub fn unset(&mut self, cell: (usize, usize)) {
 		self.set_raw(cell, Tile::FREE);
 	}
@@ -108,20 +104,18 @@ impl GoBoard {
 		if x < 0 || y < 0 || !self.check_index((x as usize, y as usize)) {
 			return ;
 		}
-		// println!("x {:?} y {:?} type {:?}", x, y, self.get((x as usize, y as usize)));
 		self.unset((x as usize, y as usize));
 	}
 
     /// The `get_size` function returns the size of
 	/// the grid side.
 
-	pub fn get_size (&self) -> usize {
+	pub fn get_size(&self) -> usize {
 		self.size
 	}
 
     /// The `check_index` function returns a boolean
 	/// if the index is within the bounds of the board.
-
 	pub fn check_index (&self, (x, y): (usize, usize)) -> bool {
 		x <= self.size - 1 && y <= self.size - 1
 	}
@@ -199,7 +193,6 @@ impl GoBoard {
 
 	/// Return true if the tile which is positionned at gap tiles from the
 	/// tested tile on the direction defined by coords is of the expected type.
-
 	fn is_exp(&self,
 		coords: (usize, usize, i32, i32),
 		gap: i32,
@@ -231,23 +224,23 @@ impl GoBoard {
 		//rule 1
 		// for xocox
 		nb_free_three += test_goban_pattern!(self, team, coords,
-				"x" => -2, "o" => -1, "o" => 1, "x" => 2);
+				"x" => -2, "o" => -1, "o" => 1, "x" => 2) as u32;
 
 		//rule 2
 		// for xoocx
 		nb_free_three += test_goban_pattern!(self, team, coords,
-				"x" => -3, "o" => -2, "o" => -1, "x" => 1);
+				"x" => -3, "o" => -2, "o" => -1, "x" => 1) as u32;
 		// for xoocx (opposite)
 		nb_free_three += test_goban_pattern!(self, team, coords,
-				"x" => 3, "o" => 2, "o" => 1, "x" => -1);
+				"x" => 3, "o" => 2, "o" => 1, "x" => -1) as u32;
 
 		//rule 3
 		// for xooxcx
 		nb_free_three += test_goban_pattern!(self, team, coords,
-				"x" => -4, "o" => -3, "o" => -2, "x" => -1, "x" => 1);
+				"x" => -4, "o" => -3, "o" => -2, "x" => -1, "x" => 1) as u32;
 		// for xooxcx (opposite)
 		nb_free_three += test_goban_pattern!(self, team, coords,
-				"x" => 4, "o" => 3, "o" => 2, "x" => 1, "x" => -1);
+				"x" => 4, "o" => 3, "o" => 2, "x" => 1, "x" => -1) as u32;
 
 		//return
 		nb_free_three
@@ -286,7 +279,6 @@ impl GoBoard {
 
 	/// Return the (x, y) coordinates out of the index of the tile in the
 	/// GoBoard::tiles array.
-
 	pub fn coord_out_of_index(index: usize) -> (usize, usize) {
 		(index % GO_WIDTH, index / GO_WIDTH)
 	}
