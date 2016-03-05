@@ -23,7 +23,6 @@ impl Team {
     	(Team::new(Tile::BLACK), Team::new(Tile::WHITE))
     }
 
-    // #[cfg(test)]
     pub fn captured(&self) -> u32 {
         self.captured
     }

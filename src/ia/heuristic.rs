@@ -74,7 +74,7 @@ fn tile_value(board: &GoBoard, x: i32, y: i32, team: Tile) -> i32 {
 }
 
 pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
-    let mut player_score = 0;
+    let mut player_score = team.captured() as i32;
     let mut enemy_score = 0;
     for x in 0..board.get_size() {
         for y in 0..board.get_size() {

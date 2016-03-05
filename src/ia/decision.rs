@@ -61,7 +61,7 @@ impl Decision {
 		albet: (i32, i32),
 		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
-		board.set(coords, &mut playing_team);
+		board.set_raw(coords, playing_team.get_tile());
 		let teams = Decision::updated_team(&teams, playing_team.clone());
 		let (_, heur) = self.recursive(
 				board, turn, teams.clone(), nb_layers, albet, heuristic);
