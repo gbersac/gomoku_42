@@ -6,6 +6,8 @@ use ia;
 
 pub type HeuristicFn = fn(board: &GoBoard, team: Team) -> i32;
 
+const WIN: i32 = ia::INFINITE - 100;
+
 fn check_index(board: &GoBoard, x: i32, y: i32) -> bool {
     if x < 0 || y < 0 {
         return false;
@@ -40,7 +42,7 @@ fn nb_in_line(board: &GoBoard,
     }
 
     if ttl == 4 {
-        ia::INFINITE
+        WIN
     } else if ttl > 0 {
         ttl
     } else {
@@ -51,23 +53,23 @@ fn nb_in_line(board: &GoBoard,
 fn tile_value(board: &GoBoard, x: i32, y: i32, team: Tile) -> i32 {
     let mut ttl_tile = 1;
     let score_tile = nb_in_line(board, x, y, 1, 1, team);
-    if score_tile == ia::INFINITE {
-        return ia::INFINITE;
+    if score_tile == WIN {
+        return WIN;
     }
     ttl_tile += score_tile;
     let score_tile = nb_in_line(board, x, y, 0, 1, team);
-    if score_tile == ia::INFINITE {
-        return ia::INFINITE;
+    if score_tile == WIN {
+        return WIN;
     }
     ttl_tile += score_tile;
     let score_tile = nb_in_line(board, x, y, 1, 0, team);
-    if score_tile == ia::INFINITE {
-        return ia::INFINITE;
+    if score_tile == WIN {
+        return WIN;
     }
     ttl_tile += score_tile;
     let score_tile = nb_in_line(board, x, y, 1, -1, team);
-    if score_tile == ia::INFINITE {
-        return ia::INFINITE;
+    if score_tile == WIN {
+        return WIN;
     }
     ttl_tile += score_tile;
     ttl_tile
@@ -82,15 +84,15 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
                 Tile::FREE => {},
                 t if team.get_tile() == t => {
                     let tile_score = tile_value(board, x as i32, y as i32, team.get_tile());
-                    if tile_score == ia::INFINITE {
-                        return ia::INFINITE;
+                    if tile_score == WIN {
+                        return WIN;
                     } else {
                         player_score += tile_score;
                     }
                 },
                 t if team.get_ennemy_tile() == t => {
                     let tile_score = tile_value(board, x as i32, y as i32, team.get_ennemy_tile());
-                    if tile_score == ia::INFINITE {
+                    if tile_score == WIN {
                         return ia::NINFINITE;
                     } else {
                         enemy_score += tile_score;

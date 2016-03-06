@@ -17,19 +17,28 @@ test bench::minmax_3_layer_bench ... bench:      11,540 ns/iter (+/- 590)
 test bench::minmax_3_layers_easy ... bench:      94,748 ns/iter (+/- 4,149)
 
 # 67b62e3fa31b235017edc29574268b9528deb392 change heuristic
-test bench::heuristic_bench      ... bench:       1,468 ns/iter (+/- 47)
-test bench::heuristic_bench_easy ... bench:         533 ns/iter (+/- 70)
-test bench::minmax_3_layer_bench ... bench:       1,356 ns/iter (+/- 53)
-test bench::minmax_3_layers_easy ... bench:      86,808 ns/iter (+/- 2,925)
+test bench::heuristic_bench      ... bench:       1,342 ns/iter (+/- 170)
+test bench::heuristic_bench_easy ... bench:         491 ns/iter (+/- 36)
+test bench::minmax_3_layer_bench ... bench:   6,374,271 ns/iter (+/- 297,251)
+test bench::minmax_3_layers_easy ... bench:      87,516 ns/iter (+/- 8,355)
+with real 3 layers :
+test bench::minmax_3_layer_bench ... bench:  90,790,476 ns/iter (+/- 11,079,548)
+test bench::minmax_3_layers_easy ... bench:     331,040 ns/iter (+/- 29,996)
 
 # 403908a327c356fa6356ae35ffcfb6d4fee11bfb decision: replace set by set_raw
-test bench::heuristic_bench      ... bench:       1,360 ns/iter (+/- 104)
-test bench::heuristic_bench_easy ... bench:         490 ns/iter (+/- 15)
-test bench::minmax_3_layer_bench ... bench:       1,360 ns/iter (+/- 126)
-test bench::minmax_3_layers_easy ... bench:      42,083 ns/iter (+/- 4,424)
+test bench::heuristic_bench      ... bench:       1,356 ns/iter (+/- 183)
+test bench::heuristic_bench_easy ... bench:         490 ns/iter (+/- 88)
+test bench::minmax_3_layer_bench ... bench:   3,777,035 ns/iter (+/- 308,674)
+test bench::minmax_3_layers_easy ... bench:      42,561 ns/iter (+/- 3,785)
 
 # 28b4cea2ca895ce5c21f2f5097993c81b3f96d47 search on one more layer
-test bench::heuristic_bench      ... bench:       1,476 ns/iter (+/- 52)
-test bench::heuristic_bench_easy ... bench:         533 ns/iter (+/- 14)
-test bench::minmax_3_layer_bench ... bench:  83,208,901 ns/iter (+/- 2,069,575)
-test bench::minmax_3_layers_easy ... bench:     197,939 ns/iter (+/- 19,632)
+test bench::heuristic_bench      ... bench:       1,341 ns/iter (+/- 55)
+test bench::heuristic_bench_easy ... bench:         488 ns/iter (+/- 45)
+test bench::minmax_3_layer_bench ... bench:  83,343,485 ns/iter (+/- 5,979,305)
+test bench::minmax_3_layers_easy ... bench:     198,344 ns/iter (+/- 19,146)
+
+#
+test bench::heuristic_bench      ... bench:       1,460 ns/iter (+/- 64)
+test bench::heuristic_bench_easy ... bench:         534 ns/iter (+/- 23)
+test bench::minmax_3_layer_bench ... bench:  91,982,437 ns/iter (+/- 760,047)
+test bench::minmax_3_layers_easy ... bench:     352,250 ns/iter (+/- 31,564)

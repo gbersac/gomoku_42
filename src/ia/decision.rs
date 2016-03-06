@@ -61,7 +61,17 @@ impl Decision {
 		albet: (i32, i32),
 		heuristic: HeuristicFn
 	) -> ((usize, usize), i32) {
-		board.set(coords, playing_team);
+		if board.set(coords, &mut playing_team) {
+			let winning_team = board.is_win(coords.0, coords.1);
+			if winning_team.is_some() {
+				println!("winning_team {}", playing_team);
+				if winning_team.unwrap() == playing_team.get_tile() {
+				    return (coords, ia::INFINITE);
+				} else {
+				    return (coords, ia::NINFINITE);
+				}
+			}
+		}
 		let teams = Decision::updated_team(&teams, playing_team.clone());
 		let (_, heur) = self.recursive(
 				board, turn, teams.clone(), nb_layers, albet, heuristic);
