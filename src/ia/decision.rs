@@ -108,6 +108,7 @@ impl Decision {
 		}
 
 		//else recursive to call each childs
+		// println!("\nnb_layers {:?} player {}", nb_layers, playing_team);
 
 		// get potential next moves
 		let moves = super::move_to_evaluate::move_to_evaluate(&board);
@@ -127,7 +128,9 @@ impl Decision {
 					turn.other(),
 					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
 					heuristic);
+			// println!("one_val {:?}", one_val);
 			if one_val > best_value {
+				// println!("{} > {} best_coord now {:?}", one_val, best_value, one_coord);
 				best_value = one_val;
 				best_coord = one_coord;
 				alpha = std::cmp::max(alpha, best_value);
@@ -137,6 +140,7 @@ impl Decision {
 				}
 			}
 		}
+		// println!("return {:?} {}", best_coord, -best_value);
 		(best_coord, -best_value)
 	}
 
@@ -171,6 +175,7 @@ impl Decision {
 					turn.other(),
 					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
 					heuristic);
+			println!("one_coord {:?} one_val {}", one_coord, one_val);
 			if one_val > best_value && board.is_allow(one_coord.0, one_coord.1, &playing_team) {
 				best_value = one_val;
 				best_coord = one_coord;

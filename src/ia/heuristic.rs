@@ -41,8 +41,8 @@ fn nb_in_line(board: &GoBoard,
         ttl += 1;
     }
 
-    if ttl == 4 {
-        WIN
+    if ttl >= 4 {
+        WIN + (ttl - 4)
     } else if ttl > 0 {
         ttl
     } else {
@@ -102,6 +102,7 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
             }
         }
     }
+    println!("\n{}{:?}", board, player_score - enemy_score);
     player_score - enemy_score
 }
 
