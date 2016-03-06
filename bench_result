@@ -37,7 +37,7 @@ test bench::heuristic_bench_easy ... bench:         488 ns/iter (+/- 45)
 test bench::minmax_3_layer_bench ... bench:  83,343,485 ns/iter (+/- 5,979,305)
 test bench::minmax_3_layers_easy ... bench:     198,344 ns/iter (+/- 19,146)
 
-#
+# be4828c6fb21cc8e431af49a04913b1ca99f0176 test for win at every layer
 test bench::heuristic_bench      ... bench:       1,460 ns/iter (+/- 64)
 test bench::heuristic_bench_easy ... bench:         534 ns/iter (+/- 23)
 test bench::minmax_3_layer_bench ... bench:  91,982,437 ns/iter (+/- 760,047)

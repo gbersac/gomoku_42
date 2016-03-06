@@ -66,9 +66,9 @@ impl Decision {
 			if winning_team.is_some() {
 				println!("winning_team {}", playing_team);
 				if winning_team.unwrap() == playing_team.get_tile() {
-				    return (coords, ia::INFINITE);
+				    return (coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32);
 				} else {
-				    return (coords, ia::NINFINITE);
+				    return (coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32);
 				}
 			}
 		}
@@ -235,22 +235,6 @@ impl Decision {
 
 	pub fn get_result(&self) -> (usize, usize) {
 		self.result
-	}
-}
-
-impl Default for Decision {
-
-	/// The `new` constructor function returns the interface decision.
-	fn default () -> Self {
-		Decision {
-			player: Team::default(),
-			nb_layers: 0u32,
-			nb_node: 0usize,
-			nb_final: 0usize,
-			time_in_heuristic: Duration::zero(),
-			total_time: Duration::zero(),
-			result: (0usize, 0usize)
-		}
 	}
 }
 
