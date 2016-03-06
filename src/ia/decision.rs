@@ -64,7 +64,6 @@ impl Decision {
 		if board.set(coords, &mut playing_team) {
 			let winning_team = board.is_win(coords.0, coords.1);
 			if winning_team.is_some() {
-				println!("winning_team {}", playing_team);
 				if winning_team.unwrap() == playing_team.get_tile() {
 				    return (coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32);
 				} else {
@@ -108,7 +107,6 @@ impl Decision {
 		}
 
 		//else recursive to call each childs
-		// println!("\nnb_layers {:?} player {}", nb_layers, playing_team);
 
 		// get potential next moves
 		let moves = super::move_to_evaluate::move_to_evaluate(&board);
@@ -128,19 +126,15 @@ impl Decision {
 					turn.other(),
 					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
 					heuristic);
-			// println!("one_val {:?}", one_val);
 			if one_val > best_value {
-				// println!("{} > {} best_coord now {:?}", one_val, best_value, one_coord);
 				best_value = one_val;
 				best_coord = one_coord;
 				alpha = std::cmp::max(alpha, best_value);
 				if alpha >= beta {
-					// println!("elagage alpha beta");
 					break ;
 				}
 			}
 		}
-		// println!("return {:?} {}", best_coord, -best_value);
 		(best_coord, -best_value)
 	}
 
@@ -175,13 +169,11 @@ impl Decision {
 					turn.other(),
 					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
 					heuristic);
-			println!("one_coord {:?} one_val {}", one_coord, one_val);
 			if one_val > best_value && board.is_allow(one_coord.0, one_coord.1, &playing_team) {
 				best_value = one_val;
 				best_coord = one_coord;
 				alpha = std::cmp::max(alpha, best_value);
 				if alpha >= beta {
-					// println!("elagage alpha beta");
 					break ;
 				}
 			}

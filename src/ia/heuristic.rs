@@ -102,7 +102,6 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
             }
         }
     }
-    println!("\n{}{:?}", board, player_score - enemy_score);
     player_score - enemy_score
 }
 
