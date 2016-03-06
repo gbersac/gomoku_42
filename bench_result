@@ -27,3 +27,9 @@ test bench::heuristic_bench      ... bench:       1,360 ns/iter (+/- 104)
 test bench::heuristic_bench_easy ... bench:         490 ns/iter (+/- 15)
 test bench::minmax_3_layer_bench ... bench:       1,360 ns/iter (+/- 126)
 test bench::minmax_3_layers_easy ... bench:      42,083 ns/iter (+/- 4,424)
+
+# 28b4cea2ca895ce5c21f2f5097993c81b3f96d47 search on one more layer
+test bench::heuristic_bench      ... bench:       1,476 ns/iter (+/- 52)
+test bench::heuristic_bench_easy ... bench:         533 ns/iter (+/- 14)
+test bench::minmax_3_layer_bench ... bench:  83,208,901 ns/iter (+/- 2,069,575)
+test bench::minmax_3_layers_easy ... bench:     197,939 ns/iter (+/- 19,632)
