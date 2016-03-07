@@ -186,7 +186,7 @@ impl Decision {
 					&mut board.clone(),
 					playing_team.clone(),
 					teams.clone(),
-					nb_layers - 1,
+					nb_layers,
 					turn.other(),
 					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
 					heuristic);
