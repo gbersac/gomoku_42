@@ -24,6 +24,7 @@ fn main() {
     let m = App::from_yaml(yml).get_matches();
     let opts = CmdOption::parse(&m);
 
+    println!("{:?}", std::i32::MAX);
     let mut game: Console = Console::new(
         Default::default(),
         opts.layers,

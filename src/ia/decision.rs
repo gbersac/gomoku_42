@@ -1,10 +1,13 @@
-use std::fmt::{Formatter, Display, Error};
+use std::thread;
+use std::sync::mpsc;
 use std;
 use board::{GoBoard, Team, Tile};
 use ia;
 use ia::turn::Turn;
 use ia::heuristic::HeuristicFn;
 use chrono::{UTC, Duration};
+
+const NB_THREAD: usize = 4;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Decision {
@@ -50,6 +53,30 @@ impl Decision {
 		}
 	}
 
+	fn splitted_moves_to_evaluate(board: &GoBoard) -> Vec<Vec<(usize, usize)>> {
+		let mut moves = super::move_to_evaluate::move_to_evaluate(&board);
+		let ttl_len = moves.len();
+		let mut to_return = Vec::new();
+		if moves.len() == 0 {
+			panic!("No winner !");
+		}
+
+		let split = moves.len() / NB_THREAD;
+		let nb_split = std::cmp::min(NB_THREAD, moves.len());
+		for i in 1..nb_split {
+			let y = moves;
+			let (n, m) = if i < ttl_len % NB_THREAD {
+				y.split_at(split + 1)
+			} else {
+				y.split_at(split)
+			};
+			moves = m.to_vec();
+			to_return.push(n.to_vec());
+		}
+		to_return.push(moves.to_vec());
+		to_return
+	}
+
 	/// launch the recursive for one of the move to evaluate
 	fn compute_one_move(&mut self,
 		coords: (usize, usize),
@@ -65,8 +92,10 @@ impl Decision {
 			let winning_team = board.is_win(coords.0, coords.1);
 			if winning_team.is_some() {
 				if winning_team.unwrap() == playing_team.get_tile() {
+					// println!("team is_win {:?} -> {:?}", coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32);
 				    return (coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32);
 				} else {
+					// println!("team is_win {:?} -> {:?}", coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32);
 				    return (coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32);
 				}
 			}
@@ -74,6 +103,7 @@ impl Decision {
 		let teams = Decision::updated_team(&teams, playing_team.clone());
 		let (_, heur) = self.recursive(
 				board, turn, teams.clone(), nb_layers, albet, heuristic);
+		// println!("{} compute_one_move return {:?} -> {}", nb_layers, coords, heur);
 		(coords, heur)
 	}
 
@@ -99,10 +129,7 @@ impl Decision {
 			};
 			// is there moves where the coords value matter for this ?
 			self.nb_final += 1;
-			let begin = UTC::now();
 			let (coords, value) = ((0, 0), (heuristic)(&board, updated_player));
-			let end = UTC::now();
-			self.time_in_heuristic = self.time_in_heuristic + (end - begin);
 			return (coords, value * turn.sign_alternation());
 		}
 
@@ -110,9 +137,6 @@ impl Decision {
 
 		// get potential next moves
 		let moves = super::move_to_evaluate::move_to_evaluate(&board);
-		if moves.len() == 0 {
-			unimplemented!();
-		}
 
 		// best heuristic value for one move set to -infinite
 		let mut best_value = ia::NINFINITE;
@@ -135,12 +159,13 @@ impl Decision {
 				}
 			}
 		}
-		(best_coord, -best_value)
+		(best_coord, ia::neg_infinite(best_value))
 	}
 
 	/// albet: alpha < beta
 	/// [algo explication](https://en.wikipedia.org/wiki/Negamax)
-	fn first_recursive(&mut self,
+	fn one_thread(&mut self,
+		moves: Vec<(usize, usize)>,
 		board: &mut GoBoard,
 		turn: Turn,
 		teams: (Team, Team),
@@ -151,16 +176,12 @@ impl Decision {
 		self.nb_node += 1;
 		let playing_team: Team = Decision::playing_team(&turn, &teams, &mut self.player).clone();
 
-		// get potential next moves
-		let moves = super::move_to_evaluate::move_to_evaluate(&board);
-		if moves.len() == 0 {
-			unimplemented!();
-		}
-
 		// best heuristic value for one move set to -infinite
 		let mut best_value = ia::NINFINITE;
 		let mut best_coord = (0, 0);
+		// println!("moves {:?}", moves);
 		for mov in moves {
+			// println!("mov {:?}", mov);
 			let (one_coord, one_val) = self.compute_one_move(mov,
 					&mut board.clone(),
 					playing_team.clone(),
@@ -169,7 +190,7 @@ impl Decision {
 					turn.other(),
 					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
 					heuristic);
-			if one_val > best_value && board.is_allow(one_coord.0, one_coord.1, &playing_team) {
+			if one_val > best_value {
 				best_value = one_val;
 				best_coord = one_coord;
 				alpha = std::cmp::max(alpha, best_value);
@@ -178,7 +199,58 @@ impl Decision {
 				}
 			}
 		}
-		(best_coord, -best_value)
+		// println!("end return thread {:?} {}", best_coord, best_value);
+		(best_coord, ia::neg_infinite(best_value))
+	}
+
+	fn launch_threads(&mut self,
+		board: &mut GoBoard,
+		turn: Turn,
+		teams: (Team, Team),
+		nb_layers: u32,
+		(alpha, beta) : (i32, i32),
+		heuristic: HeuristicFn,
+	) -> ((usize, usize), i32) {
+		// println!("launch_threads");
+		let list_moves = Decision::splitted_moves_to_evaluate(board);
+
+		// best heuristic value for one move set to -infinite
+		let (tx, rx) = mpsc::channel();
+
+		//spawn one resolution thread for each move
+		for mov in &list_moves {
+			let tx = tx.clone();
+
+			//clone a lot of stuff so that we could send them to the thread
+			let mut self_c = self.clone();
+			let mut board_c = board.clone();
+			let mov_c = mov.clone();
+			let turn_o = turn.clone();
+
+			thread::spawn(move || {
+				let res = self_c.one_thread(mov_c,
+											&mut board_c,
+											turn_o,
+											teams.clone(),
+											nb_layers - 1,
+											(ia::neg_infinite(beta),
+											 ia::neg_infinite(alpha)),
+											heuristic);
+				let _ = tx.send(res);
+			});
+		}
+
+		let mut results = Vec::with_capacity(list_moves.len());
+		for _ in 0..list_moves.len() {
+			let res = rx.recv().unwrap();
+			// println!("received {:?}", res);
+			results.push(res);
+		}
+
+		// select min or max according to convenience
+		// println!("results {:?}", results);
+		let res = results.iter().min_by_key(|x| x.1);
+		*(res.unwrap())
 	}
 
 	pub fn print_result(&self) {
@@ -186,9 +258,6 @@ impl Decision {
 		println!("Number of heuristic calls {}", self.nb_final);
 		println!("Number of node            {}", self.nb_node);
 		println!("Time to compute   {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
-		println!("Time in heuristic {: >#2}s {}ms", self.time_in_heuristic.num_seconds(), self.time_in_heuristic.num_milliseconds());
-		let time_out_of_heuristic = self.total_time - self.time_in_heuristic;
-		println!("Time out of heuristic {: >#2}s {}ms\n", time_out_of_heuristic.num_seconds(), time_out_of_heuristic.num_milliseconds());
 	}
 
 	/// Return the coordinates of the move which is considered to maximise the
@@ -222,7 +291,7 @@ impl Decision {
 			return dec;
 		}
 		let begin = UTC::now();
-		let (coords, _) = dec.first_recursive(board, Turn::Player, *teams, nb_layers,
+		let (coords, _) = dec.launch_threads(board, Turn::Player, *teams, nb_layers,
 				(ia::NINFINITE, ia::INFINITE), heuristic);
 		let end = UTC::now();
 		dec.result = coords;
@@ -232,13 +301,6 @@ impl Decision {
 
 	pub fn get_result(&self) -> (usize, usize) {
 		self.result
-	}
-}
-
-impl Display for Decision {
-	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-		let _ = write!(f, "{:?}", self.result);
-		Ok(())
 	}
 }
 

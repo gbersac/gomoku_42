@@ -6,11 +6,11 @@ use ia::heuristic::HeuristicFn;
 // test which move is the best for the white team
 fn test_one(s: &str, heur: HeuristicFn, nb_layers: u32, expected: (usize, usize)) {
 	let mut board = GoBoard::parse_with_size(&s.to_string());
-	let (team_b, team_w) = Team::new_teams();
 	println!("Test\n{}", board);
+	let (team_b, team_w) = Team::new_teams();
 	let result =
 			Decision::get_optimal_move(&mut board, &(team_b, team_w.clone()), team_w, nb_layers, heur);
-	println!("result {:?}\n", result.get_result());
+	println!("result {:?}, expected {:?}\n", result.get_result(), expected);
 	assert!(expected == result.get_result());
 }
 
@@ -84,7 +84,6 @@ W . . . . . . . . . . . . . . . . . .
 	test_one(s, heur_tile_coords, 2, (1, 1));
 	test_one(s, heur_tile_coords, 3, (1, 1));
 	test_one(s, heur_tile_coords, 4, (1, 1));
-	// assert!(false);
 }
 
 #[test]
@@ -133,7 +132,7 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, ia::heuristic, 3, (5, 6));
+	test_one(s, ia::heuristic, 3, (10, 11));
 
 	let s = r#"19
 W . . . . . . . . . . . . . . . . . .
