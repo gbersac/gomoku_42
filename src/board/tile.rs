@@ -2,9 +2,9 @@ use std::fmt::{Formatter, Display, Error};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Tile {
-	BLACK,
-	WHITE,
-	FREE,
+    BLACK,
+    WHITE,
+    FREE,
 }
 
 impl Default for Tile {
@@ -14,42 +14,46 @@ impl Default for Tile {
 }
 
 impl Tile {
+    #[allow(dead_code)]
+    pub fn from_str(s: &str) -> Tile {
+        match s {
+            "B" | "b" => Tile::BLACK,
+            "W" | "w" => Tile::WHITE,
+            _ => Tile::FREE,
+        }
+    }
 
-	#[allow(dead_code)]
-	pub fn from_str(s: &str) -> Tile {
-		match s {
-			"B" | "b" => Tile::BLACK,
-			"W" | "w" => Tile::WHITE,
-			_	      => Tile::FREE,
-		}
-	}
+    pub fn is_pawn(&self) -> bool {
+        *self == Tile::BLACK || *self == Tile::WHITE
+    }
 
-	pub fn is_pawn(&self) -> bool {
-		*self == Tile::BLACK || *self == Tile::WHITE
-	}
+    /// Return the tile of the ennemy if there is one, return the tile itself
+    /// otherwise.
 
-	/// Return the tile of the ennemy if there is one, return the tile itself
-	/// otherwise.
-
-	pub fn ennemy(&self) -> Tile {
-		match *self {
-		    Tile::BLACK => Tile::WHITE,
-		    Tile::WHITE => Tile::BLACK,
-		    _			=> self.clone()
-		}
-	}
+    pub fn ennemy(&self) -> Tile {
+        match *self {
+            Tile::BLACK => Tile::WHITE,
+            Tile::WHITE => Tile::BLACK,
+            _ => self.clone(),
+        }
+    }
 }
 
 impl Display for Tile {
-	fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-		match self {
-			&Tile::BLACK => {let _ = write!(f, "B");},
-			&Tile::WHITE => {let _ = write!(f, "W");},
-			&Tile::FREE	 => {let _ = write!(f, ".");},
-		};
-		Ok(())
-	}
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        match self {
+            &Tile::BLACK => {
+                let _ = write!(f, "B");
+            }
+            &Tile::WHITE => {
+                let _ = write!(f, "W");
+            }
+            &Tile::FREE => {
+                let _ = write!(f, ".");
+            }
+        };
+        Ok(())
+    }
 }
 
-impl Copy for Tile {
-}
+impl Copy for Tile {}

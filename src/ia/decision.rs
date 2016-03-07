@@ -92,10 +92,8 @@ impl Decision {
 			let winning_team = board.is_win(coords.0, coords.1);
 			if winning_team.is_some() {
 				if winning_team.unwrap() == playing_team.get_tile() {
-					// println!("team is_win {:?} -> {:?}", coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32);
 				    return (coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32);
 				} else {
-					// println!("team is_win {:?} -> {:?}", coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32);
 				    return (coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32);
 				}
 			}
@@ -103,7 +101,6 @@ impl Decision {
 		let teams = Decision::updated_team(&teams, playing_team.clone());
 		let (_, heur) = self.recursive(
 				board, turn, teams.clone(), nb_layers, albet, heuristic);
-		// println!("{} compute_one_move return {:?} -> {}", nb_layers, coords, heur);
 		(coords, heur)
 	}
 
@@ -179,9 +176,7 @@ impl Decision {
 		// best heuristic value for one move set to -infinite
 		let mut best_value = ia::NINFINITE;
 		let mut best_coord = (0, 0);
-		// println!("moves {:?}", moves);
 		for mov in moves {
-			// println!("mov {:?}", mov);
 			let (one_coord, one_val) = self.compute_one_move(mov,
 					&mut board.clone(),
 					playing_team.clone(),
@@ -199,7 +194,6 @@ impl Decision {
 				}
 			}
 		}
-		// println!("end return thread {:?} {}", best_coord, best_value);
 		(best_coord, ia::neg_infinite(best_value))
 	}
 
@@ -211,7 +205,6 @@ impl Decision {
 		(alpha, beta) : (i32, i32),
 		heuristic: HeuristicFn,
 	) -> ((usize, usize), i32) {
-		// println!("launch_threads");
 		let list_moves = Decision::splitted_moves_to_evaluate(board);
 
 		// best heuristic value for one move set to -infinite
@@ -243,21 +236,17 @@ impl Decision {
 		let mut results = Vec::with_capacity(list_moves.len());
 		for _ in 0..list_moves.len() {
 			let res = rx.recv().unwrap();
-			// println!("received {:?}", res);
 			results.push(res);
 		}
 
 		// select min or max according to convenience
-		// println!("results {:?}", results);
 		let res = results.iter().min_by_key(|x| x.1);
 		*(res.unwrap())
 	}
 
 	pub fn print_result(&self) {
 		println!("###IA search best move for team {}, num of layers {}", self.player, self.nb_layers);
-		println!("Number of heuristic calls {}", self.nb_final);
-		println!("Number of node            {}", self.nb_node);
-		println!("Time to compute   {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
+		println!("Time to compute {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
 	}
 
 	/// Return the coordinates of the move which is considered to maximise the

@@ -5,7 +5,7 @@ use std::str::FromStr;
 ///
 /// Return an error the first non space char is different from a number.
 pub fn atoi<T>(s: &str) -> Result<T, &'static str>
-        where T: FromStr
+    where T: FromStr
 {
     let mut number_has_began = false;
     let mut nbr_str = String::new();
@@ -18,7 +18,7 @@ pub fn atoi<T>(s: &str) -> Result<T, &'static str>
             if c.is_numeric() {
                 nbr_str.push(c);
             } else {
-                break ;
+                break;
             }
         }
     }
@@ -33,8 +33,7 @@ pub fn atoi<T>(s: &str) -> Result<T, &'static str>
 
 
 #[cfg(test)]
-mod test
-{
+mod test {
     use super::*;
 
     fn one_atoi_test(s: &str, expected: i32) {
