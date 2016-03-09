@@ -1,6 +1,5 @@
 extern crate std;
 extern crate piston;
-extern crate opengl_graphics;
 extern crate graphics;
 #[cfg(feature = "include_sdl2")]
 extern crate sdl2_window;
