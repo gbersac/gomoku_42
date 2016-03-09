@@ -57,10 +57,12 @@ pub struct Console {
     player: (Team, Player),
     friend: (Team, Player),
     layer: u32,
-    turn: bool, // Player one = true, player two = false.
+    turn: u32, // Player one = true, player two = false.
     win: bool,
     help: bool,
     help_decision: (u32, u32),
+    info: bool,
+    debug_map: bool,
 }
 
 impl Console {
@@ -71,6 +73,8 @@ impl Console {
         board: GoBoard,
         layer: u32,
         (player, friend): (Player, Player),
+        info: bool,
+        debug_map: bool,
         help: bool,
     ) -> Self {
         let size: u32 = board.get_size() as u32;
@@ -81,11 +85,13 @@ impl Console {
             event: Mouse::new((CASE_WIDTH * size, CASE_WIDTH * size)),
             player: (team_player, player),
             friend: (team_friend, friend),
-            turn: true,
+            turn: 0,
             layer: layer,
             win: false,
             help: help,
             help_decision: (size/2, size/2),
+            info: info,
+            debug_map: debug_map,
 		}
     }
 
@@ -107,7 +113,7 @@ impl Console {
     /// The `get_turn_is_ia` function returns a boolean if a IA must play.
 
     fn get_turn_is_ia (&self) -> bool {
-        match (self.turn, &self.player, &self.friend) {
+        match (self.turn % 2 == 0, &self.player, &self.friend) {
             (false, _, &(_, Player::Ia)) => true,
             (true, &(_, Player::Ia), _) => true,
             _ => false,
@@ -122,9 +128,15 @@ impl Console {
         if x < self.board.get_size() as u32 && y < self.board.get_size() as u32 {
             if let Some(Button::Mouse(_)) = event.press_args() {
                 if self.board.set((x as usize, y as usize), team) {
-                    self.turn = !self.turn;
+                    self.turn += 1;
                     if self.help && self.get_turn_is_ia() == false {
                         self.help_decision = self.help_optimal_move();
+                    }
+                    if self.info {
+                        println!("#{} human - {}: {}'s captured, [{}, {}]'s played.", self.turn, team, team.captured(), x, y);
+                    }
+                    if self.debug_map {
+                        println!("{}", self.board);
                     }
                 }
             };
@@ -138,10 +150,16 @@ impl Console {
     /// The `set_raw` function updates the turn and set the IA coordinate.
 
     fn set_raw (&mut self, (x, y): (usize, usize), team: &mut Team) -> (u32, u32) {
-        self.board.set((x as usize, y as usize), team);
-        self.turn = !self.turn;
+        self.board.set((x, y), team);
+        self.turn += 1;
         if self.help && self.get_turn_is_ia() == false {
             self.help_decision = self.help_optimal_move();
+        }
+        if self.info {
+            println!("#{} ia - {}: {}'s captured, [{}, {}]'s played.", self.turn, team, team.captured(), x, y);
+        }
+        if self.debug_map {
+            println!("{}", self.board);
         }
         (x as u32, y as u32)
     }
@@ -160,18 +178,12 @@ impl Console {
 
     fn play (&mut self, event: &Event) -> Option<Tile> {
         let (x, y):(u32, u32) = match (
-            self.turn,
+            self.turn % 2 == 0,
             &mut self.player,
             &mut self.friend
         ) {
             (true, &mut (mut player_team, Player::Ia), &mut (friend_team, _)) => {
-                let decision = Decision::get_optimal_move (
-                    &mut self.board,
-                    &(player_team, friend_team),
-                    friend_team,
-                    self.layer,
-                    heuristic
-                );
+                let decision = Decision::get_optimal_move(&mut self.board, &(player_team, friend_team), friend_team, self.layer, heuristic);
                 let result = self.set_raw(decision.get_result(), &mut player_team);
 
                 self.player.0 = player_team;
@@ -179,13 +191,7 @@ impl Console {
                 result
             },
             (false, &mut (player_team, _), &mut (mut friend_team, Player::Ia)) => {
-                let decision = Decision::get_optimal_move (
-                    &mut self.board,
-                    &(player_team, friend_team),
-                    player_team,
-                    self.layer,
-                    heuristic
-                );
+                let decision = Decision::get_optimal_move(&mut self.board, &(player_team, friend_team), player_team, self.layer, heuristic);
                 let result = self.set_raw(decision.get_result(), &mut friend_team);
 
                 self.friend.0 = friend_team;
@@ -211,7 +217,7 @@ impl Console {
     /// The `help_optimal_move` function returns the recommended coordinate to play.
 
     fn help_optimal_move (&mut self) -> (u32, u32) {
-        let (x, y) = if self.turn {
+        let (x, y) = if self.turn % 2 == 0 {
             Decision::get_optimal_move (
                 &mut self.board,
                 &(self.player.0, self.friend.0),
@@ -349,10 +355,12 @@ impl Default for Console {
             player: (team_player, Player::Human),
             friend: (team_friend, Player::Ia),
             layer: 3,
-            turn: true,
+            turn: 0,
             win: false,
             help: false,
             help_decision: (size/2, size/2),
+            info: true,
+            debug_map: false,
 		}
     }
 }

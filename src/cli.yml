@@ -22,6 +22,15 @@ args:
         takes_value: true
         short: l
     - nohelper:
-        help: No helper for human players
+        help: No helper for human players.
         long: nohelper
         short: n
+    - info:
+        help: print information about turn.
+        long: info
+        takes_value: true
+        short: i
+    - debug_map:
+        help: print information about map.
+        long: debug-map
+        short: m

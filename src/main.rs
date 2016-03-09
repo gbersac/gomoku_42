@@ -28,6 +28,8 @@ fn main() {
         Default::default(),
         opts.layers,
         (opts.player, opts.friend),
+        opts.info,
+        opts.debug_map,
         opts.human_help,
     );
 
