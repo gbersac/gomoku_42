@@ -161,42 +161,48 @@ impl Console {
     fn play (&mut self, event: &Event) -> Option<Tile> {
         let (x, y):(u32, u32) = match (
             self.turn,
-            self.player.clone(),
-            self.friend.clone()
+            &mut self.player,
+            &mut self.friend
         ) {
-            (true, (ref mut player, Player::Ia), (ref mut friend, _)) => {
+            (true, &mut (mut player_team, Player::Ia), &mut (friend_team, _)) => {
                 let decision = Decision::get_optimal_move (
                     &mut self.board,
-                    &(*player, *friend),
-                    *friend,
+                    &(player_team, friend_team),
+                    friend_team,
                     self.layer,
                     heuristic
                 );
+                let result = self.set_raw(decision.get_result(), &mut player_team);
 
+                self.player.0 = player_team;
                 decision.print_result();
-                self.set_raw(decision.get_result(), player)
+                result
             },
-            (false, (ref mut player, _), (ref mut friend, Player::Ia)) => {
+            (false, &mut (player_team, _), &mut (mut friend_team, Player::Ia)) => {
                 let decision = Decision::get_optimal_move (
                     &mut self.board,
-                    &(*player, *friend),
-                    *player,
+                    &(player_team, friend_team),
+                    player_team,
                     self.layer,
                     heuristic
                 );
+                let result = self.set_raw(decision.get_result(), &mut friend_team);
 
+                self.friend.0 = friend_team;
                 decision.print_result();
-                self.set_raw(decision.get_result(), friend)
+                result
             },
-            (true, (_, Player::Human), (_, _)) => {
-                let mut team = self.player.0;
+            (true, &mut (mut player_team, Player::Human), &mut (_, _)) => {
+                let result = self.set(event, &mut player_team);
 
-                self.set(event, &mut team)
+                self.player.0 = player_team;
+                result
             },
-            (false, (_, _), (_, Player::Human)) => {
-                let mut team = self.friend.0;
+            (false, &mut (_, _), &mut (mut friend_team, Player::Human)) => {
+                let result = self.set(event, &mut friend_team);
 
-                self.set(event, &mut team)
+                self.friend.0 = friend_team;
+                result
             },
         };
         self.board.is_win(x as usize, y as usize)
