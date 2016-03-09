@@ -18,12 +18,16 @@ fn check_index(board: &GoBoard, x: i32, y: i32) -> bool {
     true
 }
 
+/// dx and dy must equal 1 or -1
 fn nb_in_line(board: &GoBoard,
               x: i32, y: i32,
               dx: i32, dy: i32,
               team: Tile)
               -> i32 {
-    let mut ttl = 0;
+    let mut ttl = 1;
+    let mut free_extrems = 0;
+    let mut blank = 0;
+
     let mut nx = x + dx;
     let mut ny = y + dy;
     while check_index(board, nx, ny) &&
@@ -32,6 +36,18 @@ fn nb_in_line(board: &GoBoard,
         ny += dy;
         ttl += 1;
     }
+    if check_index(board, nx, ny) &&
+            board.get((nx as usize, ny as usize)) != team.ennemy() {
+        free_extrems += 1;
+        while check_index(board, nx, ny) &&
+              board.get((nx as usize, ny as usize)) == Tile::FREE &&
+              blank + ttl < 6 {
+            nx += dx;
+            ny += dy;
+            blank += 1;
+        }
+    }
+
     nx = x - dx;
     ny = y - dy;
     while check_index(board, nx, ny) &&
@@ -40,18 +56,31 @@ fn nb_in_line(board: &GoBoard,
         ny -= dy;
         ttl += 1;
     }
+    if check_index(board, nx, ny) &&
+            board.get((nx as usize, ny as usize)) != team.ennemy() {
+        free_extrems += 1;
+        while check_index(board, nx, ny) &&
+              board.get((nx as usize, ny as usize)) == Tile::FREE &&
+              blank + ttl < 6 {
+            nx -= dx;
+            ny -= dy;
+            blank += 1;
+        }
+    }
 
-    if ttl >= 4 {
-        WIN + (ttl - 4)
+    if blank + ttl < 5 { // if can't expand to victory line, this line is useless
+        0
+    } else if ttl >= 5 {
+        WIN + (ttl - 5) * free_extrems
     } else if ttl > 0 {
-        ttl
+        ttl * free_extrems
     } else {
         0
     }
 }
 
 fn tile_value(board: &GoBoard, x: i32, y: i32, team: Tile) -> i32 {
-    let mut ttl_tile = 1;
+    let mut ttl_tile = 0;
     let score_tile = nb_in_line(board, x, y, 1, 1, team);
     if score_tile == WIN {
         return WIN;
@@ -181,6 +210,29 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . B . . . . . . .
 . . . . . . . . . . . B . . . . . . .
 . . B B B B . . . . . B . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+        "#;
+    test_one(s);
+
+    let s = r#"19
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . B . . . . . . . . .
+. . . . . . . . . . . W . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . W . B . . . . . . .
+. . . . . . . . . W . B . . . . . . .
+. . . . . . . . . B . W . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
