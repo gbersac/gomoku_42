@@ -218,12 +218,12 @@ impl Decision {
 			let mut self_c = self.clone();
 			let mut board_c = board.clone();
 			let mov_c = mov.clone();
-			let turn_o = turn.clone();
+			let turn_c = turn.clone();
 
 			thread::spawn(move || {
 				let res = self_c.one_thread(mov_c,
 											&mut board_c,
-											turn_o,
+											turn_c,
 											teams.clone(),
 											nb_layers - 1,
 											(ia::neg_infinite(beta),
