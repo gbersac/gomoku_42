@@ -137,11 +137,8 @@ impl Console {
 
     /// The `set_raw` function updates the turn and set the IA coordinate.
 
-    fn set_raw (&mut self, (x, y): (usize, usize), team: &Team) -> (u32, u32) {
-        self.board.set_raw (
-            (x, y),
-            team.get_tile()
-        );
+    fn set_raw (&mut self, (x, y): (usize, usize), team: &mut Team) -> (u32, u32) {
+        self.board.set((x as usize, y as usize), team);
         self.turn = !self.turn;
         if self.help && self.get_turn_is_ia() == false {
             self.help_decision = self.help_optimal_move();
@@ -167,7 +164,7 @@ impl Console {
             self.player.clone(),
             self.friend.clone()
         ) {
-            (true, (ref player, Player::Ia), (ref friend, _)) => {
+            (true, (ref mut player, Player::Ia), (ref mut friend, _)) => {
                 let decision = Decision::get_optimal_move (
                     &mut self.board,
                     &(*player, *friend),
@@ -179,7 +176,7 @@ impl Console {
                 decision.print_result();
                 self.set_raw(decision.get_result(), player)
             },
-            (false, (ref player, _), (ref friend, Player::Ia)) => {
+            (false, (ref mut player, _), (ref mut friend, Player::Ia)) => {
                 let decision = Decision::get_optimal_move (
                     &mut self.board,
                     &(*player, *friend),
