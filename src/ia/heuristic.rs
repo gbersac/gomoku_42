@@ -115,16 +115,16 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
                 Tile::FREE => {},
                 t if team.get_tile() == t => {
                     let tile_score = tile_value(board, x as i32, y as i32, team.get_tile());
-                    if tile_score == WIN {
-                        return WIN;
+                    if tile_score >= WIN - 10 {
+                        return tile_score;
                     } else {
                         player_score += tile_score;
                     }
                 },
                 t if team.get_ennemy_tile() == t => {
                     let tile_score = tile_value(board, x as i32, y as i32, team.get_ennemy_tile());
-                    if tile_score == WIN {
-                        return ia::NINFINITE;
+                    if tile_score >= WIN {
+                        return tile_score;
                     } else {
                         enemy_score += tile_score;
                     }
