@@ -72,6 +72,8 @@ fn nb_in_line(board: &GoBoard,
         0
     } else if ttl >= 5 {
         WIN + (ttl - 5) * free_extrems
+    } else if free_extrems == 2 && ttl >= 4 {
+        WIN - 1
     } else if ttl > 0 {
         ttl * free_extrems
     } else {

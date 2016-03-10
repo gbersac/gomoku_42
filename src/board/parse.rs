@@ -1,5 +1,3 @@
-#[cfg(test)]
-
 use board::{Tile, GoBoard};
 use board::fn_str;
 
@@ -27,7 +25,7 @@ impl GoBoard {
 		// get all the tiles from the lines
 		let mut tiles = Vec::with_capacity(size * size);
 		for line in lines {
-			let mut ntiles : Vec<Tile> = GoBoard::split_one_line(line);
+			let ntiles : Vec<Tile> = GoBoard::split_one_line(line);
 			tiles.extend(ntiles);
 		}
 
@@ -44,8 +42,7 @@ impl GoBoard {
 
 	/// This function also parse the size of the Board.
 	/// This function should only be used in test because there is no test.
-	pub fn parse_with_size(to_parse: &String)
-			-> GoBoard {
+	pub fn parse_with_size(to_parse: &String) -> GoBoard {
 		let lines = GoBoard::split_into_lines(to_parse);
 		let size = fn_str::atoi::<usize>(lines[0]).unwrap();
 		let lines_reduce = (&lines[1..]).to_vec();
@@ -53,6 +50,7 @@ impl GoBoard {
 	}
 }
 
+#[cfg(test)]
 mod test {
 	use super::*;
 	use board::{GoBoard, Tile};

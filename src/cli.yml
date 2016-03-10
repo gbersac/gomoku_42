@@ -25,12 +25,12 @@ args:
         help: No helper for human players.
         long: nohelper
         short: n
-    - info:
-        help: print information about turn.
-        long: info
-        takes_value: true
-        short: i
-    - debug_map:
+    - debug:
         help: print information about map.
-        long: debug-map
-        short: m
+        long: debug
+        short: d
+    - init_map:
+        help: init the map with the board described in the file which is the argument.
+        long: init-map
+        short: i
+        takes_value: true

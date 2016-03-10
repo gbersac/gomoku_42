@@ -25,7 +25,7 @@ fn main() {
     let opts = CmdOption::parse(&m);
 
     let mut game: Console = Console::new(
-        Default::default(),
+        opts.init_map,
         opts.layers,
         (opts.player, opts.friend),
         opts.info,
