@@ -13,7 +13,6 @@ build = "build.rs"
 version = "0.13.0"
 
 [dependencies.piston2d-opengl_graphics]
-name = "opengl_graphics"
 version = "0.14.0"
 
 [dependencies.piston2d-graphics]
@@ -38,6 +37,7 @@ include_glfw = ["pistoncore-glfw_window"]
 include_glutin = ["pistoncore-glutin_window"]
 
 [dependencies.clap]
+version = "2"
 features = ["yaml"]
 
 [dependencies]
