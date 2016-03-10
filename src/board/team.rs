@@ -38,6 +38,10 @@ impl Team {
     pub fn add_captured(&mut self, nb_captured: u32) {
         self.captured += nb_captured;
     }
+
+    pub fn is_white(&self) -> bool {
+        self.color == Tile::WHITE
+    }
 }
 
 use std::fmt::{Formatter, Display, Error};

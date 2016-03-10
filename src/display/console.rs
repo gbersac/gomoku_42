@@ -265,7 +265,7 @@ impl Console {
 
             }
             if let Some(team) = self.play(&event) {
-                println!("{} win! Give him a cookie !", team.ennemy());
+                println!("{} win! Give him a cookie !", team);
                 self.win = true;
             }
         }
