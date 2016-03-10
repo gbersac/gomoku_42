@@ -91,11 +91,14 @@ impl Decision {
 		if board.set(coords, &mut playing_team) {
 			let winning_team = board.is_win(coords.0, coords.1);
 			if winning_team.is_some() {
-				if winning_team.unwrap() == playing_team.get_tile() {
-				    return (coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32);
+				let points = if winning_team.unwrap() == playing_team.get_tile() {
+				    (coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32)
 				} else {
-				    return (coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32);
-				}
+				    (coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32)
+				};
+				// println!("layer {} turn {:?} coords {:?} winning team {:?} points {}",
+				// 		nb_layers, turn, points.0, winning_team, points.1);
+				return points;
 			}
 		}
 		let teams = Decision::updated_team(&teams, playing_team.clone());
@@ -164,14 +167,13 @@ impl Decision {
 	fn one_thread(&mut self,
 		moves: Vec<(usize, usize)>,
 		board: &mut GoBoard,
-		turn: Turn,
 		teams: (Team, Team),
 		nb_layers: u32,
 		(mut alpha, beta) : (i32, i32),
 		heuristic: HeuristicFn,
 	) -> ((usize, usize), i32) {
 		self.nb_node += 1;
-		let playing_team: Team = Decision::playing_team(&turn, &teams, &mut self.player).clone();
+		let playing_team: Team = Decision::playing_team(&Turn::Player, &teams, &mut self.player).clone();
 
 		// best heuristic value for one move set to -infinite
 		let mut best_value = ia::NINFINITE;
@@ -182,7 +184,7 @@ impl Decision {
 					playing_team.clone(),
 					teams.clone(),
 					nb_layers,
-					turn.other(),
+					Turn::Adversary,
 					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
 					heuristic);
 			if one_val > best_value {
@@ -199,7 +201,6 @@ impl Decision {
 
 	fn launch_threads(&mut self,
 		board: &mut GoBoard,
-		turn: Turn,
 		teams: (Team, Team),
 		nb_layers: u32,
 		(alpha, beta) : (i32, i32),
@@ -218,14 +219,12 @@ impl Decision {
 			let mut self_c = self.clone();
 			let mut board_c = board.clone();
 			let mov_c = mov.clone();
-			let turn_c = turn.clone();
 
 			thread::spawn(move || {
 				let res = self_c.one_thread(mov_c,
 											&mut board_c,
-											turn_c,
 											teams.clone(),
-											nb_layers - 1,
+											nb_layers,
 											(ia::neg_infinite(beta),
 											 ia::neg_infinite(alpha)),
 											heuristic);
@@ -245,8 +244,10 @@ impl Decision {
 	}
 
 	pub fn print_result(&self) {
-		println!("###IA search best move for team {}, num of layers {}", self.player, self.nb_layers);
-		println!("Time to compute {: >#2}s {}ms", self.total_time.num_seconds(), self.total_time.num_milliseconds());
+		println!("Time to compute {: >#2}s {}ms for {} layers",
+				 self.total_time.num_seconds(),
+				 self.total_time.num_milliseconds(),
+				 self.nb_layers);
 	}
 
 	/// Return the coordinates of the move which is considered to maximise the
@@ -266,6 +267,7 @@ impl Decision {
 		nb_layers: u32,
 		heuristic: HeuristicFn
 	) -> Decision {
+		println!("ia tested for :\n{}", board);
 		let mut dec = Decision {
 			player: player.clone(),
 			nb_node: 0,
@@ -280,7 +282,7 @@ impl Decision {
 			return dec;
 		}
 		let begin = UTC::now();
-		let (coords, _) = dec.launch_threads(board, Turn::Player, *teams, nb_layers,
+		let (coords, _) = dec.launch_threads(board, *teams, nb_layers - 1,
 				(ia::NINFINITE, ia::INFINITE), heuristic);
 		let end = UTC::now();
 		dec.result = coords;

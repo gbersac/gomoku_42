@@ -133,7 +133,8 @@ impl Console {
                         self.help_decision = self.help_optimal_move();
                     }
                     if self.info {
-                        println!("#{} human - {}: {}'s captured, [{}, {}]'s played.", self.turn, team, team.captured(), x, y);
+                        println!("###{} human - {}: {} captured, ({}, {}) played.",
+                                 self.turn, team.get_ennemy_tile(), team.captured(), x, y);
                     }
                     if self.debug_map {
                         println!("{}", self.board);
@@ -156,7 +157,8 @@ impl Console {
             self.help_decision = self.help_optimal_move();
         }
         if self.info {
-            println!("#{} ia - {}: {}'s captured, [{}, {}]'s played.", self.turn, team, team.captured(), x, y);
+            println!("###{} ia    - {}: {} captured, ({}, {}) played.",
+                     self.turn, team.get_ennemy_tile(), team.captured(), x, y);
         }
         if self.debug_map {
             println!("{}", self.board);
