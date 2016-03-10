@@ -125,8 +125,8 @@ pub fn draw_render<G> (
     for x in 0..limit {
         for y in 0..limit {
             match board.get((x as usize, y as usize)) {
-                Tile::WHITE => draw_tile_color(BLACK, dimension, [x, y], (&context, g)),
-                Tile::BLACK => draw_tile_color(WHITE, dimension, [x, y], (&context, g)),
+                Tile::WHITE => draw_tile_color(WHITE, dimension, [x, y], (&context, g)),
+                Tile::BLACK => draw_tile_color(BLACK, dimension, [x, y], (&context, g)),
                 _ => {},
             }
         }
