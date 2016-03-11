@@ -22,8 +22,7 @@ fn check_index(board: &GoBoard, x: i32, y: i32) -> bool {
 fn nb_in_line(board: &GoBoard,
               x: i32, y: i32,
               dx: i32, dy: i32,
-              team: Tile,
-              player_turn: bool)
+              team: Tile)
               -> i32 {
     let mut ttl = 1;
     let mut free_extrems = 0;
@@ -75,8 +74,6 @@ fn nb_in_line(board: &GoBoard,
         WIN + (ttl - 5) * free_extrems
     } else if free_extrems == 2 && ttl >= 4 {
         WIN - 1
-    } else if free_extrems == 2 && ttl >= 3 && player_turn {
-        WIN - 2
     } else if ttl > 0 {
         ttl * free_extrems
     } else {
@@ -87,26 +84,25 @@ fn nb_in_line(board: &GoBoard,
 fn tile_value(board: &GoBoard,
               x: i32,
               y: i32,
-              team: Tile,
-              player_turn: bool)
+              team: Tile)
               -> i32 {
     let mut ttl_tile = 0;
-    let score_tile = nb_in_line(board, x, y, 1, 1, team, player_turn);
+    let score_tile = nb_in_line(board, x, y, 1, 1, team);
     if score_tile >= WIN - 10 {
         return WIN;
     }
     ttl_tile += score_tile;
-    let score_tile = nb_in_line(board, x, y, 0, 1, team, player_turn);
+    let score_tile = nb_in_line(board, x, y, 0, 1, team);
     if score_tile >= WIN - 10 {
         return WIN;
     }
     ttl_tile += score_tile;
-    let score_tile = nb_in_line(board, x, y, 1, 0, team, player_turn);
+    let score_tile = nb_in_line(board, x, y, 1, 0, team);
     if score_tile >= WIN - 10 {
         return WIN;
     }
     ttl_tile += score_tile;
-    let score_tile = nb_in_line(board, x, y, 1, -1, team, player_turn);
+    let score_tile = nb_in_line(board, x, y, 1, -1, team);
     if score_tile >= WIN - 10 {
         return WIN;
     }
@@ -122,7 +118,7 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
             match board.get((x, y)) {
                 Tile::FREE => {},
                 t if team.get_tile() == t => {
-                    let tile_score = tile_value(board, x as i32, y as i32, team.get_tile(), true);
+                    let tile_score = tile_value(board, x as i32, y as i32, team.get_tile());
                     if tile_score >= WIN - 10 {
                         return tile_score;
                     } else {
@@ -130,11 +126,11 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
                     }
                 },
                 t if team.get_ennemy_tile() == t => {
-                    let tile_score = tile_value(board, x as i32, y as i32, team.get_ennemy_tile(), false);
+                    let tile_score = tile_value(board, x as i32, y as i32, team.get_ennemy_tile());
                     if tile_score >= WIN - 10 {
                         return tile_score;
                     }
-                    let tile_score = tile_value(board, x as i32, y as i32, team.get_ennemy_tile(), false);
+                    let tile_score = tile_value(board, x as i32, y as i32, team.get_ennemy_tile());
                     if tile_score == WIN {
                         return ia::NINFINITE;
                     } else {

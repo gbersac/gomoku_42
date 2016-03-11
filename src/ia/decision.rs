@@ -267,7 +267,6 @@ impl Decision {
 		nb_layers: u32,
 		heuristic: HeuristicFn
 	) -> Decision {
-		println!("ia tested for :\n{}", board);
 		let mut dec = Decision {
 			player: player.clone(),
 			nb_node: 0,

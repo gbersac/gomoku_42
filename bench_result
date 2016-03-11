@@ -48,3 +48,9 @@ test bench::heuristic_bench      ... bench:       1,471 ns/iter (+/- 58)
 test bench::heuristic_bench_easy ... bench:         556 ns/iter (+/- 92)
 test bench::minmax_3_layer_bench ... bench:   3,125,631 ns/iter (+/- 403,182)
 test bench::minmax_3_layers_easy ... bench:     206,309 ns/iter (+/- 9,133)
+
+# with end heuristic
+test bench::heuristic_bench      ... bench:       3,996 ns/iter (+/- 269)
+test bench::heuristic_bench_easy ... bench:         579 ns/iter (+/- 29)
+test bench::minmax_3_layer_bench ... bench:   2,930,355 ns/iter (+/- 425,474)
+test bench::minmax_3_layers_easy ... bench:     207,115 ns/iter (+/- 10,582)
