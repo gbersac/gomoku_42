@@ -2,8 +2,9 @@
 
 [![travis-badge][]][travis]
 
-A gomoku game with an artificial intelligence. The goban has a width of 19 tiles. Developped using the [rust programming language](https://www.rust-lang.org/).
+A gomoku game with an **artificial intelligence**. The goban has a width of 19 tiles. Developped using the [rust programming language](https://www.rust-lang.org/).
 
+#### ScreenShot:
 ![Screen Shot][display-screenshot]
 
 #### How to play:
