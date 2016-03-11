@@ -14,7 +14,7 @@ matrix:
     - rust: beta
 
 install:
-  - brew install sdl2
+  - brew install sdl2 freetype
 
 os:
   - osx
