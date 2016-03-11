@@ -7,7 +7,6 @@ authors = [
 ]
 description = "Game of Gomoku from 42 school"
 repository = "https://github.com/gbersac/gomoku_42.git"
-build = "build.rs"
 
 [dependencies.piston]
 version = "0.13.0"
