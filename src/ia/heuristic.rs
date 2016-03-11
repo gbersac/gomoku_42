@@ -156,7 +156,7 @@ fn test_one(s: &str) {
     assert!(white >black);
 }
 
-#[test]
+/*#[test]
 fn test_heuristic() {
     let s = r#"19
 W . . . . . . . . . . . . . . . . . .
@@ -250,3 +250,4 @@ W . . . . . . . . . . . . . . . . . .
         "#;
     test_one(s);
 }
+*/
