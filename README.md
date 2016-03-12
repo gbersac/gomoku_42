@@ -1,4 +1,4 @@
-# go_game_42
+# GoGame42
 
 [![travis-badge][]][travis]
 
