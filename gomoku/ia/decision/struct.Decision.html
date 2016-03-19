@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Decision` struct in crate `gomoku`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Decision">
+
+    <title>gomoku::ia::decision::Decision - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>gomoku</a>::<wbr><a href='../index.html'>ia</a>::<wbr><a href='index.html'>decision</a></p><script>window.sidebarCurrent = {name: 'Decision', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>gomoku</a>::<wbr><a href='../index.html'>ia</a>::<wbr><a href='index.html'>decision</a>::<wbr><a class='struct' href=''>Decision</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-740' class='srclink' href='../../../src/gomoku/ia/decision.rs.html#13-21' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Decision {
+    player: <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>,
+    nb_layers: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    nb_node: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+    nb_final: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+    time_in_heuristic: <a class='struct' href='https://doc.rust-lang.org/time/time/duration/struct.Duration.html' title='time::duration::Duration'>Duration</a>,
+    total_time: <a class='struct' href='https://doc.rust-lang.org/time/time/duration/struct.Duration.html' title='time::duration::Duration'>Duration</a>,
+    result: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>,
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.player'><code>player</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.nb_layers'><code>nb_layers</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.nb_node'><code>nb_node</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.nb_final'><code>nb_final</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.time_in_heuristic'><code>time_in_heuristic</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.total_time'><code>total_time</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.result'><code>result</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a></code></h3><div class='impl-items'><h4 id='method.playing_team' class='method'><code>fn <a href='#method.playing_team' class='fnname'>playing_team</a>(turn: &amp;<a class='enum' href='../../../gomoku/ia/turn/enum.Turn.html' title='gomoku::ia::turn::Turn'>Turn</a>, teams: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, player: &amp;<a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>) -&gt; <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a></code></h4>
+<h4 id='method.updated_team' class='method'><code>fn <a href='#method.updated_team' class='fnname'>updated_team</a>((tb, tw): &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, new_team: <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>Return the tuple (team black, team white) with the new team</p>
+</div><h4 id='method.splitted_moves_to_evaluate' class='method'><code>fn <a href='#method.splitted_moves_to_evaluate' class='fnname'>splitted_moves_to_evaluate</a>(board: &amp;<a class='struct' href='../../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;&gt;</code></h4>
+<h4 id='method.compute_one_move' class='method'><code>fn <a href='#method.compute_one_move' class='fnname'>compute_one_move</a>(&amp;mut self, coords: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, board: &amp;mut <a class='struct' href='../../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>, playing_team: <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, teams: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, nb_layers: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, turn: <a class='enum' href='../../../gomoku/ia/turn/enum.Turn.html' title='gomoku::ia::turn::Turn'>Turn</a>, albet: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, heuristic: <a class='type' href='../../../gomoku/ia/heuristic/type.HeuristicFn.html' title='gomoku::ia::heuristic::HeuristicFn'>HeuristicFn</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>launch the recursive for one of the move to evaluate</p>
+</div><h4 id='method.recursive' class='method'><code>fn <a href='#method.recursive' class='fnname'>recursive</a>(&amp;mut self, board: &amp;mut <a class='struct' href='../../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>, turn: <a class='enum' href='../../../gomoku/ia/turn/enum.Turn.html' title='gomoku::ia::turn::Turn'>Turn</a>, teams: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, nb_layers: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, (alpha, beta): <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, heuristic: <a class='type' href='../../../gomoku/ia/heuristic/type.HeuristicFn.html' title='gomoku::ia::heuristic::HeuristicFn'>HeuristicFn</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>albet: alpha &lt; beta
+<a href="https://en.wikipedia.org/wiki/Negamax">algo explication</a></p>
+</div><h4 id='method.one_thread' class='method'><code>fn <a href='#method.one_thread' class='fnname'>one_thread</a>(&amp;mut self, moves: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;, board: &amp;mut <a class='struct' href='../../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>, teams: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, nb_layers: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, (alpha, beta): <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, heuristic: <a class='type' href='../../../gomoku/ia/heuristic/type.HeuristicFn.html' title='gomoku::ia::heuristic::HeuristicFn'>HeuristicFn</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>albet: alpha &lt; beta
+<a href="https://en.wikipedia.org/wiki/Negamax">algo explication</a></p>
+</div><h4 id='method.launch_threads' class='method'><code>fn <a href='#method.launch_threads' class='fnname'>launch_threads</a>(&amp;mut self, board: &amp;mut <a class='struct' href='../../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>, teams: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, nb_layers: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, (alpha, beta): <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, heuristic: <a class='type' href='../../../gomoku/ia/heuristic/type.HeuristicFn.html' title='gomoku::ia::heuristic::HeuristicFn'>HeuristicFn</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<h4 id='method.print_result' class='method'><code>fn <a href='#method.print_result' class='fnname'>print_result</a>(&amp;self)</code></h4>
+<h4 id='method.get_optimal_move' class='method'><code>fn <a href='#method.get_optimal_move' class='fnname'>get_optimal_move</a>(board: &amp;mut <a class='struct' href='../../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>, teams: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, player: <a class='struct' href='../../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, nb_layers: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, heuristic: <a class='type' href='../../../gomoku/ia/heuristic/type.HeuristicFn.html' title='gomoku::ia::heuristic::HeuristicFn'>HeuristicFn</a>) -&gt; <a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a></code></h4>
+<div class='docblock'><p>Return the coordinates of the move which is considered to maximise the
+odds of victory for the team.</p>
+
+<p>teams the two teams, black first and white second</p>
+
+<p>player is the team for which we want to find the optimal move</p>
+
+<p>nb_layers is the number of move which is going to be evaluated by the ia
+to evaluate the best move. The higher will improve the quality of result
+but also computationnal time.</p>
+</div><h4 id='method.get_result' class='method'><code>fn <a href='#method.get_result' class='fnname'>get_result</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../../gomoku/ia/struct.Decision.html' title='gomoku::ia::Decision'>Decision</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "gomoku";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["GO_WIDTH",""],["TILES_TO_WIN",""]],"struct":[["GoBoard",""]]});

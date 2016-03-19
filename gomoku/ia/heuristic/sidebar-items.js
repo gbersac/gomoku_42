@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["WIN",""]],"fn":[["check_index",""],["heuristic",""],["nb_in_line","dx and dy must equal 1 or -1"],["tile_value",""]],"type":[["HeuristicFn",""]]});

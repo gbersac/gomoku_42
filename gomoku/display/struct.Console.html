@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Console` struct in crate `gomoku`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Console">
+
+    <title>gomoku::display::Console - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>gomoku</a>::<wbr><a href='index.html'>display</a></p><script>window.sidebarCurrent = {name: 'Console', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>gomoku</a>::<wbr><a href='index.html'>display</a>::<wbr><a class='struct' href=''>Console</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-432' class='srclink' href='../../src/gomoku/display/console.rs.html#54-66' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Console {
+    board: <a class='struct' href='../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>,
+    event: <a class='struct' href='../../gomoku/display/mouse/struct.Mouse.html' title='gomoku::display::mouse::Mouse'>Mouse</a>,
+    player: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='enum' href='../../gomoku/display/console/enum.Player.html' title='gomoku::display::console::Player'>Player</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>,
+    friend: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='struct' href='../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>, <a class='enum' href='../../gomoku/display/console/enum.Player.html' title='gomoku::display::console::Player'>Player</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>,
+    layer: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    turn: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    win: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+    help: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+    help_decision: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>,
+    info: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+    debug_map: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
+}</pre><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.board'><code>board</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.event'><code>event</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.player'><code>player</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.friend'><code>friend</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.layer'><code>layer</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.turn'><code>turn</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.win'><code>win</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.help'><code>help</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.help_decision'><code>help_decision</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.info'><code>info</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.debug_map'><code>debug_map</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../gomoku/display/struct.Console.html' title='gomoku::display::Console'>Console</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(board: <a class='struct' href='../../gomoku/board/struct.GoBoard.html' title='gomoku::board::GoBoard'>GoBoard</a>, layer: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, (player, friend): <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='enum' href='../../gomoku/display/console/enum.Player.html' title='gomoku::display::console::Player'>Player</a>, <a class='enum' href='../../gomoku/display/console/enum.Player.html' title='gomoku::display::console::Player'>Player</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, info: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, debug_map: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, help: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; Self</code></h4>
+<div class='docblock'><p>The <code>new</code> constructor function returns the interface console.</p>
+</div><h4 id='method.get_size' class='method'><code>fn <a href='#method.get_size' class='fnname'>get_size</a>(&amp;self) -&gt; Size</code></h4>
+<div class='docblock'><p>The <code>get_size</code> function returns window size.</p>
+</div><h4 id='method.get_turn_is_ia' class='method'><code>fn <a href='#method.get_turn_is_ia' class='fnname'>get_turn_is_ia</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>The <code>get_turn_is_ia</code> function returns a boolean if a IA must play.</p>
+</div><h4 id='method.set' class='method'><code>fn <a href='#method.set' class='fnname'>set</a>(&amp;mut self, event: &amp;Event, team: &amp;mut <a class='struct' href='../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>The <code>set</code> function updates the turn and set the human coordinate.</p>
+</div><h4 id='method.set_raw' class='method'><code>fn <a href='#method.set_raw' class='fnname'>set_raw</a>(&amp;mut self, (x, y): <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>, team: &amp;mut <a class='struct' href='../../gomoku/board/struct.Team.html' title='gomoku::board::Team'>Team</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>The <code>set_raw</code> function updates the turn and set the IA coordinate.</p>
+</div><h4 id='method.is_ia_versus' class='method'><code>fn <a href='#method.is_ia_versus' class='fnname'>is_ia_versus</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>The <code>is_ia_versus</code> function returns a boolean if the player one
+and two are typed like IA.</p>
+</div><h4 id='method.play' class='method'><code>fn <a href='#method.play' class='fnname'>play</a>(&amp;mut self, event: &amp;Event) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../gomoku/board/enum.Tile.html' title='gomoku::board::Tile'>Tile</a>&gt;</code></h4>
+<div class='docblock'><p>The <code>play</code> function sets the board with the new tail coordinate.</p>
+</div><h4 id='method.help_optimal_move' class='method'><code>fn <a href='#method.help_optimal_move' class='fnname'>help_optimal_move</a>(&amp;mut self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>The <code>help_optimal_move</code> function returns the recommended coordinate to play.</p>
+</div><h4 id='method.input' class='method'><code>fn <a href='#method.input' class='fnname'>input</a>(&amp;mut self, event: &amp;Event, limit: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</code></h4>
+<div class='docblock'><p>The <code>input</code> function listens all mouse event like resize and click.</p>
+</div><h4 id='method.draw' class='method'><code>fn <a href='#method.draw' class='fnname'>draw</a>(&amp;mut self, gl: &amp;mut GlGraphics, event: &amp;RenderArgs, limit: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</code></h4>
+<div class='docblock'><p>The <code>draw</code> function refreshs the window with a new board.</p>
+</div><h4 id='method.start' class='method'><code>fn <a href='#method.start' class='fnname'>start</a>(&amp;mut self)</code></h4>
+<div class='docblock'><p>The <code>start</code> function loops the board.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../../gomoku/display/struct.Console.html' title='gomoku::display::Console'>Console</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; Self</code></h4>
+</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../gomoku/display/struct.Console.html' title='gomoku::display::Console'>Console</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../gomoku/display/struct.Console.html' title='gomoku::display::Console'>Console</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../gomoku/display/struct.Console.html' title='gomoku::display::Console'>Console</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "gomoku";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["INFINITE",""],["NINFINITE",""]],"fn":[["heuristic",""],["neg_infinite","Return the opposite of the value. Special case for infinity."]],"mod":[["decision",""],["heuristic",""],["move_to_evaluate",""],["turn",""]],"struct":[["Decision",""]]});

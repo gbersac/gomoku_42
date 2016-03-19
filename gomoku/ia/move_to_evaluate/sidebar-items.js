@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["get_neighbors",""],["move_to_evaluate",""],["test_pawn",""]]});
