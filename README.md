@@ -1,11 +1,18 @@
 # GoGame42
 
-[![travis-badge][]][travis]
+[![travis-badge][]][travis] [![docs-badge][]][docs]
+
+[travis-badge]: https://travis-ci.org/gbersac/gomoku_42.svg?style=flat-square
+[travis]: https://travis-ci.org/gbersac/gomoku_42
+[docs-badge]: https://img.shields.io/badge/API-docs-blue.svg?style=flat-square
+[docs]: https://gbersac.github.io/gomoku_42/gomoku
 
 A gomoku game with an **artificial intelligence**. The goban has a width of 19 tiles. Developped using the [rust programming language](https://www.rust-lang.org/).
 
 #### ScreenShot:
 ![Screen Shot][display-screenshot]
+
+[display-screenshot]: https://raw.githubusercontent.com/gbersac/gomoku_42/gh-pages/screenshot.apng
 
 #### How to play:
 ```shell
@@ -65,7 +72,3 @@ clap    chrono    piston
         |__ test_win.rs
         \__ tile.rs
 ```
-
-[travis-badge]: https://travis-ci.org/gbersac/gomoku_42.svg?style=flat-square
-[travis]: https://travis-ci.org/gbersac/gomoku_42
-[display-screenshot]: https://raw.githubusercontent.com/gbersac/gomoku_42/gh-pages/screenshot.apng
