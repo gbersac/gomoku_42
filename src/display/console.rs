@@ -37,13 +37,13 @@ const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32
 #[derive(Debug, PartialEq, Clone)]
 pub enum Player {
     Human,
-    ai,
+    Ai,
 }
 
 impl Player {
 	pub fn from_str(s: &str) -> Player {
 	    match s {
-	        "ai"	=> Player::ai,
+	        "ai"	=> Player::Ai,
 	        "human"	=> Player::Human,
 	        _		=> panic!("Player cli option must be either ai, solo or multi")
 	    }
@@ -114,8 +114,8 @@ impl Console {
 
     fn get_turn_is_ai (&self) -> bool {
         match (self.turn % 2 != 0, &self.player, &self.friend) {
-            (false, _, &(_, Player::ai)) => true,
-            (true, &(_, Player::ai), _) => true,
+            (false, _, &(_, Player::Ai)) => true,
+            (true, &(_, Player::Ai), _) => true,
             _ => false,
         }
     }
@@ -171,7 +171,7 @@ impl Console {
 
     fn is_ai_versus (&self) -> bool {
         match (&self.player, &self.friend) {
-            (&(_, Player::ai), &(_, Player::ai)) => true,
+            (&(_, Player::Ai), &(_, Player::Ai)) => true,
             _ => false,
         }
     }
@@ -184,7 +184,7 @@ impl Console {
             &mut self.player,
             &mut self.friend
         ) {
-            (true, &mut (mut player_team, Player::ai), &mut (friend_team, _)) => {
+            (true, &mut (mut player_team, Player::Ai), &mut (friend_team, _)) => {
                 let decision = Decision::get_optimal_move(&mut self.board, &(player_team, friend_team), friend_team, self.layer, heuristic);
                 let result = self.set_raw(decision.get_result(), &mut player_team);
 
@@ -192,7 +192,7 @@ impl Console {
                 decision.print_result();
                 result
             },
-            (false, &mut (player_team, _), &mut (mut friend_team, Player::ai)) => {
+            (false, &mut (player_team, _), &mut (mut friend_team, Player::Ai)) => {
                 let decision = Decision::get_optimal_move(&mut self.board, &(player_team, friend_team), player_team, self.layer, heuristic);
                 let result = self.set_raw(decision.get_result(), &mut friend_team);
 
@@ -355,7 +355,7 @@ impl Default for Console {
 			board: board,
             event: Mouse::new((CASE_WIDTH * size, CASE_WIDTH * size)),
             player: (team_player, Player::Human),
-            friend: (team_friend, Player::ai),
+            friend: (team_friend, Player::Ai),
             layer: 3,
             turn: 0,
             win: false,
