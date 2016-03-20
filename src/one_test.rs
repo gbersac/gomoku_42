@@ -1,5 +1,5 @@
 use board::{GoBoard, Team};
-use ia::{Decision, heuristic};
+use ai::{Decision, heuristic};
 
 fn stupid_heuristic(board: &GoBoard, team: Team) -> i32 {
     42

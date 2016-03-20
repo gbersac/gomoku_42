@@ -2,11 +2,11 @@ extern crate std;
 
 use board::{GoBoard, Team};
 use board::Tile;
-use ia;
+use ai;
 
 pub type HeuristicFn = fn(board: &GoBoard, team: Team) -> i32;
 
-const WIN: i32 = ia::INFINITE - 100;
+const WIN: i32 = ai::INFINITE - 100;
 
 fn check_index(board: &GoBoard, x: i32, y: i32) -> bool {
     if x < 0 || y < 0 {
@@ -132,7 +132,7 @@ pub fn heuristic(board: &GoBoard, team: Team) -> i32 {
                     }
                     let tile_score = tile_value(board, x as i32, y as i32, team.get_ennemy_tile());
                     if tile_score == WIN {
-                        return ia::NINFINITE;
+                        return ai::NINFINITE;
                     } else {
                         enemy_score += tile_score;
                     }

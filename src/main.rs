@@ -7,7 +7,7 @@ extern crate chrono;
 
 mod board;
 mod display;
-mod ia;
+mod ai;
 mod cmd_option;
 #[cfg(test)]
 mod one_test;
