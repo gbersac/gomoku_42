@@ -4,8 +4,8 @@ use display::console::Player;
 use clap;
 use board::{GoBoard};
 
-const DEFAULT_PLAYER: &'static str = "ia";
-const DEFAULT_FRIEND: &'static str = "ia";
+const DEFAULT_PLAYER: &'static str = "ai";
+const DEFAULT_FRIEND: &'static str = "ai";
 const DEFAULT_LAYERS: &'static str = "3";
 const DEFAULT_INFO: &'static str = "true";
 

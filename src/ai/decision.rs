@@ -2,9 +2,9 @@ use std::thread;
 use std::sync::mpsc;
 use std;
 use board::{GoBoard, Team, Tile};
-use ia;
-use ia::turn::Turn;
-use ia::heuristic::HeuristicFn;
+use ai;
+use ai::turn::Turn;
+use ai::heuristic::HeuristicFn;
 use chrono::{UTC, Duration};
 
 const NB_THREAD: usize = 4;
@@ -92,9 +92,9 @@ impl Decision {
 			let winning_team = board.is_win(coords.0, coords.1);
 			if winning_team.is_some() {
 				let points = if winning_team.unwrap() == playing_team.get_tile() {
-				    (coords, ia::INFINITE - (self.nb_layers - nb_layers) as i32)
+				    (coords, ai::INFINITE - (self.nb_layers - nb_layers) as i32)
 				} else {
-				    (coords, ia::NINFINITE + (self.nb_layers - nb_layers) as i32)
+				    (coords, ai::NINFINITE + (self.nb_layers - nb_layers) as i32)
 				};
 				// println!("layer {} turn {:?} coords {:?} winning team {:?} points {}",
 				// 		nb_layers, turn, points.0, winning_team, points.1);
@@ -139,7 +139,7 @@ impl Decision {
 		let moves = super::move_to_evaluate::move_to_evaluate(&board);
 
 		// best heuristic value for one move set to -infinite
-		let mut best_value = ia::NINFINITE;
+		let mut best_value = ai::NINFINITE;
 		let mut best_coord = (0, 0);
 		for mov in moves {
 			let (one_coord, one_val) = self.compute_one_move(mov,
@@ -148,7 +148,7 @@ impl Decision {
 					teams.clone(),
 					nb_layers - 1,
 					turn.other(),
-					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
+					(ai::neg_infinite(beta), ai::neg_infinite(alpha)),
 					heuristic);
 			if one_val > best_value {
 				best_value = one_val;
@@ -159,7 +159,7 @@ impl Decision {
 				}
 			}
 		}
-		(best_coord, ia::neg_infinite(best_value))
+		(best_coord, ai::neg_infinite(best_value))
 	}
 
 	/// albet: alpha < beta
@@ -176,7 +176,7 @@ impl Decision {
 		let playing_team: Team = Decision::playing_team(&Turn::Player, &teams, &mut self.player).clone();
 
 		// best heuristic value for one move set to -infinite
-		let mut best_value = ia::NINFINITE;
+		let mut best_value = ai::NINFINITE;
 		let mut best_coord = (0, 0);
 		for mov in moves {
 			let (one_coord, one_val) = self.compute_one_move(mov,
@@ -185,7 +185,7 @@ impl Decision {
 					teams.clone(),
 					nb_layers,
 					Turn::Adversary,
-					(ia::neg_infinite(beta), ia::neg_infinite(alpha)),
+					(ai::neg_infinite(beta), ai::neg_infinite(alpha)),
 					heuristic);
 			if one_val > best_value {
 				best_value = one_val;
@@ -196,7 +196,7 @@ impl Decision {
 				}
 			}
 		}
-		(best_coord, ia::neg_infinite(best_value))
+		(best_coord, ai::neg_infinite(best_value))
 	}
 
 	fn launch_threads(&mut self,
@@ -225,8 +225,8 @@ impl Decision {
 											&mut board_c,
 											teams.clone(),
 											nb_layers,
-											(ia::neg_infinite(beta),
-											 ia::neg_infinite(alpha)),
+											(ai::neg_infinite(beta),
+											 ai::neg_infinite(alpha)),
 											heuristic);
 				let _ = tx.send(res);
 			});
@@ -257,7 +257,7 @@ impl Decision {
 	///
 	/// player is the team for which we want to find the optimal move
 	///
-	/// nb_layers is the number of move which is going to be evaluated by the ia
+	/// nb_layers is the number of move which is going to be evaluated by the ai
 	/// to evaluate the best move. The higher will improve the quality of result
 	/// but also computationnal time.
 	pub fn get_optimal_move (
@@ -282,7 +282,7 @@ impl Decision {
 		}
 		let begin = UTC::now();
 		let (coords, _) = dec.launch_threads(board, *teams, nb_layers - 1,
-				(ia::NINFINITE, ia::INFINITE), heuristic);
+				(ai::NINFINITE, ai::INFINITE), heuristic);
 		let end = UTC::now();
 		dec.result = coords;
 		dec.total_time = end - begin;

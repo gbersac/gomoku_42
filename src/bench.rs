@@ -1,8 +1,8 @@
 extern crate test;
 
 use board::{GoBoard, Team};
-use ia::{Decision, heuristic};
-use ia;
+use ai::{Decision, heuristic};
+use ai;
 
 fn stupid_heuristic(board: &GoBoard, team: Team) -> i32 {
     42

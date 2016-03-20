@@ -18,8 +18,8 @@ A gomoku game with an **artificial intelligence**. The goban has a width of 19 t
 ```shell
 # Between human:
 cargo run --release -- --layers 4 --friend human --player human
-# Human with ia:
-cargo run --release -- --layers 4 --friend human --player ia
+# Human with ai:
+cargo run --release -- --layers 4 --friend human --player ai
 ```
 
 #### Cargo'git-Dependencies:
@@ -53,7 +53,7 @@ clap    chrono    piston
     │   |__ draw.rs
     │   |__ mod.rs
     │   \__ mouse.rs
-    |__ ia
+    |__ ai
     |   |__ decision.rs
     |   |__ heuristic.rs
     |   |__ mod.rs

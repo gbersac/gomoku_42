@@ -1,23 +1,23 @@
 # This file describe the command line interface options
 name: Gomoku
-about: A Gomoku game implementation with awesome ia !
+about: A Gomoku game implementation with awesome ai !
 author: gbersac adjivas
 
 args:
     - player:
-        help: Define wether teams are played by ia or human.
+        help: Define wether teams are played by ai or human.
         short: p
         long: player
         takes_value: true
-        possible_values: [ ia, human ]
+        possible_values: [ ai, human ]
     - friend:
-        help: Define wether teams are friend by ia or human.
+        help: Define wether teams are friend by ai or human.
         short: f
         long: friend
         takes_value: true
-        possible_values: [ ia, human ]
+        possible_values: [ ai, human ]
     - layers:
-        help: The number of layers in the ia tree.
+        help: The number of layers in the ai tree.
         long: layers
         takes_value: true
         short: l

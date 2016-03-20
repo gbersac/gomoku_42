@@ -28,8 +28,8 @@ use board::GoBoard;
 use board::Team;
 use board::Tile;
 
-use ia::Decision;
-use ia::heuristic;
+use ai::Decision;
+use ai::heuristic;
 
 const CASE_WIDTH: graphics::types::Resolution = 40;
 const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32, 1f32];
@@ -37,15 +37,15 @@ const ORANGE: graphics::types::Color = [0.97647065f32, 0.9450981f32, 0.854902f32
 #[derive(Debug, PartialEq, Clone)]
 pub enum Player {
     Human,
-    Ia,
+    Ai,
 }
 
 impl Player {
 	pub fn from_str(s: &str) -> Player {
 	    match s {
-	        "ia"	=> Player::Ia,
+	        "ai"	=> Player::Ai,
 	        "human"	=> Player::Human,
-	        _		=> panic!("Player cli option must be either ia, solo or multi")
+	        _		=> panic!("Player cli option must be either ai, solo or multi")
 	    }
 	}
 }
@@ -110,12 +110,12 @@ impl Console {
         ])
     }
 
-    /// The `get_turn_is_ia` function returns a boolean if a IA must play.
+    /// The `get_turn_is_ai` function returns a boolean if a ai must play.
 
-    fn get_turn_is_ia (&self) -> bool {
+    fn get_turn_is_ai (&self) -> bool {
         match (self.turn % 2 != 0, &self.player, &self.friend) {
-            (false, _, &(_, Player::Ia)) => true,
-            (true, &(_, Player::Ia), _) => true,
+            (false, _, &(_, Player::Ai)) => true,
+            (true, &(_, Player::Ai), _) => true,
             _ => false,
         }
     }
@@ -129,7 +129,7 @@ impl Console {
             if let Some(Button::Mouse(_)) = event.press_args() {
                 if self.board.set((x as usize, y as usize), team) {
                     self.turn += 1;
-                    if self.help && self.get_turn_is_ia() == false {
+                    if self.help && self.get_turn_is_ai() == false {
                         self.help_decision = self.help_optimal_move();
                     }
                     if self.info {
@@ -148,16 +148,16 @@ impl Console {
         }
     }
 
-    /// The `set_raw` function updates the turn and set the IA coordinate.
+    /// The `set_raw` function updates the turn and set the ai coordinate.
 
     fn set_raw (&mut self, (x, y): (usize, usize), team: &mut Team) -> (u32, u32) {
         self.board.set((x, y), team);
         self.turn += 1;
-        if self.help && self.get_turn_is_ia() == false {
+        if self.help && self.get_turn_is_ai() == false {
             self.help_decision = self.help_optimal_move();
         }
         if self.info {
-            println!("###{} ia    - {}: {} captured, ({}, {}) played.",
+            println!("###{} ai    - {}: {} captured, ({}, {}) played.",
                      self.turn, team.get_ennemy_tile(), team.captured(), x, y);
         }
         if self.debug_map {
@@ -166,12 +166,12 @@ impl Console {
         (x as u32, y as u32)
     }
 
-    /// The `is_ia_versus` function returns a boolean if the player one
-    /// and two are typed like IA.
+    /// The `is_ai_versus` function returns a boolean if the player one
+    /// and two are typed like ai.
 
-    fn is_ia_versus (&self) -> bool {
+    fn is_ai_versus (&self) -> bool {
         match (&self.player, &self.friend) {
-            (&(_, Player::Ia), &(_, Player::Ia)) => true,
+            (&(_, Player::Ai), &(_, Player::Ai)) => true,
             _ => false,
         }
     }
@@ -184,7 +184,7 @@ impl Console {
             &mut self.player,
             &mut self.friend
         ) {
-            (true, &mut (mut player_team, Player::Ia), &mut (friend_team, _)) => {
+            (true, &mut (mut player_team, Player::Ai), &mut (friend_team, _)) => {
                 let decision = Decision::get_optimal_move(&mut self.board, &(player_team, friend_team), friend_team, self.layer, heuristic);
                 let result = self.set_raw(decision.get_result(), &mut player_team);
 
@@ -192,7 +192,7 @@ impl Console {
                 decision.print_result();
                 result
             },
-            (false, &mut (player_team, _), &mut (mut friend_team, Player::Ia)) => {
+            (false, &mut (player_team, _), &mut (mut friend_team, Player::Ai)) => {
                 let decision = Decision::get_optimal_move(&mut self.board, &(player_team, friend_team), player_team, self.layer, heuristic);
                 let result = self.set_raw(decision.get_result(), &mut friend_team);
 
@@ -286,7 +286,7 @@ impl Console {
 
             if self.help
             && self.win == false
-            && self.get_turn_is_ia() == false {
+            && self.get_turn_is_ai() == false {
                 draw::draw_help(&self.board, dimension, self.help_decision, (
                     &context,
                     g
@@ -321,7 +321,7 @@ impl Console {
         let window = std::rc::Rc::new(std::cell::RefCell::new(window));
         let limit: u32 = self.board.get_size() as u32;
 
-        if self.is_ia_versus() {
+        if self.is_ai_versus() {
             for event in window.clone().events() {
                 if let Some(render) = event.render_args() {
                     self.input(&event, limit);
@@ -355,7 +355,7 @@ impl Default for Console {
 			board: board,
             event: Mouse::new((CASE_WIDTH * size, CASE_WIDTH * size)),
             player: (team_player, Player::Human),
-            friend: (team_friend, Player::Ia),
+            friend: (team_friend, Player::Ai),
             layer: 3,
             turn: 0,
             win: false,

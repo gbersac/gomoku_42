@@ -1,7 +1,7 @@
 use board::{GoBoard, Tile, Team};
-use ia;
-use ia::Decision;
-use ia::heuristic::HeuristicFn;
+use ai;
+use ai::Decision;
+use ai::heuristic::HeuristicFn;
 
 // test which move is the best for the white team
 fn test_one(s: &str, heur: HeuristicFn, nb_layers: u32, expected: Vec<(usize, usize)>) {
@@ -115,7 +115,7 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, ia::heuristic, 3, vec![(4, 4)]);
+	test_one(s, ai::heuristic, 3, vec![(4, 4)]);
 
 	let s = r#"19
 W . . . . . . . . . . . . . . . . . .
@@ -138,7 +138,7 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, ia::heuristic, 3, vec![(4, 4)]);
+	test_one(s, ai::heuristic, 3, vec![(4, 4)]);
 
 	let s = r#"19
 W . . . . . . . . . . . . . . . . . .
@@ -161,7 +161,7 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, ia::heuristic, 3, vec![(10, 11), (5, 6)]);
+	test_one(s, ai::heuristic, 3, vec![(10, 11), (5, 6)]);
 
 	let s = r#"19
 . . . . . . . . . . . . . . . . . . .
@@ -184,7 +184,7 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, ia::heuristic, 3, vec![(8, 3)]);
+	test_one(s, ai::heuristic, 3, vec![(8, 3)]);
 
 	let s = r#"19
 . . . . . . . . . . . . . . . . . . .
@@ -207,7 +207,7 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, ia::heuristic, 3, vec![(5, 6)]);
+	test_one(s, ai::heuristic, 3, vec![(5, 6)]);
 
 	let s = r#"19
 . . . . . . . . . . . . . . . . . . .
@@ -230,7 +230,7 @@ W . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . .
 	"#;
-	test_one(s, ia::heuristic, 3, vec![(6, 7)]);
+	test_one(s, ai::heuristic, 3, vec![(6, 7)]);
 
 // 	let s = r#"19
 // . . . . . . . . . . . . . . . . . . .
@@ -253,7 +253,7 @@ W . . . . . . . . . . . . . . . . . .
 // . . . . . . . . . . . . . . . . . . .
 // . . . . . . . . . . . . . . . . . . .
 // 	"#;
-// 	test_one(s, ia::heuristic, 3, vec![(9, 7), (5, 11)]);
+// 	test_one(s, ai::heuristic, 3, vec![(9, 7), (5, 11)]);
 
 // 	let s = r#"19
 // . . . . . . . . . . . . . . . . . . .
@@ -276,5 +276,5 @@ W . . . . . . . . . . . . . . . . . .
 // . . . . . . . . . . . . . . . . . . .
 // . . . . . . . . . . . . . . . . . . .
 // 	"#;
-// 	test_one(s, ia::heuristic, 3, vec![(5, 7), (9, 11)]);
+// 	test_one(s, ai::heuristic, 3, vec![(5, 7), (9, 11)]);
 }
